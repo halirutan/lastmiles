@@ -1,0 +1,25 @@
+
+
+arm7$ 
+arm7$ /usr/bin/time -p ./sieve_trip_quad 268435456 > trip_quad.dat 
+real 45.69
+user 44.86
+sys 0.79
+arm7$ wc -l trip_quad.dat 
+261496 trip_quad.dat
+arm7$ 
+arm7$ ls -lap trip_quad.dat
+-rw-r--r-- 1 dclarke devl 9105825 Aug  3 02:30 trip_quad.dat
+arm7$ tail  trip_quad.dat
+ ( 268308611, 268308613, 268308617, 268308619)
+ ( 268316771, 268316773, 268316777, 268316779)
+ ( 268325171, 268325173, 268325177, 268325179)
+ ( 268342511, 268342513, 268342517, 268342519)
+ ( 268344071, 268344073, 268344077, 268344079)
+ ( 268358801, 268358803, 268358807, 268358809)
+
+    Number of prime    triplets is 251396
+
+    Number of prime quadruplets is 10096
+arm7$ 
+
