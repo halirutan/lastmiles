@@ -1,0 +1,73 @@
+#!/bin/sh
+#
+# ident "@(#)zl         1.01  Sun Feb  5 16:38:29 UTC 2017 ccode"
+# Standards, Environments, and Macros fully supported within UNIX
+# ---------------------------------------------------------------
+#    This system supports IEEE Std 1003.1 and IEEE Std 1003.2,
+#    commonly  known  as  POSIX.1  and POSIX.2, respectively.
+#    Solaris 10 also  supports  the  X/Open  Common  Applications
+#    Environment (CAE) Portability Guide Issue 3 (XPG3) and Issue
+#    4 (XPG4); Single UNIX  Specification  (SUS,  also  known  as
+#    XPG4v2);  Single  UNIX Specification, Version 2 (SUSv2); and
+#    Single UNIX Specification, Version 3 (SUSv3). Both XPG4  and
+#    SUS  include  Networking  Services  Issue  4  (XNS4).  SUSv2
+#    includes Networking Services Issue 5 (XNS5).
+#
+PATH=/usr/xpg6/bin:/usr/xpg4/bin:/usr/ccs/bin:/usr/bin:/sbin:/bin:/usr/sbin
+export PATH
+
+TZ=GMT0
+export TZ
+
+unset AS
+unset AR
+unset NM
+unset CPPFLAGS
+unset LD_OPTIONS
+unset LD_LIBRARY_PATH
+unset CXXFLAGS
+unset STRIP
+unset OBJCOPY
+unset CONFIG_SHELL
+unset CFLAGS
+unset PKG_CONFIG
+unset RANLIB
+unset OBJDUMP
+
+# We shall assume a minimal and simplistic POSIX compliant interface at
+# within the C locale only.
+TERM=vt100;export TERM
+
+LC_COLLATE=C;export LC_COLLATE
+LC_CTYPE=C;export LC_CTYPE
+LC_MESSAGES=C;export LC_MESSAGES
+LC_MONETARY=C;export LC_MONETARY
+LC_NUMERIC=C;export LC_NUMERIC
+LC_TIME=C;export LC_TIME
+XTERM_LOCALE=C; export XTERM_LOCALE
+
+# remove any possible Linux locale extensions which are not defined
+# within The OPEN Group nor POSIX specifications.  Also nuke LC_ALL.
+unset LANGUAGE
+unset LANG
+unset LC_ALL
+unset LC_ADDRESS
+unset LC_IDENTIFICATION
+unset LC_MEASUREMENT
+unset LC_NAME
+unset LC_PAPER
+unset LC_TELEPHONE
+
+#
+# pretty zfs list
+#
+
+zfs list -t filesystem -o name,used,available,exec,devices,checksum,dedup,compression,compressratio,quota,usedbysnapshots,mounted,mountpoint \
+  | sed \
+  -e 's/EXEC/EX/' \
+    -e 's/DEVICES/DV/' \
+    -e 's/CHECKSUM/CKS/' \
+    -e 's/COMPRESS/CMP/' \
+    -e 's/USEDSNAP/SNAP/' \
+    -e 's/MOUNTED/MNT/' \
+  | awk '{printf("%-32s %6s %6s %4s %4s %4s %6s %4s %6s %6s %6s %4s  %s\n", $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)}'
