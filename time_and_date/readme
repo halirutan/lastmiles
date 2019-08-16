@@ -4,4 +4,16 @@ we play around with the leap year problem and
 determine what are valid dates and also how 
 to set a locale inside software.
 
+Fri Aug 16 23:49:03 GMT 2019
+We covered UTF-8 options and then built three
+code chunks to check for valid dates and also 
+another to print out the locale aware date in
+some strftime format. 
 
+Please note the use of calloc() and mktime().
+
+--
+Dennis Clarke
+RISC-V/SPARC/PPC/ARM/CISC
+UNIX and Linux spoken
+GreyBeard and suspenders optional

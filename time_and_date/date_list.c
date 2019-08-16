@@ -7,14 +7,16 @@
 
 #define BUFFERSIZE 32
 
-
+/* function to determine if a date is valid */
 int valid_date( int d, int m, int y );
 
+/* function to print out the date in whatever locale we want */
+int print_date( int day, int month, int year );
 
 int main(int argc, char *argv[])
 {
     size_t bufsize = BUFFERSIZE;
-    int errno;
+    int errno = 0;  /* start with no error condition */
     int j, k;
     int day, month, year;
 
@@ -26,50 +28,53 @@ int main(int argc, char *argv[])
         return(EXIT_FAILURE);
     }
 
-    buf = setlocale ( LC_ALL, "POSIX" );
+    if ( argc > 1 ) {
+        printf ("\nINFO : You suggest a locale of %s\n", argv[1]);
+        buf = setlocale ( LC_ALL, argv[1] );
+    } else {
+        buf = setlocale ( LC_ALL, "POSIX" );
+    }
+
     if ( buf == NULL ) {
-        fprintf (stderr,"FAIL : setlocale ( LC_ALL, \"POSIX\" ) fails\n");
+        fprintf (stderr,"FAIL : setlocale fail\n");
         return(EXIT_FAILURE);
     }
-    printf ( "setlocale ( LC_ALL, \"POSIX\" ) returns %s\n", buf );
 
-
-    /* silly code that prints out the cli arguments */
-    if ( argc > 2 ) {
-        printf ( "\n    there are %i things on the cli\n", argc );
-        for ( j=0; j<argc; j++ ){
-            printf ( "    arg[ %2i ] is \'%s\'\n", j, argv[j] );
-        }
-    }
-
-    for ( year = 2019; year < 2021; year++ ) {
+    for ( year = 2019; year < 2031; year++ ) {
         for ( month = 1; month < 13; month++ ) {
             for ( day = 1; day < 32; day++ ) {
-                /* vanarius_10 says :
-                 * ( month%1 ? ( month < 7 ? 31 , 30 ) , ( month >= 7 ? 30 , 31 ) ) */
+
+                /* vanarius_10 in chat suggests this magic :
+                 *
+                 * ( month%1 ?
+                 *    ( month < 7 ? 31 , 30 ) ,
+                 *       ( month >= 7 ? 30 , 31 ) ) */
 
                 /* does this date exist ? */
-
                 if ( day < 29 ) {
-                    printf ( "    y = %4i    m = %2i    d = %2i\n", year, month, day);
+
+                    /* printf ( "    y = %4i    m = %2i    d = %2i\n",
+                                                      year, month, day);
+                                                      */
+                    print_date( day, month, year );
+
                 } else {
 
                     if ( valid_date( day, month, year ) == 1 ) {
 
-                        printf ( "    y = %4i    m = %2i    d = %2i\n", year, month, day);
+                        print_date( day, month, year );
 
                     } else {
 
-                        fprintf (stderr,"WARN : invalid date y = %4i    m = %2i    d = %2i\n", year, month, day);
+                        fprintf (stderr, "WARN : invalid date ");
+                        fprintf (stderr, "y = %4i  m = %2i  d = %2i\n",
+                                                      year, month, day);
 
                     }
 
                 }
-
             } /* day */
-
         } /* month */
-
     } /* year */
 
     free(buf);
