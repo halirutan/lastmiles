@@ -46,7 +46,7 @@ int print_date( int day, int month, int year )
 
     mktime(e_time);
 
-    n = strftime( buffer, (size_t) 128, "%A, %d %B %Y %T %z", e_time);
+    n = strftime( buffer, (size_t) 128, "+%Y %m %d %A %a %B %b dn=%j wd=%u wn=%V", e_time);
 
     printf ( "%s\n", buffer );
 
