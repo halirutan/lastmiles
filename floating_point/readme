@@ -1,0 +1,13 @@
+
+
+This is just a quick look at a trivial floating point problem wherein
+various machines and architectures mat represent the data in very
+different ways. Also we see a total failure on a trivial addition
+merely because the precision is entirely too low to allow for such
+and addition. 
+
+To make life easy we will need a cross platform aware binary or hex
+data printout function. This function must be aware if the system
+is a little endian or big endian memory architecture and then output
+the memory data correctly. 
+
