@@ -49,13 +49,113 @@ int main( int argc, char *argv[])
     int disp_height = XDisplayHeight(display, screen_num);
     printf ("INFO : looks like display is %i pixels high\n", disp_height);
 
-    /* does not seem to work for me ... maybe for you? 
+    /* does not seem to work for me ... maybe for you?
      *int disp_width_mm = XDisplayWidthMM(display, screen_num);
      *printf ("INFO : looks like display is %i mm wide\n", disp_width);
      *
      *int disp_height_mm = XDisplayHeightMM(display, screen_num);
      *printf ("INFO : looks like display is %i mm high\n", disp_height);
      */
+
+
+    /*
+     * Window XCreateSimpleWindow(Display *display,
+     *                            Window parent,
+     *                            int x, y,       <<--- offset from upper left
+     *                            unsigned int width, height,
+     *                            unsigned int border_width,
+     *                            unsigned long border,
+     *                            unsigned long background);
+     *
+     *
+     * unsigned long XBlackPixel(Display *display, int screen_number);
+     *     return the black pixel value for the specified screen.
+     *
+     *
+     * unsigned long XWhitePixel(Display *display, int screen_number);
+     *     return the white pixel value for the specified screen.
+     *
+     */
+
+/*
+    Window wn = XCreateSimpleWindow( display,
+                                     RootWindow(display, screen_num),
+                                     200, 100,
+                                     200, 400,
+                                     1,
+                                     XWhitePixel( display, screen_num),
+                                     XBlackPixel( display, screen_num) );
+*/
+
+
+
+    XSetWindowAttributes attribs;
+    attribs.override_redirect = 1;
+
+    int offset_x = 200;  /* across to the right from the left border */
+    int offset_y = 100;  /* down from the top border */
+    int width = 200;
+    int height = 400;
+
+    /* note parameter 7 for border width is zero */
+    Window wn = XCreateWindow( display,
+                       RootWindow( display, DefaultScreen(display) ),
+                       offset_x, offset_y, width, height,
+                       0,
+                       CopyFromParent, CopyFromParent,
+                       CopyFromParent, CWOverrideRedirect,
+                       &attribs);
+
+    XSetWindowBackground( display, wn, 0x000000);
+
+    XClearWindow( display, wn);
+    XMapWindow( display, wn);
+    XFlush( display );
+
+    /*  This is a complex function with many pages of docs.
+     *
+     * To create a new GC that is usable on a given screen with a depth
+     * of drawable window wn, use XCreateGC.
+     *
+     *    GC XCreateGC(Display *display,
+     *                 Drawable drawable,
+     *                 unsignedlong valuemask,
+     *                 XGCValues *values);
+     *
+     * drawable --> Specifies the drawable thing?  wtf ?
+     *
+     * valuemask specifies which components in the GC are to be
+     *           this is a 32 bit mask of bits that turn on and off various
+     *           graphics features.
+     *
+     * values specifies any values as specified by the valuemask.
+     *
+     * The XCreateGC function creates a graphics context and returns a
+     * GC. The GC can be used with any destination drawable having the
+     * same root and depth as the specified drawable.
+     */
+
+    unsigned long valuemask = 0;
+    XGCValues values;
+    unsigned int line_width = 2;
+    int line_style = LineSolid;
+    int cap_style = CapButt;
+    int join_style = JoinBevel;
+
+    gc = XCreateGC( display, wn, valuemask, &values);
+
+    XSetForeground( display, gc, XWhitePixel(display, screen_num));
+    XSetBackground( display, gc, XBlackPixel(display, screen_num));
+
+    /* line style */
+    XSetLineAttributes(display, gc, line_width, line_style, cap_style, join_style);
+
+    /* fill style is solid */
+    XSetFillStyle(display, gc, FillSolid);
+
+
+    XSync( display, False);
+
 
     screen_colormap = XDefaultColormap( display, screen_num);
 
@@ -89,90 +189,14 @@ int main( int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-
-    /*
-     * Window XCreateSimpleWindow(Display *display,
-     *                            Window parent,
-     *                            int x, y,       <<--- offset from upper left
-     *                            unsigned int width, height,
-     *                            unsigned int border_width,
-     *                            unsigned long border,
-     *                            unsigned long background);
-     *
-     *
-     * unsigned long XBlackPixel(Display *display, int screen_number);
-     *     return the black pixel value for the specified screen.
-     *
-     *
-     * unsigned long XWhitePixel(Display *display, int screen_number);
-     *     return the white pixel value for the specified screen.
-     *
-     */
-
-    Window wn = XCreateSimpleWindow( display,
-                                     RootWindow(display, screen_num),
-                                     500, 300, 
-                                     200, 400,
-                                     16,
-                                     XWhitePixel( display, screen_num),
-                                     XBlackPixel( display, screen_num) );
-
-
-    /*  This is a complex function with many pages of docs.
-     *
-     * To create a new GC that is usable on a given screen with a depth
-     * of drawable window wn, use XCreateGC.
-     *
-     *    GC XCreateGC(Display *display,
-     *                 Drawable drawable,
-     *                 unsignedlong valuemask,
-     *                 XGCValues *values);
-     *
-     * drawable --> Specifies the drawable thing?  wtf ?
-     *
-     * valuemask specifies which components in the GC are to be
-     *           this is a 32 bit mask of bits that turn on and off various
-     *           graphics features.
-     *
-     * values specifies any values as specified by the valuemask.
-     *
-     * The XCreateGC function creates a graphics context and returns a
-     * GC. The GC can be used with any destination drawable having the
-     * same root and depth as the specified drawable.
-     */
-
-    unsigned long valuemask = 0;
-    XGCValues values;
-    unsigned int line_width = 2;
-    int line_style = LineSolid;
-    int cap_style = CapButt;
-    int join_style = JoinBevel;
-
-    gc = XCreateGC( display, wn, valuemask, &values);
-    XSync( display, False);
-
-    /* line style */
-    XSetLineAttributes(display, gc, line_width, line_style, cap_style, join_style);
-
-    /* fill style is solid */
-    XSetFillStyle(display, gc, FillSolid);
-
-
-    XClearWindow( display, wn );
-
-    XSetForeground( display, gc, XWhitePixel(display, screen_num));
-    XSetBackground( display, gc, XBlackPixel(display, screen_num));
-
     XDrawPoint( display, wn, gc, 20, 32);
 
     /* draw a blue box around the win */
+    XSetForeground( display, gc, blue.pixel);
     XDrawRectangle( display, win, gc, 10, 20, 180, 380);
 
-    XMapWindow( display, wn );
+    XFlush( display );  /* send a pending messages to the Xserver */
 
-    XFlushGC( display, gc );  /* send a pending messages to the Xserver */
-
-                                     
     printf ("INFO : we shall sleep %d secs\n", sleep_time );
     slept_time = sleep( sleep_time );
 
