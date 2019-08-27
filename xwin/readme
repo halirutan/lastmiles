@@ -1,0 +1,50 @@
+
+what are the baseline libs needed for a trivial Xwindows
+client to run :
+
+nix$ 
+nix$ ldd  box
+        linux-vdso.so.1 (0x00007ffed798f000)
+        libX11.so.6 => /lib/x86_64-linux-gnu/libX11.so.6 (0x00007fbaa6e93000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fbaa6cd2000)
+        libxcb.so.1 => /lib/x86_64-linux-gnu/libxcb.so.1 (0x00007fbaa6ca8000)
+        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fbaa6ca3000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007fbaa6ff8000)
+        libXau.so.6 => /lib/x86_64-linux-gnu/libXau.so.6 (0x00007fbaa6a9f000)
+        libXdmcp.so.6 => /lib/x86_64-linux-gnu/libXdmcp.so.6 (0x00007fbaa6899000)
+        libbsd.so.0 => /lib/x86_64-linux-gnu/libbsd.so.0 (0x00007fbaa687d000)
+        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007fbaa6873000)
+        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fbaa6852000)
+nix$ readelf -delV /lib/x86_64-linux-gnu/libX11.so.6 | grep 'NEED'
+  [ 6] .gnu.version_r    VERNEED          0000000000010fc0  00010fc0
+ 0x0000000000000001 (NEEDED)             Shared library: [libxcb.so.1]
+ 0x0000000000000001 (NEEDED)             Shared library: [libdl.so.2]
+ 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
+ 0x000000006ffffffe (VERNEED)            0x10fc0
+ 0x000000006fffffff (VERNEEDNUM)         2
+nix$ readelf -delV /lib/x86_64-linux-gnu/libxcb.so.1 | grep 'NEED'
+  [ 6] .gnu.version_r    VERNEED          000000000000a758  0000a758
+ 0x0000000000000001 (NEEDED)             Shared library: [libXau.so.6]
+ 0x0000000000000001 (NEEDED)             Shared library: [libXdmcp.so.6]
+ 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
+ 0x000000006ffffffe (VERNEED)            0xa758
+ 0x000000006fffffff (VERNEEDNUM)         1
+nix$ readelf -delV /lib/x86_64-linux-gnu/libXau.so.6 | grep 'NEED'
+  [ 6] .gnu.version_r    VERNEED          00000000000008c0  000008c0
+ 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
+ 0x000000006ffffffe (VERNEED)            0x8c0
+ 0x000000006fffffff (VERNEEDNUM)         1
+nix$ readelf -delV /lib/x86_64-linux-gnu/libXdmcp.so.6 | grep 'NEED'
+  [ 6] .gnu.version_r    VERNEED          0000000000000e10  00000e10
+ 0x0000000000000001 (NEEDED)             Shared library: [libbsd.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
+ 0x000000006ffffffe (VERNEED)            0xe10
+ 0x000000006fffffff (VERNEEDNUM)         2
+nix$ readelf -delV /lib/x86_64-linux-gnu/libdl.so.2 | grep 'NEED'
+  [ 8] .gnu.version_r    VERNEED          0000000000000a88  00000a88
+ 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
+ 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-x86-64.so.2]
+ 0x000000006ffffffe (VERNEED)            0xa88
+ 0x000000006fffffff (VERNEEDNUM)         2
+
+

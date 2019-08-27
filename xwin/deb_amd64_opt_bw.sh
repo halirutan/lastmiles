@@ -158,7 +158,10 @@ fi
 
 $CC $CFLAGS $CPPFLAGS -I/opt/bw/include -c -o box.o box.c
 
-$CC $CFLAGS $CPPFLAGS -L/opt/bw/lib -o box box.o -lX11
+$CC $CFLAGS $CPPFLAGS -I/opt/bw/include -c -o create_borderless_topwin.o create_borderless_topwin.c
+$CC $CFLAGS $CPPFLAGS -I/opt/bw/include -c -o create_gc.o create_gc.c
 
-ls -lapb --full-time box.o box
+$CC $CFLAGS $CPPFLAGS -L/opt/bw/lib -o box box.o create_borderless_topwin.o create_gc.o -lX11
+
+ls -lapb --full-time *.o box
 
