@@ -4,10 +4,28 @@ This is just a quick look at a trivial floating point problem wherein
 various machines and architectures mat represent the data in very
 different ways. Also we see a total failure on a trivial addition
 merely because the precision is entirely too low to allow for such
-and addition. 
+and addition.
 
 To make life easy we will need a cross platform aware binary or hex
 data printout function. This function must be aware if the system
 is a little endian or big endian memory architecture and then output
-the memory data correctly. 
+the memory data correctly.
+
+fp32_format.c attempts to convert an input decimal number to the
+              32-bit IEEE-754 floating point format.  It isn't a
+              brilliant attempt but it was written live on stream
+              and we at least saw some sort of data output from it.
+
+fp128_q.c     This is a quick kick at the non-portable and highly
+              non-standard  __float128 datatype.  To be honest there
+              has been an update to IEEE-754 in 2008 which has the
+              intent to provide 128-bit floating point. However no
+              one seems to have implemented that anywhere other than
+              the Fujitsu people in the big SPARC processors and IBM
+              with the Power9 processor.
+
+              This damn thing won't compile much of anywhere unless
+              you have the libquadmath thing laying about. Good luck.
+
+
 
