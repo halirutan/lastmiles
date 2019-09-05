@@ -3,11 +3,16 @@
 #include <stdlib.h>
 #include <math.h>
 #include <fenv.h>
+#include <float.h>
 
 int main(int argc, char *argv[]){
 
     float fp0, fp1, fp2, tenth, dragon;
     int j, fp_round_mode, fpe_raised;
+
+#ifdef FLT_EVAL_METHOD
+    printf ( "INFO : FLT_EVAL_METHOD == %d\n", FLT_EVAL_METHOD);
+#endif
 
     fp0 = 36.584;
     fp1 =  7.812;

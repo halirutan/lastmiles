@@ -11,7 +11,7 @@
 int main(int argc, char *argv[]){
 
     /* long double fp0, fp1, fp2; */
-    __float128 fp0, fp1, fp2;
+    __float128 fp0, fp1, fp2, pi;
     const size_t buffer_size = BUFFERSIZE;
     char *buffer = calloc(buffer_size,sizeof(unsigned char));
     int num_chars;
@@ -82,6 +82,18 @@ int main(int argc, char *argv[]){
     }
 
     printf ( "fp2 = fp0 + fp1 = %s\n", buffer );
+
+    pi = 3.14159265358979323846264338327950288419716939937510582Q;
+    printf ( "the sizeof(pi) is %lu bytes\n", sizeof(pi) );
+    num_chars = quadmath_snprintf( buffer, buffer_size, "%40.36Qg", pi );
+        if ( num_chars > 0 ) {
+        printf ("INFO : quadmath_snprintf formatted %i chars.\n", num_chars);
+    } else {
+        fprintf(stderr,"FAIL : wtf quadmath_snprintf failed. No idea why.\n");
+        return ( EXIT_FAILURE );
+    }
+    printf ( "pi = %s\n", buffer );
+
 
     free(buffer);
     return ( EXIT_SUCCESS );
