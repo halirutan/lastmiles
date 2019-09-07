@@ -23,7 +23,7 @@ int main ( int argc, char *argv[] )
     uint32_t fp32_bit_mask, fp32_register = 0;
 
     if ( argc < 2 ) {
-        fprintf(stderr,"FAIL : gimmer a decimal number!\n");
+        fprintf(stderr,"FAIL : give me a decimal number!\n");
         return ( EXIT_FAILURE );
     }
 
@@ -38,6 +38,38 @@ int main ( int argc, char *argv[] )
         num = fabs(num);
         printf ("     : a negative number will have sign_bit = 1\n");
     }
+
+    /*
+     * An example would be pi = 3.14159265358979323846264..
+     *                          3.14159265358979323846264338327950...
+     * 
+     * The IEEE-754 32-bit value would be 0x40490fdb
+     *
+     *       0100 0000 0100 1001 0000 1111 1101 1011
+     *       ^ sign bit is zero for a positive number
+     *
+     *
+     *
+     *        100 0000 0100 1001 0000 1111 1101 1011
+     *        ^^^ ^^^^ ^
+     *        These are the offset 127 exponent bits
+     *        and here we see 10000000 == 128 decimal
+     *        so we subtract the 127 offset to get 1.
+     *        Therefore the exponent is really just 1.
+     *
+     *                  100 1001 0000 1111 1101 1011
+     *                  All that remains in the actual
+     *                  floating point significand.
+     *
+     * Note that there is always an implied value of 1
+     * in front of the significand on normal numbers.
+     *
+     * Thus the significand is really : 
+     *
+     *                1.100 1001 0000 1111 1101 1011
+     *
+     *
+     */
 
     exponent_calc = floor( log(num)/log(2.0) );
     actual_exponent = (int) exponent_calc;
