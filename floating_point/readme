@@ -1,19 +1,24 @@
 
-This is just a quick look at a trivial floating point problem wherein
-various machines and architectures mat represent the data in very
+This is just a quick look at trivial floating point problems wherein
+various machines and architectures may represent the data in very
 different ways. Also we see a total failure on a trivial addition
 merely because the precision is entirely too low to allow for such
-and addition.
+an addition however this is the fault of the programmer and not the
+machine.
 
 To make life easy we will need a cross platform aware binary or hex
 data printout function. This function must be aware if the system
 is a little endian or big endian memory architecture and then output
-the memory data correctly.
+the memory data correctly.  We shall add that into some utility func
+later.
 
-fp32_format.c attempts to convert an input decimal number to the
+fp32_format.c Attempts to convert an input decimal number to the
               32-bit IEEE-754 floating point format.  It isn't a
               brilliant attempt but it was written live on stream
               and we at least saw some sort of data output from it.
+              Do not expect perfection because we usually lose our
+              results in the area of the ulp ( unit of least 
+              precision ).
 
 fp128_q.c     This is a quick kick at the non-portable and highly
               non-standard  __float128 datatype.  To be honest there
@@ -27,12 +32,12 @@ fp128_q.c     This is a quick kick at the non-portable and highly
               This damn thing won't compile much of anywhere unless
               you have the libquadmath thing laying about. Good luck.
 
-
 fp32_test.c   Here we look at simple 32-bit floating point data type
               examples and try to perform addition.  With the use of
               the floating point exception handling we can detect
               where the operations are not accurate. That will be 
-              most of the time. 
+              most of the time. In fact flaoting point will rately
+              ever be correct however it is usually correct enough.
 
 test_fp128.c  This is an example of why floating point numbers are
               not really numbers at all. They are an estimate for 
@@ -42,5 +47,810 @@ test_fp128.c  This is an example of why floating point numbers are
               an infinite number of very small floating point values
               to a very large floating point value and never see a
               difference after the sum. For obvious reasons.
+
+ieee754_ld.c  This is also a really trivial look at setting a value
+              within a "long double" variable.  Whatever that may be
+              on various platforms. Using different compilers on a
+              variety if architectures we are able to translate the
+              very plain C99 source code into the system opcodes and
+              then check visually for the static data. Here is a list
+              of the output assembly language from a collection of
+              systems : 
+
+1) RISC-V rc64imafdc opcodes for ieee754_ld.c 
+
+$ cat foo/ieee754_ld.s
+        .file   "ieee754_ld.c"
+        .option nopic
+        .text
+        .section        .rodata
+        .align  3
+.LC1:
+        .string "%02x "
+        .align  3
+.LC2:
+        .string "\n"
+        .text
+        .align  1
+        .globl  main
+        .type   main, @function
+main:
+        addi    sp,sp,-64
+        sd      ra,56(sp)
+        sd      s0,48(sp)
+        addi    s0,sp,64
+        mv      a5,a0
+        sd      a1,-64(s0)
+        sw      a5,-52(s0)
+        lui     a5,%hi(.LC0)
+        ld      a4,%lo(.LC0)(a5)
+        sd      a4,-48(s0)
+        ld      a5,%lo(.LC0+8)(a5)
+        sd      a5,-40(s0)
+        sw      zero,-20(s0)
+        j       .L2
+.L3:
+        lw      a5,-20(s0)
+        addi    a4,s0,-48
+        add     a5,a4,a5
+        lbu     a5,0(a5)
+        sext.w  a5,a5
+        mv      a1,a5
+        lui     a5,%hi(.LC1)
+        addi    a0,a5,%lo(.LC1)
+        call    printf
+        lw      a5,-20(s0)
+        addiw   a5,a5,1
+        sw      a5,-20(s0)
+.L2:
+        lw      a5,-20(s0)
+        mv      a4,a5
+        li      a5,15
+        bleu    a4,a5,.L3
+        lui     a5,%hi(.LC2)
+        addi    a0,a5,%lo(.LC2)
+        call    printf
+        li      a5,0
+        mv      a0,a5
+        ld      ra,56(sp)
+        ld      s0,48(sp)
+        addi    sp,sp,64
+        jr      ra
+        .size   main, .-main
+        .section        .rodata
+        .align  4
+.LC0:
+        .word   3306619320
+        .word   2221509004
+        .word   3041149649
+        .word   1073779231
+        .ident  "GCC: (GNU) 8.2.0"
+$ 
+
+Take special note of the static data at address LC0 above.
+There we may see the actual collection of 32-bit values that
+are used to represent the IEEE-754 2008 data in 128-bits.
+
+---------------- armv7 opcodes
+
+        .arch armv7-a
+        .eabi_attribute 28, 1
+        .eabi_attribute 20, 1
+        .eabi_attribute 21, 1
+        .eabi_attribute 23, 3
+        .eabi_attribute 24, 1
+        .eabi_attribute 25, 1
+        .eabi_attribute 26, 2
+        .eabi_attribute 30, 6
+        .eabi_attribute 34, 1
+        .eabi_attribute 18, 4
+        .file   "ieee754_ld.c"
+        .section        .rodata
+        .align  2
+.LC0:
+        .ascii  "%02x \000"
+        .align  2
+.LC1:
+        .ascii  "\012\000"
+        .text
+        .align  2
+        .global main
+        .syntax unified
+        .arm
+        .fpu vfpv4-d16
+        .type   main, %function
+main:
+        @ args = 0, pretend = 0, frame = 24
+        @ frame_needed = 1, uses_anonymous_args = 0
+        str     fp, [sp, #-8]!
+        str     lr, [sp, #4]
+        add     fp, sp, #4
+        sub     sp, sp, #24
+        str     r0, [fp, #-24]
+        str     r1, [fp, #-28]
+        movw    r2, #11544
+        movt    r2, 21572
+        movw    r3, #8699
+        movt    r3, 16393
+        strd    r2, [fp, #-20]
+        mov     r3, #0
+        str     r3, [fp, #-8]
+        b       .L2
+.L3:
+        ldr     r3, [fp, #-8]
+        sub     r2, fp, #20
+        add     r3, r2, r3
+        ldrb    r3, [r3]        @ zero_extendqisi2
+        mov     r1, r3
+        ldr     r3, .L5
+.LPIC0:
+        add     r3, pc, r3
+        mov     r0, r3
+        bl      printf(PLT)
+        ldr     r3, [fp, #-8]
+        add     r3, r3, #1
+        str     r3, [fp, #-8]
+.L2:
+        ldr     r3, [fp, #-8]
+        cmp     r3, #7
+        bls     .L3
+        ldr     r3, .L5+4
+.LPIC1:
+        add     r3, pc, r3
+        mov     r0, r3
+        bl      printf(PLT)
+        mov     r3, #0
+        mov     r0, r3
+        sub     sp, fp, #4
+        @ sp needed
+        ldr     fp, [sp]
+        add     sp, sp, #4
+        ldr     pc, [sp], #4
+.L6:
+        .align  2
+.L5:
+        .word   .LC0-(.LPIC0+8)
+        .word   .LC1-(.LPIC1+8)
+        .size   main, .-main
+        .ident  "GCC: (Debian 6.3.0-18+deb9u1) 6.3.0 20170516"
+        .section        .note.GNU-stack,"",%progbits
+
+The above is really a dogs breakfest. The hardware simply can not
+and does not even attempt to represent 128-bit data. Is this the
+fault of the low level hardware?  No.  It is the fault of the GCC
+compiler which does not output opcodes nor data as we saw in RISC-V.
+
+
+---------------- ppc64 opcodes
+
+$ cat  ieee754_ld.s
+        .file   "ieee754_ld.c"
+        .section        ".text"
+        .section        .rodata
+        .align 3
+.LC1:
+        .string "%02x "
+        .align 3
+.LC3:
+        .string "\n"
+        .section        ".toc","aw"
+        .align 3
+.LCTOC0:
+        .tc .LCTOC1[TC],.LCTOC1
+        .section        ".toc1","aw"
+        .align 3
+.LCTOC1 = .+32768
+.LC0:
+        .quad   0x400921fb54442d18
+.LC2:
+        .quad   .LC1
+.LC4:
+        .quad   .LC3
+        .section        ".text"
+        .align 2
+        .globl main
+        .section        ".opd","aw"
+        .align 3
+main:
+        .quad   .L.main,.TOC.@tocbase,0
+        .previous
+        .type   main, @function
+.L.main:
+.LFB11:
+        .cfi_startproc
+        mflr %r0
+        std %r0,16(%r1)
+        std %r30,-16(%r1)
+        std %r31,-8(%r1)
+        stdu %r1,-144(%r1)
+        .cfi_def_cfa_offset 144
+        .cfi_offset 65, 16
+        .cfi_offset 30, -16
+        .cfi_offset 31, -8
+        mr %r31,%r1
+        .cfi_def_cfa_register 31
+        ld %r30,.LCTOC0@toc(%r2)
+        mr %r9,%r3
+        std %r4,200(%r31)
+        stw %r9,192(%r31)
+        lfd %f0,.LC0-.LCTOC1(%r30)
+        stfd %f0,120(%r31)
+        li %r9,0
+        stw %r9,112(%r31)
+        b .L2
+.L3:
+        lwa %r9,112(%r31)
+        addi %r10,%r31,120
+        add %r9,%r10,%r9
+        lbz %r9,0(%r9)
+        extsw %r9,%r9
+        mr %r4,%r9
+        ld %r3,.LC2-.LCTOC1(%r30)
+        bl printf
+        nop
+        lwz %r9,112(%r31)
+        addi %r9,%r9,1
+        stw %r9,112(%r31)
+.L2:
+        lwz %r9,112(%r31)
+        cmplwi %cr7,%r9,7
+        ble %cr7,.L3
+        ld %r3,.LC4-.LCTOC1(%r30)
+        bl printf
+        nop
+        li %r9,0
+        mr %r3,%r9
+        addi %r1,%r31,144
+        .cfi_def_cfa 1, 0
+        ld %r0,16(%r1)
+        mtlr %r0
+        ld %r30,-16(%r1)
+        ld %r31,-8(%r1)
+        blr
+        .long 0
+        .byte 0,0,0,1,128,2,0,1
+        .cfi_endproc
+.LFE11:
+        .size   main,.-.L.main
+        .ident  "GCC: (FreeBSD Ports Collection) 8.3.0"
+        .gnu_attribute 4, 9
+$ 
+
+Clearly the data at LC0 is 64-bit only and while 0x400921fb54442d18
+is correct is it no where close to what we asked for.
+
+-------------------- LLVM/Clang output opcodes on AMD k8
+
+        .text
+        .file   "ieee754_ld.c"
+        .section        .rodata.cst16,"aM",@progbits,16
+        .p2align        4               # -- Begin function main
+.LCPI0_0:
+        .quad   -3958705157555305931    # x86_fp80 3.14159265358979323851
+        .short  16384
+        .zero   6
+        .text
+        .globl  main
+        .p2align        4, 0x90
+        .type   main,@function
+main:                                   # @main
+        .cfi_startproc
+# %bb.0:
+        pushq   %rbp
+        .cfi_def_cfa_offset 16
+        .cfi_offset %rbp, -16
+        movq    %rsp, %rbp
+        .cfi_def_cfa_register %rbp
+        subq    $64, %rsp
+        movl    $0, -4(%rbp)
+        movl    %edi, -8(%rbp)
+        movq    %rsi, -16(%rbp)
+        fldt    .LCPI0_0(%rip)
+        fstpt   -48(%rbp)
+        movl    $0, -20(%rbp)
+.LBB0_1:                                # =>This Inner Loop Header: Depth=1
+        movslq  -20(%rbp), %rax
+        cmpq    $16, %rax
+        jae     .LBB0_4
+# %bb.2:                                #   in Loop: Header=BB0_1 Depth=1
+        movabsq $.L.str, %rdi
+        movslq  -20(%rbp), %rax
+        movzbl  -48(%rbp,%rax), %esi
+        movb    $0, %al
+        callq   printf
+        movl    %eax, -52(%rbp)         # 4-byte Spill
+# %bb.3:                                #   in Loop: Header=BB0_1 Depth=1
+        movl    -20(%rbp), %eax
+        addl    $1, %eax
+        movl    %eax, -20(%rbp)
+        jmp     .LBB0_1
+.LBB0_4:
+        movabsq $.L.str.1, %rdi
+        movb    $0, %al
+        callq   printf
+        xorl    %ecx, %ecx
+        movl    %eax, -56(%rbp)         # 4-byte Spill
+        movl    %ecx, %eax
+        addq    $64, %rsp
+        popq    %rbp
+        retq
+.Lfunc_end0:
+        .size   main, .Lfunc_end0-main
+        .cfi_endproc
+                                        # -- End function
+        .type   .L.str,@object          # @.str
+        .section        .rodata.str1.1,"aMS",@progbits,1
+.L.str:
+        .asciz  "%02x "
+        .size   .L.str, 6
+
+        .type   .L.str.1,@object        # @.str.1
+.L.str.1:
+        .asciz  "\n"
+        .size   .L.str.1, 2
+
+
+        .ident  "FreeBSD clang version 6.0.1 (tags/RELEASE_601/final 335540) (based on LLVM 6.0.1)"
+        .section        ".note.GNU-stack","",@progbits
+
+
+The above is typical dogs breakfast disaster x86 type of situation. 
+The hardware has no way to handle 128-bit datatypes and the opcodes
+above show the bizarre Intel hack 80-bit data. There is no such
+thing as an 80-bit datatype in the IEEE-754 standard and lets face 
+it, the x86 platform is cheap, everywhere and full of bugs baked
+right into the silicon.  Don't expect good results here unless we
+use the non-portable libquadmath lib.
+
+---------------- gcc 8.3.0 output on AMD k8 
+
+vesta$ cat ieee754_ld_gcc.s
+        .file   "ieee754_ld.c"
+        .text
+        .section        .rodata
+.LC1:
+        .string "%02x "
+.LC2:
+        .string "\n"
+        .text
+        .globl  main
+        .type   main, @function
+main:
+.LFB12:
+        .cfi_startproc
+        pushq   %rbp
+        .cfi_def_cfa_offset 16
+        .cfi_offset 6, -16
+        movq    %rsp, %rbp
+        .cfi_def_cfa_register 6
+        subq    $48, %rsp
+        movl    %edi, -36(%rbp)
+        movq    %rsi, -48(%rbp)
+        fldpi
+        fstpt   -32(%rbp)
+        movl    $0, -4(%rbp)
+        jmp     .L2
+.L3:
+        movl    -4(%rbp), %eax
+        cltq
+        leaq    -32(%rbp), %rdx
+        addq    %rdx, %rax
+        movzbl  (%rax), %eax
+        movzbl  %al, %eax
+        movl    %eax, %esi
+        movl    $.LC1, %edi
+        movl    $0, %eax
+        call    printf
+        addl    $1, -4(%rbp)
+.L2:
+        movl    -4(%rbp), %eax
+        cmpl    $15, %eax
+        jbe     .L3
+        movl    $.LC2, %edi
+        movl    $0, %eax
+        call    printf
+        movl    $0, %eax
+        leave
+        .cfi_def_cfa 7, 8
+        ret
+        .cfi_endproc
+.LFE12:
+        .size   main, .-main
+        .ident  "GCC: (FreeBSD Ports Collection) 8.3.0"
+        .section        .note.GNU-stack,"",@progbits
+
+
+Look closely above and you will see the floating load pi opcode "fldpi"
+which attempts to bring out the correct data. It does not. We get 
+some sort of an estimate but it is not correct IEEE-754 128-bit data
+and we won't ever get it on x86 hardware. Not without libquadmath.
+
+Lastly on this list of the Fujitsu SPARC-VII+ opcode listing. It 
+is really long and verbose and beautiful in that it works perfectly.
+The only other machine that gives us the correct data is RISC-V and
+we can only hope we will one day get hardware on the market. This
+test is done twice on the Oracle/Fujitsu server and firstly we see
+the output from Oracle Studio 12.6 C99 compiler :
+
+$ cat ieee754_ld.s 
+
+        .section        ".text",#alloc,#execinstr,#progbits
+        .file   "ieee754_ld.c"
+
+        .section        ".data",#alloc,#write,#progbits
+
+Ddata.data:
+
+        .section        ".rodata",#alloc,#progbits
+!
+! CONSTANT POOL
+!
+
+Drodata.rodata:
+
+        .section        ".picdata",#alloc,#write
+
+Dpicdata.picdata:
+
+        .section        ".bss",#alloc,#write,#nobits
+
+Bbss.bss:
+
+        .section        ".rodata1",#alloc,#progbits
+        .align  2
+!
+! CONSTANT POOL
+!
+
+.L20:
+        .ascii  "%02x \000"
+        .size   .L20,6
+        .type   .L20,#object
+        .align  1
+!
+! CONSTANT POOL
+!
+
+.L22:
+        .ascii  "\n\000"
+        .size   .L22,2
+        .type   .L22,#object
+
+        .section        ".text",#alloc,#execinstr,#progbits
+/* 000000          0 */         .align  16
+!
+! CONSTANT POOL
+!
+                       
+
+                        .L___const_seg_900000101:
+/* 000000          0 */         .word   1073779231,-1253817647,-2073458292,-988347976
+/* 0x0010          0 */         .type   .L___const_seg_900000101,#object
+/* 0x0010          0 */         .size   .L___const_seg_900000101,(.-.L___const_seg_900000101)
+/* 0x0010          0 */         .align  8
+/* 0x0010            */         .word   65536,65536,65536,65536,65536,65536,65536,65536
+/* 0x0030            */         .align  16
+! FILE ieee754_ld.c
+
+!    2                !/*************************************************
+!    3                ! * The Open Group Base Specifications Issue 6
+!    4                ! * IEEE Std 1003.1, 2004 Edition
+!    5                ! *************************************************/
+!    6                !#define _XOPEN_SOURCE 600
+!    8                !#include <ctype.h>
+!    9                !#include <errno.h>
+!   10                !#include <inttypes.h>
+!   11                !#include <stdint.h>
+!   12                !#include <stdio.h>
+!   13                !#include <stdlib.h>
+!   14                !#include <string.h>
+!   16                !int main ( int argc, char *argv[] ) {
+
+!
+! SUBROUTINE main
+!
+! OFFSET    SOURCE LINE LABEL   INSTRUCTION
+
+                        .global main
+                       
+
+                        main:
+                       
+! predecessor blocks: main
+
+                        .L900000108:
+/* 000000         16 */         save    %sp,-240,%sp
+                       
+
+                        .L900000104:
+/* 0x0004         16 */         rd      %pc,%l0
+/* 0x0008            */         sethi   %pc22(_GLOBAL_OFFSET_TABLE_-(.L900000104-.)),%g1
+/* 0x000c            */         add     %g1,%pc10(_GLOBAL_OFFSET_TABLE_-(.L900000104-.)),%g1
+/* 0x0010            */         add     %g1,%l0,%l0
+
+!   18                !    int j;
+!   19                !    long double pi = 3.14159265358979323846264338327950288419716939937510L;
+
+/* 0x0014         19 */         sethi   %gdop_hix22(.L___const_seg_900000101),%o0
+/* 0x0018            */         xor     %o0,%gdop_lox10(.L___const_seg_900000101),%o0
+/* 0x001c            */         ldx     [%l0+%o0],%o0,%gdop(.L___const_seg_900000101)
+/* 0x0020            */         ldx     [%o0],%o1
+/* 0x0024            */         ldx     [%o0+8],%o0
+/* 0x0028            */         stx     %o1,[%fp+1999]
+/* 0x002c            */         stx     %o0,[%fp+2007]
+
+!   20                !    /* note hex representation of pi is 
+!   21                !     *   0x4000 0x921f 0xb544 0x42d1 0x8469 0x898c 0xc517 0x01b8 */
+!   23                !    for ( j=0; j<sizeof(long double); j++ )
+
+/* 0x0030         23 */         st      %g0,[%fp+2023]
+/* 0x0034            */         sra     %g0,0,%o0
+/* 0x0038            */         cmp     %o0,16
+/* 0x003c            */         stx     %l0,[%fp+1991]
+/* 0x0040            */         bcc,pn  %xcc,.L18
+/* 0x0044            */         nop
+                       
+! predecessor blocks: .L900000104
+
+                        .L19:
+
+!   24                !        printf("%02x ", ((unsigned char *)&pi)[j] );
+
+                       
+! predecessor blocks: .L16 .L19
+
+                        .L16:
+/* 0x0048         24 */         ldsw    [%fp+2023],%o0
+/* 0x004c            */         add     %fp,1999,%o1
+/* 0x0050            */         ldub    [%o1+%o0],%o0 ! volatile
+/* 0x0054            */         sra     %o0,0,%o0
+/* 0x0058            */         sethi   %gdop_hix22(.L20),%o1
+/* 0x005c            */         xor     %o1,%gdop_lox10(.L20),%o1
+/* 0x0060            */         ldx     [%fp+1991],%l0
+/* 0x0064            */         ldx     [%l0+%o1],%o1,%gdop(.L20)
+/* 0x0068            */         stx     %o1,[%fp+1983]
+/* 0x006c            */         mov     %o0,%o1
+/* 0x0070            */         ldx     [%fp+1983],%o0
+/* 0x0074            */         call    printf  !params=  %o0 %o1       !result= 
+/* 0x0078            */         nop
+/* 0x007c         23 */         ld      [%fp+2023],%o0
+/* 0x0080            */         add     %o0,1,%o0
+/* 0x0084            */         st      %o0,[%fp+2023]
+/* 0x0088            */         sra     %o0,0,%o0
+/* 0x008c            */         cmp     %o0,16
+/* 0x0090            */         bcs,pn  %xcc,.L16
+/* 0x0094            */         nop
+                       
+! predecessor blocks: .L16
+
+                        .L21:
+
+!   26                !    printf("\n" );
+
+                       
+! predecessor blocks: .L21 .L900000104
+
+                        .L18:
+/* 0x0098         26 */         sethi   %gdop_hix22(.L22),%o0
+/* 0x009c            */         xor     %o0,%gdop_lox10(.L22),%o0
+/* 0x00a0            */         ldx     [%fp+1991],%l0
+/* 0x00a4            */         ldx     [%l0+%o0],%o0,%gdop(.L22)
+/* 0x00a8            */         call    printf  !params=  %o0   !result= 
+/* 0x00ac            */         nop
+
+!   28                !    return (EXIT_SUCCESS);
+
+/* 0x00b0         28 */         sra     %g0,0,%i0
+/* 0x00b4            */         ret     ! Result =  %i0
+/* 0x00b8            */         restore %g0,%g0,%g0
+/* 0x00bc          0 */         .type   main,#function
+/* 0x00bc          0 */         .size   main,(.-main)
+/* 0x00bc          0 */         .global __fsr_init_value
+/* 0x00bc            */          __fsr_init_value=0
+                       
+
+                        .L900000109:
+
+        .section        ".text",#alloc,#execinstr,#progbits
+                       
+
+                        .L900000114:
+
+        .section        ".annotate",#exclude,#progbits
+/* 000000          0 */         .asciz  "anotate"
+/* 0x0008          0 */         .word   6,0
+/* 0x0010          0 */         .xword  160
+/* 0x0018          0 */         .word   0,16
+/* 0x0020          0 */         .xword  (.L900000114-0xec)
+/* 0x0028          0 */         .xword  236
+/* 0x0030          0 */         .word   2,32
+/* 0x0038          0 */         .xword  .L900000108
+/* 0x0040          0 */         .xword  (.L900000109-.L900000108)
+/* 0x0048          0 */         .xword  .L___const_seg_900000101
+/* 0x0050          0 */         .word   -2145873792,0
+/* 0x0058          0 */         .word   5,24
+/* 0x0060          0 */         .xword  (.L900000104+0x4)
+/* 0x0068          0 */         .xword  _GLOBAL_OFFSET_TABLE_
+/* 0x0070          0 */         .xword  .L900000104
+/* 0x0078          0 */         .word   6,24
+/* 0x0080          0 */         .xword  (.L900000104+0x8)
+/* 0x0088          0 */         .xword  _GLOBAL_OFFSET_TABLE_
+/* 0x0090          0 */         .xword  .L900000104
+/* 0x0098          0 */         .word   7,24
+/* 0x00a0          0 */         .xword  .L___const_seg_900000101
+/* 0x00a8          0 */         .xword  16
+/* 0x00b0          0 */         .xword  16
+
+! Begin Disassembling Debug Info
+
+! Begin sdCreateSection
+        .section ".debug_info"
+        .byte 0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00
+        .byte 0x00,0x00,0x01,0x8a,0x00,0x02
+!       <reloc> off=14 kind=2 l1=.debug_abbrev loff=0
+        .uaxword %section_symbol(".debug_abbrev")
+        .byte 0x08,0x01
+        .ascii "ieee754_ld.c\0"
+        .byte 0x0c
+        .ascii "DBG_GEN 5.7.6\0"
+        .ascii "/export/home/dclarke/\0"
+        .ascii "/opt/developerstudio12.6/bin/c99 -Xc -xcode=pic32 -xregs=no%appl -m64 -xmemalign=8s -xstrconst -xildoff -xlibmieee -mc -xs -ftrap=%none -xbuiltin=%none -xdebugformat=dwarf -xunroll=1 -D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE -S  ieee754_ld.c\0"
+        .ascii "Xa;P;R=5.15<<Studio 12.6 Sun C 5.15 SunOS_sparc 2017/05/30>>;\0"
+!       <reloc> off=397 kind=2 l1=.debug_line loff=0
+        .uaxword %section_symbol(".debug_line")
+        .byte 0x00
+! End sdCreateSection
+
+! Begin sdCreateSection
+        .section ".debug_line"
+        .byte 0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00
+        .byte 0x00,0x00,0x00,0x2a,0x00,0x02,0x00,0x00
+        .byte 0x00,0x00,0x00,0x00,0x00,0x20,0x04,0x00
+        .byte 0xff,0x04,0x0a,0x00,0x01,0x01,0x01,0x01
+        .byte 0x00,0x00,0x00,0x01,0x00,0x69,0x65,0x65
+        .byte 0x65,0x37,0x35,0x34,0x5f,0x6c,0x64,0x2e
+        .byte 0x63,0x00,0x00,0x00,0x00,0x00
+! End sdCreateSection
+
+! Begin sdCreateSection
+        .section ".debug_abbrev"
+        .byte 0x01,0x11,0x00,0x03,0x08,0x13,0x0b,0x25
+        .byte 0x08,0x1b,0x08,0x85,0x44,0x08,0x87,0x44
+        .byte 0x08,0x10,0x07,0x00,0x00,0x00
+! End sdCreateSection
+        .xstabs ".stab.index","V=10.0;DBG_GEN=5.7.6;Xa;P;R=5.15<<Studio 12.6 Sun C 5.15 SunOS_sparc 2017/05/30>>",60,0,0,0
+        .xstabs ".stab.index","/export/home/dclarke; /opt/developerstudio12.6/bin/c99 -Xc -xcode=pic32 -xregs=no%appl -m64 -xmemalign=8s -xstrconst -xildoff -xlibmieee -mc -xs -ftrap=%none -xbuiltin=%none -xdebugformat=dwarf -xunroll=1 -D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE -S  ieee754_ld.c",52,0,0,0
+        .xstabs ".stab.index","main",42,0,0,16
+
+! End Disassembling Debug Info
+
+! Begin Disassembling Ident
+        .ident  "cg: Studio 12.6 Compiler Common 12.6 SunOS_sparc 2017-05-30"   ! (NO SOURCE LINE)
+        .ident  "@(#)ctype.h\t1.35\t04/09/28 SMI"       ! (NO SOURCE LINE)
+        .ident  "@(#)ctype_iso.h\t1.3\t04/09/28 SMI"    ! (NO SOURCE LINE)
+        .ident  "@(#)feature_tests.h\t1.26\t11/04/12 SMI"       ! (NO SOURCE LINE)
+        .ident  "@(#)ccompile.h\t1.2\t04/11/08 SMI"     ! (NO SOURCE LINE)
+        .ident  "@(#)isa_defs.h\t1.30\t11/03/31 SMI"    ! (NO SOURCE LINE)
+        .ident  "@(#)ctype_c99.h\t1.2\t04/09/28 SMI"    ! (NO SOURCE LINE)
+        .ident  "@(#)errno.h\t1.17\t03/01/03 SMI"       ! (NO SOURCE LINE)
+        .ident  "@(#)errno.h\t1.20\t00/01/12 SMI"       ! (NO SOURCE LINE)
+        .ident  "@(#)inttypes.h\t1.4\t04/04/29 SMI"     ! (NO SOURCE LINE)
+        .ident  "@(#)inttypes.h\t1.3\t03/12/04 SMI"     ! (NO SOURCE LINE)
+        .ident  "@(#)int_types.h\t1.10\t04/09/28 SMI"   ! (NO SOURCE LINE)
+        .ident  "@(#)int_limits.h\t1.9\t04/09/28 SMI"   ! (NO SOURCE LINE)
+        .ident  "@(#)int_const.h\t1.5\t04/09/28 SMI"    ! (NO SOURCE LINE)
+        .ident  "@(#)int_fmtio.h\t1.6\t04/09/28 SMI"    ! (NO SOURCE LINE)
+        .ident  "@(#)stdint.h\t1.1\t03/12/04 SMI"       ! (NO SOURCE LINE)
+        .ident  "@(#)stdint.h\t1.1\t03/12/04 SMI"       ! (NO SOURCE LINE)
+        .ident  "@(#)stdio.h\t1.86\t13/09/11 SMI"       ! (NO SOURCE LINE)
+        .ident  "@(#)stdio_iso.h\t1.8\t05/08/16 SMI"    ! (NO SOURCE LINE)
+        .ident  "@(#)va_list.h\t1.15\t04/11/19 SMI"     ! (NO SOURCE LINE)
+        .ident  "@(#)stdio_tag.h\t1.4\t04/09/28 SMI"    ! (NO SOURCE LINE)
+        .ident  "@(#)stdio_impl.h\t1.15\t07/03/05 SMI"  ! (NO SOURCE LINE)
+        .ident  "@(#)stdio_c99.h\t1.2\t04/03/29 SMI"    ! (NO SOURCE LINE)
+        .ident  "@(#)stdlib.h\t1.52\t12/08/01 SMI"      ! (NO SOURCE LINE)
+        .ident  "@(#)stdlib_iso.h\t1.9\t04/09/28 SMI"   ! (NO SOURCE LINE)
+        .ident  "@(#)stdlib_c99.h\t1.2\t04/03/29 SMI"   ! (NO SOURCE LINE)
+        .ident  "@(#)wait.h\t1.23\t04/06/03 SMI"        ! (NO SOURCE LINE)
+        .ident  "@(#)types.h\t1.90\t14/04/07 SMI"       ! (NO SOURCE LINE)
+        .ident  "@(#)machtypes.h\t1.13\t99/05/04 SMI"   ! (NO SOURCE LINE)
+        .ident  "@(#)resource.h\t1.37\t07/02/07 SMI"    ! (NO SOURCE LINE)
+        .ident  "@(#)time.h\t2.79\t13/07/01 SMI"        ! (NO SOURCE LINE)
+        .ident  "@(#)select.h\t1.19\t04/01/28 SMI"      ! (NO SOURCE LINE)
+        .ident  "@(#)time_impl.h\t1.11\t05/05/19 SMI"   ! (NO SOURCE LINE)
+        .ident  "@(#)siginfo.h\t1.59\t04/07/15 SMI"     ! (NO SOURCE LINE)
+        .ident  "@(#)machsig.h\t1.15\t99/08/15 SMI"     ! (NO SOURCE LINE)
+        .ident  "@(#)time_std_impl.h\t1.3\t04/01/21 SMI"        ! (NO SOURCE LINE)
+        .ident  "@(#)procset.h\t1.26\t11/04/18 SMI"     ! (NO SOURCE LINE)
+        .ident  "@(#)signal.h\t1.67\t13/09/11 SMI"      ! (NO SOURCE LINE)
+        .ident  "@(#)signal_iso.h\t1.6\t03/05/02 SMI"   ! (NO SOURCE LINE)
+        .ident  "@(#)unistd.h\t1.46\t12/01/17 SMI"      ! (NO SOURCE LINE)
+        .ident  "@(#)ucontext.h\t1.31\t03/12/18 SMI"    ! (NO SOURCE LINE)
+        .ident  "@(#)regset.h\t1.29\t07/09/06 SMI"      ! (NO SOURCE LINE)
+        .ident  "@(#)string.h\t1.27\t07/01/14 SMI"      ! (NO SOURCE LINE)
+        .ident  "@(#)string_iso.h\t1.5\t04/06/18 SMI"   ! (NO SOURCE LINE)
+        .ident  "acomp: Studio 12.6 Sun C 5.15 SunOS_sparc 2017/05/30"  ! (NO SOURCE LINE)
+        .ident  "cg: Studio 12.6 Compiler Common 12.6 SunOS_sparc 2017-05-30"   ! (NO SOURCE LINE)
+! End Disassembling Ident
+$ 
+
+One may also use GCC 8.2.0 and get a much much shorter output and again
+it will be perfect with flawless IEE- 754 2008 data in all 128-bits : 
+
+beta$ cat ieee754_ld_gcc.s
+        .file   "ieee754_ld.c"
+        .section        ".text"
+        .section        ".rodata"
+        .align 8
+.LLC1:
+        .asciz  "%02x "
+        .align 8
+.LLC2:
+        .asciz  "\n"
+        .align 16
+.LLC0:
+        .long   1073779231
+        .long   3041149649
+        .long   2221509004
+        .long   3306619320
+        .section        ".text"
+        .align 4
+        .global main
+        .type   main, #function
+        .proc   04
+main:
+        .register       %g2, #scratch
+        .register       %g3, #scratch
+        save    %sp, -208, %sp
+        mov     %i0, %g1
+        stx     %i1, [%fp+2183]
+        st      %g1, [%fp+2175]
+        sethi   %h44(.LLC0), %g1
+        or      %g1, %m44(.LLC0), %g1
+        sllx    %g1, 12, %g1
+        or      %g1, %l44(.LLC0), %g1
+        ldx     [%g1], %g2
+        ldx     [%g1+8], %g3
+        stx     %g2, [%fp+2015]
+        stx     %g3, [%fp+2023]
+        st      %g0, [%fp+2043]
+        ba,pt   %xcc, .LL2
+         nop
+.LL3:
+        ld      [%fp+2043], %g1
+        sra     %g1, 0, %g1
+        add     %fp, 2015, %g2
+        add     %g2, %g1, %g1
+        ldub    [%g1], %g1
+        and     %g1, 0xff, %g1
+        sra     %g1, 0, %g1
+        mov     %g1, %o1
+        sethi   %h44(.LLC1), %g1
+        or      %g1, %m44(.LLC1), %g1
+        sllx    %g1, 12, %g1
+        or      %g1, %l44(.LLC1), %o0
+        call    printf, 0
+         nop
+        ld      [%fp+2043], %g1
+        add     %g1, 1, %g1
+        st      %g1, [%fp+2043]
+.LL2:
+        ld      [%fp+2043], %g1
+        cmp     %g1, 15
+        bleu    %icc, .LL3
+         nop
+        sethi   %h44(.LLC2), %g1
+        or      %g1, %m44(.LLC2), %g1
+        sllx    %g1, 12, %g1
+        or      %g1, %l44(.LLC2), %o0
+        call    printf, 0
+         nop
+        mov     0, %g1
+        sra     %g1, 0, %g1
+        mov     %g1, %i0
+        return  %i7+8
+         nop
+        .size   main, .-main
+        .ident  "GCC: (GNU) 8.2.0"
 
 
