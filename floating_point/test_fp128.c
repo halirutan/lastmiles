@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     struct utsname uname_data;
     size_t bufsize = BUFFERSIZE;
     long double baseline, ld1, ld2, offset1, offset2, delta;
+    long double pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280L;
 
     char *buf;
     buf = malloc( bufsize );
@@ -85,6 +86,15 @@ int main(int argc, char *argv[])
 
     if ( delta == 0.0L ) 
         printf("barf barf barf.\n");
+
+
+
+    printf("\n\n-------------------------------\n\n");
+    printf("pi may be somewhere near  %42.36Le\n", pi);
+    printf("Whereas the real thing is 3.14159265358979323846264");
+    printf("338327950288419716939937510582097494459230781640628");
+    printf("62089986280.... etc\n");
+
 
     return ( EXIT_SUCCESS );
 

@@ -10,7 +10,9 @@ int main(int argc, char *argv[])
 {
 
     int inex = 0;
-    mpfr_t pi256;
+    mpfr_t pi_mpfr;
+
+    mpfr_prec_t prec = 113;
 
     printf("GMP  library version : %d.%d.%d\n",
             __GNU_MP_VERSION,
@@ -44,13 +46,29 @@ int main(int argc, char *argv[])
                                       mpfr_buildopt_tune_case ());
 
 
-    mpfr_init2 ( pi256, 256);  /* 256 bit precision data */
-    inex = mpfr_const_pi ( pi256, MPFR_RNDN);
+    if ( argc > 1 ) {
+        prec = atoi( argv[1] );
+        if ( prec < 23 ) {
+            fprintf(stderr,"FAIL : IEEE754 minimum is 23 bits.\n");
+            return ( EXIT_FAILURE );
+        }
+        printf("INFO : you asked for %i bits.\n", prec );
+        if ( prec > 384 ){
+            fprintf(stderr,"WARN : we shall limit to 384 bits.\n");
+            prec = 384;
+        }
+    }
 
-    mpfr_printf ("72 digits of pi = %.72Rg\n\n", pi256 );
+    mpfr_init2 ( pi_mpfr, prec);
+    inex = mpfr_const_pi ( pi_mpfr, MPFR_RNDN);
 
-    mpfr_clear  ( pi256 );
+    printf("\nINFO : we are using %i bits of precision.\n", prec );
+    mpfr_printf ("100 digits of pi may be %.100Rg\n\n", pi_mpfr );
+    printf("100 digits of pi is     3.141592653589793238462643383");
+    printf("27950288419716939937510582097494459230781640628620899");
+    printf("86280348253421170679\n");
 
+    mpfr_clear  ( pi_mpfr );
 
     return ( EXIT_SUCCESS );
 

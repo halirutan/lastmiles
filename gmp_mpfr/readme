@@ -3,7 +3,6 @@
 Trivial bit of code that will print out the current
 gmp and mpfr library versions. 
 
-Also for fun we print out pi with about 80 digits of
-precision thanks to mpfr and a 256-bit pi constant.
-
+Also for fun we print out pi with whatever precision
+we can get up to 384 bits or so. 
 
