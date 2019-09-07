@@ -85,7 +85,7 @@ int main(int argc, char *argv[]){
 
     pi = 3.14159265358979323846264338327950288419716939937510582Q;
     printf ( "the sizeof(pi) is %lu bytes\n", sizeof(pi) );
-    num_chars = quadmath_snprintf( buffer, buffer_size, "%40.36Qg", pi );
+    num_chars = quadmath_snprintf( buffer, buffer_size, "%42.36Qe", pi );
         if ( num_chars > 0 ) {
         printf ("INFO : quadmath_snprintf formatted %i chars.\n", num_chars);
     } else {
