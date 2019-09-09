@@ -1,0 +1,6 @@
+
+
+Bizarre off the cuff test to show that malloc may spit in
+your coffee and kick your dog and just because you free 
+a buffer or think it will be zero ... think again.
+
