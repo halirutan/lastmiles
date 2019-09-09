@@ -92,7 +92,9 @@ int main(int argc, char *argv[]){
         fprintf(stderr,"FAIL : wtf quadmath_snprintf failed. No idea why.\n");
         return ( EXIT_FAILURE );
     }
-    printf ( "pi = %s\n", buffer );
+    printf ( "IEEE754-2008 128-bit pi = %s\n", buffer );
+    printf ( "Whereas the real thing is 3.141592653589793238462643");
+    printf ( "3832795028841971693993751\n");
 
 
     free(buffer);
