@@ -50,9 +50,9 @@ int main( int argc, char *argv[] ) {
             return ( EXIT_FAILURE );
         }
 
-        printf ( " NOTE : will try to allocate %5i bytes of memory.\n", max );
-        printf ( "      : we will use an init allocation of %i bytes.\n", mem_alloc_size );
-        printf ( "      : with a delta memory allocation of %i bytes.\n", mem_delta_size );
+        printf ( " NOTE : will try to allocate %lu bytes of memory.\n", max );
+        printf ( "      : we will use an init allocation of %lu bytes.\n", mem_alloc_size );
+        printf ( "      : with a delta memory allocation of %lu bytes.\n", mem_delta_size );
 
     } else {
 
@@ -105,7 +105,7 @@ int main( int argc, char *argv[] ) {
             printf ( "      : Most likely there is no more free memory.\n" );
         }
 
-        printf( "FINAL : Allocated %d bytes\n", num_bytes);
+        printf( "FINAL : Allocated %lu bytes\n", num_bytes);
 
     }
 
