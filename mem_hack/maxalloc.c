@@ -14,10 +14,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <string.h>
 #include <time.h>
 
-uint64_t timediff( struct timespec st, struct timespec en );
+int64_t timediff( struct timespec st, struct timespec en );
 
 int main( int argc, char *argv[] ) {
 
@@ -29,8 +30,8 @@ int main( int argc, char *argv[] ) {
     char* buffer;
     struct timespec start_time, end_time, tn;
     char time_buffer[32] = "";
-    uint64_t t0_s, t0_ns, t1_s, t1_ns, t_tmp_s, t_tmp_ns, t_delta;
-    uint64_t this_delta, t_delta_sanity, total_ns = 0;
+    int64_t t0_s, t0_ns, t1_s, t1_ns, t_tmp_s, t_tmp_ns, t_delta;
+    int64_t this_delta, t_delta_sanity, total_ns = 0;
 
     if ( clock_gettime( CLOCK_REALTIME, &start_time ) > -1 ) {
         bytes_formatted = sprintf ( time_buffer,
@@ -45,8 +46,8 @@ int main( int argc, char *argv[] ) {
             return ( EXIT_FAILURE );
         }
     }
-    t0_s = (uint64_t)start_time.tv_sec;
-    t0_ns = (uint64_t)start_time.tv_nsec;
+    t0_s = (int64_t)start_time.tv_sec;
+    t0_ns = (int64_t)start_time.tv_nsec;
 
     if ( argc == 4 ) {
         max = (size_t)strtol(argv[1], (char **)NULL, 10);
@@ -100,8 +101,8 @@ int main( int argc, char *argv[] ) {
 
                 if ( bytes_formatted > 0 ) {
                     printf ( "    %s", time_buffer );
-                    t1_s = (uint64_t)tn.tv_sec;
-                    t1_ns = (uint64_t)tn.tv_nsec;
+                    t1_s = (int64_t)tn.tv_sec;
+                    t1_ns = (int64_t)tn.tv_nsec;
 
                     if ( ( t1_ns - t0_ns ) < 0 ) {
                         /* make a full second adjustment */
@@ -113,8 +114,8 @@ int main( int argc, char *argv[] ) {
                         t_tmp_ns = t1_ns - t0_ns;
                     }
 
-                    this_delta = ( t_tmp_s * (uint64_t)1000000000 + t_tmp_ns );
-                    printf ("    %lu\n", this_delta ); 
+                    this_delta = ( t_tmp_s * (int64_t)1000000000 + t_tmp_ns );
+                    printf ("    %" PRId64 "\n", this_delta ); 
                     total_ns += this_delta;
 
                 }
@@ -146,8 +147,8 @@ int main( int argc, char *argv[] ) {
 
     printf ("END   %s\n", time_buffer );
     t_delta_sanity = timediff( start_time, end_time );
-    printf ("DELTA %lu\n", t_delta_sanity );
-    printf ("TOTAL %lu\n", total_ns );
+    printf ("DELTA %" PRId64 "\n", t_delta_sanity );
+    printf ("TOTAL %" PRId64 "\n", total_ns );
 
     return ( EXIT_SUCCESS );
 
