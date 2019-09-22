@@ -26,10 +26,22 @@ double f_poly0( double x )
     return ret;
 }
 
-/* derivitive of the sample polynomial */
+/* derivative of the sample polynomial */
 double fp_poly0( double x )
 {
     double ret = ( 6.0 * x - 5.0 );
+    return ret;
+}
+
+double f_poly1( double x )
+{
+    double ret = ( x * x - 2.0 );
+    return ret;
+}
+
+double fp_poly1( double x )
+{
+    double ret = 2.0 * x;
     return ret;
 }
 
@@ -59,13 +71,13 @@ int main(int argc, char **argv)
 
     /* just some close to zero test */
     const double epsilon = 0.000001;
-    double x0, x1;
+    double x0, x1, initial_guess;
     uint32_t loop_cnt = 0;
     errno = 0;
 
     if ( argc>1 ) {
         /* what happens next may be useless to detect bad data */
-        x0 = strtod(argv[1], (char**) NULL);
+        initial_guess = strtod(argv[1], (char**) NULL);
         if ( errno == ERANGE ) {
             fprintf(stderr,"FAIL : please provide a valid double.\n");
             fprintf(stderr,"     : Error ERANGE\n");
@@ -83,10 +95,23 @@ int main(int argc, char **argv)
         return(EXIT_FAILURE);
     }
 
-    printf("guess x0 = %g\n", x0 );
+    printf("initial guess is %g\n", initial_guess );
+    x0 = initial_guess;
+    printf("\ntesting first polynomial\n");
 
     while ( ( loop_cnt < 32 ) && ( fabs(f_poly0(x0)) > epsilon ) ) {
         x1 = x0 -  f_poly0(x0)/fp_poly0(x0);
+        loop_cnt+=1;
+        printf("x%i = %g\n", loop_cnt, x1);
+        x0 = x1;
+    }
+
+    x0 = initial_guess;
+    printf("\ntesting second polynomial\n");
+    printf("initial guess is %g\n", initial_guess );
+
+    while ( ( loop_cnt < 32 ) && ( fabs(f_poly1(x0)) > epsilon ) ) {
+        x1 = x0 -  f_poly1(x0)/fp_poly1(x0);
         loop_cnt+=1;
         printf("x%i = %g\n", loop_cnt, x1);
         x0 = x1;

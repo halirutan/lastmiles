@@ -15,15 +15,30 @@ styx$ $CC $CFLAGS $CPPFLAGS -o n n.c -lm
 
 
 styx$ ./n 0.1
-guess x0 = 0.1
+initial guess is 0.1
+
+testing first polynomial
 x1 = 0.447727
 x2 = 0.604512
 x3 = 0.658225
 x4 = 0.666463
 x5 = 0.666667
- 
+
+testing second polynomial
+initial guess is 0.1
+x6 = 10.05
+x7 = 5.1245
+x8 = 2.75739
+x9 = 1.74136
+x10 = 1.44494
+x11 = 1.41454
+x12 = 1.41421
+styx$ 
+styx$ 
 styx$ ./n 1.8
-guess x0 = 1.8
+initial guess is 1.8
+
+testing first polynomial
 x1 = 1.33103
 x2 = 1.11009
 x3 = 1.0219
@@ -31,45 +46,29 @@ x4 = 1.00127
 x5 = 1
 x6 = 1
 
-styx$ ./n 0.83334
-guess x0 = 0.83334
-x1 = 2084.17
-x2 = 1042.5
-x3 = 521.667
-x4 = 261.25
-x5 = 131.042
-x6 = 65.9376
-x7 = 33.3857
-x8 = 17.1099
-x9 = 8.97249
-x10 = 4.90462
-x11 = 2.87239
-x12 = 1.85967
-x13 = 1.36004
-x14 = 1.12305
-x15 = 1.02613
-x16 = 1.00177
-x17 = 1.00001
-x18 = 1
-
-styx$ ./n 0.83332
-guess x0 = 0.83332
-x1 = -1040.83
-x2 = -520
-x3 = -259.583
-x4 = -129.375
-x5 = -64.271
-x6 = -31.719
-x7 = -15.4433
-x8 = -7.30583
-x9 = -3.23795
-x10 = -1.20572
-x11 = -0.193005
-x12 = 0.306632
-x13 = 0.543613
-x14 = 0.640534
-x15 = 0.664896
-x16 = 0.666657
-x17 = 0.666667
+testing second polynomial
+initial guess is 1.8
+x7 = 1.45556
+x8 = 1.4148
+x9 = 1.41421
 styx$ 
+styx$ ./n -1.8
+initial guess is -1.8
+
+testing first polynomial
+x1 = -0.488608
+x2 = 0.161856
+x3 = 0.476911
+x4 = 0.616155
+x5 = 0.660793
+x6 = 0.666567
+x7 = 0.666667
+
+testing second polynomial
+initial guess is -1.8
+x8 = -1.45556
+x9 = -1.4148
+x10 = -1.41421
+styx$ 
+
 
