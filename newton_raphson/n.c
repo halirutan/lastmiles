@@ -19,7 +19,8 @@
 #include <errno.h>
 #include <math.h>
 
-/* some sample polynomial */
+/* some sample polynomial with an intermediate variable such that
+ * we may use a debugger easily. */
 double f_poly0( double x )
 {
     double ret = ( 3.0 * x * x - 5.0 * x + 2.0 );
