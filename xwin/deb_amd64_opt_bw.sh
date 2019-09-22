@@ -165,3 +165,5 @@ $CC $CFLAGS $CPPFLAGS -L/opt/bw/lib -o box box.o create_borderless_topwin.o crea
 
 ls -lapb --full-time *.o box
 
+$CC $CFLAGS $CPPFLAGS -L/opt/bw/lib -o simple_grid simple_grid.c -lX11
+

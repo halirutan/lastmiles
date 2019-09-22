@@ -1,0 +1,75 @@
+
+
+See the comments in the code and 
+http://web.mit.edu/10.001/Web/Course_Notes/NLAE/node6.html
+
+also for the test polynomial :
+
+https://www.wolframalpha.com/input/?i=%283.0+*+x+*+x+-+5.0+*+x+%2B+2.0%29%3D0+solve+for+x
+
+CC=/usr/bin/gcc-8
+CFLAGS=-std=iso9899:1999 -m64 -g -pedantic -pedantic-errors -Wall -march=k8 -fno-builtin -malign-double -mpc80 -Wl,-rpath=/opt/bw/lib,--enable-new-dtags
+CPPFLAGS=-I/opt/bw/include -D_LARGEFILE64_SOURCE -D_POSIX_PTHREAD_SEMANTICS -D_TS_ERRNO
+
+styx$ $CC $CFLAGS $CPPFLAGS -o n n.c -lm
+
+
+styx$ ./n 0.1
+guess x0 = 0.1
+x1 = 0.447727
+x2 = 0.604512
+x3 = 0.658225
+x4 = 0.666463
+x5 = 0.666667
+ 
+styx$ ./n 1.8
+guess x0 = 1.8
+x1 = 1.33103
+x2 = 1.11009
+x3 = 1.0219
+x4 = 1.00127
+x5 = 1
+x6 = 1
+
+styx$ ./n 0.83334
+guess x0 = 0.83334
+x1 = 2084.17
+x2 = 1042.5
+x3 = 521.667
+x4 = 261.25
+x5 = 131.042
+x6 = 65.9376
+x7 = 33.3857
+x8 = 17.1099
+x9 = 8.97249
+x10 = 4.90462
+x11 = 2.87239
+x12 = 1.85967
+x13 = 1.36004
+x14 = 1.12305
+x15 = 1.02613
+x16 = 1.00177
+x17 = 1.00001
+x18 = 1
+
+styx$ ./n 0.83332
+guess x0 = 0.83332
+x1 = -1040.83
+x2 = -520
+x3 = -259.583
+x4 = -129.375
+x5 = -64.271
+x6 = -31.719
+x7 = -15.4433
+x8 = -7.30583
+x9 = -3.23795
+x10 = -1.20572
+x11 = -0.193005
+x12 = 0.306632
+x13 = 0.543613
+x14 = 0.640534
+x15 = 0.664896
+x16 = 0.666657
+x17 = 0.666667
+styx$ 
+
