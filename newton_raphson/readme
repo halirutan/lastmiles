@@ -11,6 +11,25 @@ CC=/usr/bin/gcc-8
 CFLAGS=-std=iso9899:1999 -m64 -g -pedantic -pedantic-errors -Wall -march=k8 -fno-builtin -malign-double -mpc80 -Wl,-rpath=/opt/bw/lib,--enable-new-dtags
 CPPFLAGS=-I/opt/bw/include -D_LARGEFILE64_SOURCE -D_POSIX_PTHREAD_SEMANTICS -D_TS_ERRNO
 
+
+Or perhaps LLVM/Clang on FreeBSD 
+
+CC=/usr/bin/cc
+export CC
+
+CFLAGS=\-m64\ \-std=c99\ \-O0\ \-g\ \-Werror\ \
+\-no-integrated-as\ \-fno-fast-math\ \-fno-builtin\ \
+\-fdiagnostics-format=vi\ \-fno-color-diagnostics
+export CFLAGS 
+
+CPPFLAGS=\-D_TS_ERRNO\ \-D_POSIX_PTHREAD_SEMANTICS\ \
+\-D_LARGEFILE64_SOURCE
+export CPPFLAGS
+
+LD_FLAGS=\-Wl,-rpath=/usr/local/lib\ \-L/usr/local/lib
+export LD_FLAGS
+
+
 styx$ $CC $CFLAGS $CPPFLAGS -o n n.c -lm
 
 
