@@ -125,6 +125,7 @@ int main(int argc, char*argv[])
     }
     offset_y = (disp_height - height)/2;
 
+    /* temporary hack offset */
     offset_x = 40;
     offset_y = 40;
 
@@ -137,11 +138,11 @@ int main(int argc, char*argv[])
     gc = create_gc(dsp, win);
 
     /* create a smaller darker window to the right */
-    win2 = create_borderless_topwin(dsp, 400, 400, 696, 100, 0x080808);
+    win2 = create_borderless_topwin(dsp, 400, 200, 696, 100, 0x080808);
     gc2 = create_gc(dsp, win2);
 
     /* create another small window below that */
-    win3 = create_borderless_topwin(dsp, 400, 400, 696, 540, 0x080808);
+    win3 = create_borderless_topwin(dsp, 400, 200, 696, 440, 0x080808);
     gc3 = create_gc(dsp, win2);
 
     XSync(dsp, False);
@@ -183,13 +184,13 @@ int main(int argc, char*argv[])
     XSetForeground(dsp, gc2, blue.pixel);
     retcode1 = XSetLineAttributes(dsp, gc2, 1, LineSolid, CapButt, JoinMiter);
     fprintf(stdout,"gc2 XSetLineAttributes returns %i\n", retcode1 );
-    XDrawRectangle(dsp, win2, gc2, 5, 5, 390, 390);
+    XDrawRectangle(dsp, win2, gc2, 5, 5, 390, 190);
 
     /* draw a yellow box inside the third window */
     XSetForeground(dsp, gc3, yellow.pixel);
     retcode1 = XSetLineAttributes(dsp, gc3, 1, LineSolid, CapButt, JoinMiter);
     fprintf(stdout,"gc3 XSetLineAttributes returns %i\n", retcode1 );
-    XDrawRectangle(dsp, win3, gc3, 5, 5, 390, 390);
+    XDrawRectangle(dsp, win3, gc3, 5, 5, 390, 190);
 
     /* try to set line characteristics on the gc
      * https://www.x.org/archive/X11R7.7/doc/man/man3/XSetLineAttributes.3.xhtml
@@ -237,7 +238,7 @@ int main(int argc, char*argv[])
     buf = calloc((size_t)128,sizeof(unsigned char));
 
     XSetForeground(dsp, gc, WhitePixel(dsp, screen_num));
-    XSetForeground(dsp, gc2, yellow.pixel);
+    /* XSetForeground(dsp, gc2, yellow.pixel); */
     XSetFont(dsp, gc2, type_font);
 
     /* horizontal minor tic marks at every 16th */
@@ -246,8 +247,9 @@ int main(int argc, char*argv[])
         XDrawLine(dsp, win, gc, j, 8, j, 12);
         XDrawLine(dsp, win, gc, j, height - 8, j, height - 12);
         sprintf(buf,"[%02i] j = %4i   minus offset = %4i", p, j, j - offset_x);
-        fprintf(stdout,"%s\n",buf);
+        fprintf(stdout,"horizontal minor tic mark %s\n",buf);
         k = 60 + 20 * p;
+        /* note that the gc2 default color was commented out above */
         /* XDrawImageString(dsp,win2,gc2,10,k,buf,strlen(buf)); */
         p += 1;
     }
@@ -260,19 +262,23 @@ int main(int argc, char*argv[])
         XDrawLine(dsp, win, gc, 8, j, 12, j);
         XDrawLine(dsp, win, gc, width - 8, j, width - 12, j);
         sprintf(buf,"[%02i] j = %4i   minus offset = %4i", p, j, j - offset_y);
-        fprintf(stdout,"%s\n",buf);
+        fprintf(stdout,"vertical minor tic mark %s\n",buf);
         k = 60 + 20 * p;
         /* XDrawImageString(dsp,win2,gc2,40,k,buf,strlen(buf)); */
         p += 1;
     }
     XFlush(dsp);
 
-    /* now we need an inner grid which is a very very dark grey */
+    /* now we need an inner grid which is a very very dark grey.
+     * Here we manually define the rgb components using 16bit
+     * values and then create the new color */
     color_cell.flags= DoRed | DoGreen | DoBlue;
     color_cell.red = 0x1f00;
     color_cell.green = 0x1f00;
     color_cell.blue = 0x1f00;
     XAllocColor(dsp, screen_colormap, &color_cell);
+
+    /* now we use the color we created */
     XSetForeground(dsp,gc,color_cell.pixel);
     for ( j=(offset_x + (eff_width/16)); j<lx; j+=(eff_width/16) ){
         XDrawLine(dsp, win, gc, j, 13, j, height-13);
@@ -282,10 +288,14 @@ int main(int argc, char*argv[])
     }
     /* a dead center white pixel */
     XSetForeground(dsp, gc, XWhitePixel(dsp, screen_num));
-    XDrawPoint(dsp, win, gc, offset_x + (eff_width/2), offset_y + (eff_height/2)
-);
+    XDrawPoint(dsp, win, gc,
+            offset_x + (eff_width/2), offset_y + (eff_height/2) );
 
     XFlush(dsp);
+
+
+
+
 
 
     /* outer edge green lines */
