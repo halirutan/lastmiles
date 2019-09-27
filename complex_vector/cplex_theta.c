@@ -12,18 +12,13 @@
  *********************************************************************/
 #define _XOPEN_SOURCE 600
 
-#include <stdlib.h>
+#include <math.h>
 #include "v.h"
 
-cplex_type * cplex_add( cplex_type *op1, cplex_type *op2 )
+/* return the polar coordinate angle of op1 */
+double cplex_theta( cplex_type *op1 )
 {
-
-    cplex_type *res = calloc( (size_t)1, (size_t)sizeof(cplex_type));
-
-    res->r = op1->r + op2->r;
-    res->i = op1->i + op2->i;
-
+    double res = atan2( op1->i, op1->r );
     return res;
-
 }
 
