@@ -43,8 +43,8 @@ int main ( int argc, char **argv)
     v2->y.r = 1.0;
 */
 
-    op1.i = 1.0;
-    op2.i = 1.0;
+    op1.i = 1.0; op1.r = 0.0;
+    op2.i = 1.0; op2.r = 0.0;
     printf("dbug : op1 = ( %g, %g )\n", op1.r, op1.i);
     printf("     : op2 = ( %g, %g )\n", op2.r, op2.i);
     cplex_mult( &op1, &op2, &opr );
