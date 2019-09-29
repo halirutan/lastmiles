@@ -19,7 +19,7 @@
 double cplex_theta( cplex_type *op1 );
 double cplex_mag( cplex_type *op1 );
 
-cplex_type * cplex_sqrt( cplex_type *op1 )
+void cplex_sqrt( cplex_type *op1, cplex_type *res )
 {
 
     double theta = cplex_theta( op1 );
@@ -35,7 +35,6 @@ cplex_type * cplex_sqrt( cplex_type *op1 )
      * square roots of complex numbers
      *
      */
-    cplex_type *res = calloc( (size_t)2, (size_t)sizeof(cplex_type));
 
     /* primary root */
     res[0].r = sqrt_mag * cos( theta / 2.0 );
@@ -43,8 +42,6 @@ cplex_type * cplex_sqrt( cplex_type *op1 )
     /* Thanks to Euler we go around the circle pi radians */
     res[1].r = sqrt_mag * cos( PI_L + theta / 2.0 ); 
     res[1].i = sqrt_mag * sin( PI_L + theta / 2.0 ); 
-
-    return res;
 
 }
 

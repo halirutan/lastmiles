@@ -19,7 +19,7 @@
 double cplex_theta( cplex_type *op1 );
 double cplex_mag( cplex_type *op1 );
 
-cplex_type * cplex_cubert( cplex_type *op1 )
+void cplex_cubert( cplex_type *op1, cplex_type *res )
 {
 
     double theta = cplex_theta( op1 );
@@ -34,8 +34,7 @@ cplex_type * cplex_cubert( cplex_type *op1 )
      *
      * for integer N.
      */
-    cplex_type *res = calloc( (size_t)3, (size_t)sizeof(cplex_type));
-
+    
     /* primary root */
     res[0].r = cubert_mag * cos( theta / 3.0 );
     res[0].i = cubert_mag * sin( theta / 3.0 );
@@ -45,8 +44,6 @@ cplex_type * cplex_cubert( cplex_type *op1 )
 
     res[2].r = cubert_mag * cos( 2.0L * PI3_L + theta / 3.0 ); 
     res[2].i = cubert_mag * sin( 2.0L * PI3_L + theta / 3.0 ); 
-
-    return res;
 
 }
 

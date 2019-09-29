@@ -15,10 +15,8 @@
 #include <stdlib.h>
 #include "v.h"
 
-cplex_type * cplex_mult( cplex_type *op1, cplex_type *op2 )
+void cplex_mult( cplex_type *op1, cplex_type *op2, cplex_type *res )
 {
-
-    cplex_type *res = calloc( (size_t)1, (size_t)sizeof(cplex_type));
 
     /*  ( r1, i1 ) ( r2, i2 ) =  r1xr2 + r1xi2 + i1xr2 + i1xi2
      *
@@ -27,8 +25,6 @@ cplex_type * cplex_mult( cplex_type *op1, cplex_type *op2 )
 
     res->r = op1->r * op2->r - ( op1->i * op2->i );
     res->i = op1->r * op2->i + ( op2->r * op1->i );
-
-    return res;
 
 }
 

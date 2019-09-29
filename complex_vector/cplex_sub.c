@@ -15,15 +15,11 @@
 #include <stdlib.h>
 #include "v.h"
 
-cplex_type * cplex_sub( cplex_type *op1, cplex_type *op2 )
+void cplex_sub( cplex_type *op1, cplex_type *op2, cplex_type * res )
 {
-
-    cplex_type *res = calloc( 1, sizeof(cplex_type));
 
     res->r = op1->r - op2->r;
     res->i = op1->i - op2->i;
-
-    return res;
 
 }
 
