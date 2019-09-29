@@ -19,7 +19,7 @@
 double cplex_theta( cplex_type *op1 );
 double cplex_mag( cplex_type *op1 );
 
-void cplex_sqrt( cplex_type *op1, cplex_type *res )
+void cplex_sqrt( cplex_type *op1, cplex_type res[2] )
 {
 
     double theta = cplex_theta( op1 );

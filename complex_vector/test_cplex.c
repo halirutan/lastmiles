@@ -35,7 +35,7 @@ double cplex_theta( cplex_type *op1 );
 int main ( int argc, char **argv)
 {
 
-    cplex_type op1, op2, opr;
+    cplex_type op1, op2, opr, opr2[3];
     vec_type v[3];
     
 /* not using the vectors yet 
@@ -97,9 +97,9 @@ int main ( int argc, char **argv)
 
     op1.r = opr.r;
     op1.i = opr.i;
-    cplex_sqrt( &op1, &opr );
-    printf("root : 1 is ( %16.12e, %16.12e )\n", opr.r, opr.i);
-    printf("root : 2 is ( %16.12e, %16.12e )\n\n", (&opr+1)->r, (&opr+1)->i);
+    cplex_sqrt( &op1, opr2 );
+    printf("root : 1 is ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
+    printf("root : 2 is ( %16.12e, %16.12e )\n\n", opr2[1].r, opr2[1].i);
     
     /* square root of ( 0, 1 ) */
     printf("dbug : square root test\n");
@@ -108,9 +108,9 @@ int main ( int argc, char **argv)
     printf("dbug : op1 = ( %g, %g )\n", op1.r, op1.i);
     printf("     :     theta = %16.12e\n", cplex_theta(&op1) );
     printf("     :     magnitude is %g\n", cplex_mag(&op1));
-    cplex_sqrt( &op1, &opr );
-    printf("root : 1 is ( %16.12e, %16.12e )\n", opr.r, opr.i);
-    printf("root : 2 is ( %16.12e, %16.12e )\n\n", (&opr+1)->r, (&opr+1)->i);
+    cplex_sqrt( &op1, opr2 );
+    printf("root : 1 is ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
+    printf("root : 2 is ( %16.12e, %16.12e )\n\n", opr2[1].r, opr2[1].i);
 
     /* cube roots of ( -11 + 2i ) */
     printf("dbug : cube root test\n");
@@ -120,10 +120,10 @@ int main ( int argc, char **argv)
     printf("     :     theta = %16.12e\n", cplex_theta(&op1) );
     printf("     :     magnitude is %g\n", cplex_mag(&op1));
     
-    cplex_cubert( &op1, &opr );
-    printf("root : 1 is ( %16.12e, %16.12e )\n", opr.r, opr.i);
-    printf("root : 2 is ( %16.12e, %16.12e )\n", (&opr+1)->r, (&opr+1)->i);
-    printf("root : 3 is ( %16.12e, %16.12e )\n\n", (&opr+2)->r, (&opr+2)->i);
+    cplex_cubert( &op1, opr2 );
+    printf("root : 1 is ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
+    printf("root : 2 is ( %16.12e, %16.12e )\n", opr2[1].r, opr2[1].i);
+    printf("root : 3 is ( %16.12e, %16.12e )\n\n", opr2[2].r, opr2[2].i);
 
     printf("Lets test vector dot product\n");
     /* < (1 + 1i), (2 + 2i), (3+3i) >
@@ -155,7 +155,7 @@ int main ( int argc, char **argv)
 
 
     /* tw0st3p says < 12 + 12im, -6 - 6im, 0 + 0im > */
-    cplex_v_cross(  v, v+1, &v[2] );
+    cplex_v_cross(  v, v+1, v+2 );
     printf("     : v1 cross v2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
             v[2].x.r, v[2].x.i,
             v[2].y.r, v[2].y.i,
