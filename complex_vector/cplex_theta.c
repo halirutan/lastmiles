@@ -18,7 +18,8 @@
 /* return the polar coordinate angle of op1 */
 double cplex_theta( cplex_type *op1 )
 {
-    double res = atan2( op1->i, op1->r );
-    return res;
+
+    return atan2( op1->i, op1->r );
+
 }
 

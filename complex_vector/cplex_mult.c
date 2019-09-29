@@ -18,7 +18,7 @@
 cplex_type * cplex_mult( cplex_type *op1, cplex_type *op2 )
 {
 
-    cplex_type *res = calloc( 1, sizeof(cplex_type));
+    cplex_type *res = calloc( (size_t)1, (size_t)sizeof(cplex_type));
 
     /*  ( r1, i1 ) ( r2, i2 ) =  r1xr2 + r1xi2 + i1xr2 + i1xi2
      *

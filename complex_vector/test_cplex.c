@@ -25,6 +25,10 @@ cplex_type * cplex_mult( cplex_type *op1, cplex_type *op2 );
 cplex_type * cplex_div( cplex_type *op1, cplex_type *op2 );
 cplex_type * cplex_sq( cplex_type *op1 );
 cplex_type * cplex_sqrt( cplex_type *op1 );
+cplex_type * cplex_cubert( cplex_type *op1 );
+cplex_type * cplex_v_dot( vec_type *op1, vec_type *op2 );
+vec_type * cplex_v_cross( vec_type *op1, vec_type *op2 );
+
 double cplex_mag( cplex_type *op1 );
 double cplex_theta( cplex_type *op1 );
 
@@ -32,15 +36,9 @@ int main ( int argc, char **argv)
 {
 
     cplex_type *op1, *op2, *opr;
-
-/* these are noop test vectors
-    vec_t *v1, *v2;
-    v1 = calloc ( 1, sizeof(vec_t) );
-    v2 = calloc ( 1, sizeof(vec_t) );
-*/
-
-    op1 = calloc ( 1, sizeof(cplex_type) );
-    op2 = calloc ( 1, sizeof(cplex_type) );
+    vec_type *v = calloc ( (size_t)3, sizeof(vec_type) );
+    op1 = calloc ( (size_t)1, sizeof(cplex_type) );
+    op2 = calloc ( (size_t)1, sizeof(cplex_type) );
 
 /* not using the vectors yet 
     v1->x.r = 1.0;
@@ -111,6 +109,7 @@ int main ( int argc, char **argv)
     free(opr);
 
     /* square root of ( 0, 1 ) */
+    printf("dbug : square root test\n");
     op1->r = 0.0;
     op1->i = 1.0;
     printf("dbug : op1 = ( %g, %g )\n", op1->r, op1->i);
@@ -121,10 +120,60 @@ int main ( int argc, char **argv)
     printf("root : 2 is ( %16.12e, %16.12e )\n\n", (opr+1)->r, (opr+1)->i);
     free(opr);
 
-    /*
-    free(v1);
-    free(v2);
-    */
+    /* cube roots of ( -11 + 2i ) */
+    printf("dbug : cube root test\n");
+    op1->r = -11.0;
+    op1->i = 2.0;
+    printf("     : op1 = ( %g, %g )\n", op1->r, op1->i);
+    printf("     :     theta = %16.12e\n", cplex_theta(op1) );
+    printf("     :     magnitude is %g\n", cplex_mag(op1));
+    opr = cplex_cubert( op1 );
+    printf("root : 1 is ( %16.12e, %16.12e )\n", opr->r, opr->i);
+    printf("root : 2 is ( %16.12e, %16.12e )\n", (opr+1)->r, (opr+1)->i);
+    printf("root : 3 is ( %16.12e, %16.12e )\n\n", (opr+2)->r, (opr+2)->i);
+    free(opr);
+
+    printf("Lets test vector dot product\n");
+    /* < (1 + 1i), (2 + 2i), (3+3i) >
+     *                    . <( -1 - 1i), ( -2 -2i), ( 3 - 3i ) >
+     *
+     *
+     * should be ( 18, -10i ) */
+
+    /* first vector is < (1 + 1i), (2 + 2i), (3+3i) > */
+    v[0].x.r = 1.0; v[0].x.i = 1.0;
+    v[0].y.r = 2.0; v[0].y.i = 2.0;
+    v[0].z.r = 3.0; v[0].z.i = 3.0;
+    printf("dbug : v1 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[0].x.r, v[0].x.i,
+            v[0].y.r, v[0].y.i,
+            v[0].z.r, v[0].z.i );
+
+    /* second vector is <( -1 - 1i), ( -2 -2i), ( 3 - 3i ) > */
+    v[1].x.r = -1.0; v[1].x.i = -1.0;
+    v[1].y.r = -2.0; v[1].y.i = -2.0;
+    v[1].z.r =  3.0; v[1].z.i = -3.0;
+    printf("     : v2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[1].x.r, v[1].x.i,
+            v[1].y.r, v[1].y.i,
+            v[1].z.r, v[1].z.i );
+
+    opr = cplex_v_dot( v, v+1 );
+    printf("     : dot product = ( %g, %g )\n\n", opr->r, opr->i);
+
+
+    /* tw0st3p says < 3 + 14i, 6 - 15i, -1 + 1i > */
+    v[2] = *cplex_v_cross(  v, v+1 );
+    printf("     : v1 cross v2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[2].x.r, v[2].x.i,
+            v[2].y.r, v[2].y.i,
+            v[2].z.r, v[2].z.i );
+
+
+
+
+    free(opr);
+    free(v);
     free(op1);
     free(op2);
     return ( EXIT_SUCCESS );

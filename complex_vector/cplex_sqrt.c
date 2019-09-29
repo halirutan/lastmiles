@@ -25,9 +25,10 @@ cplex_type * cplex_sqrt( cplex_type *op1 )
     double theta = cplex_theta( op1 );
     double sqrt_mag = sqrt(cplex_mag( op1 ));
 
-    /* negatratoron: in cartesian coordinates,
-     *     (r, i)^2 = (r^2 - i^2, 2 r i) 
-     *              = ((-r)^2 - (-i)^2, 2 (-r) (-i))
+    /* Jefferson Carpenter says in cartesian coordinates,
+     *
+     *     (r, i)^2 = (r^2 - i^2, 2 * r * i) 
+     *              = ((-r)^2 - (-i)^2, 2 * (-r) * (-i))
      *              = (-r, -i)^2
      *
      * Another easy proof that there are two unique
@@ -36,11 +37,12 @@ cplex_type * cplex_sqrt( cplex_type *op1 )
      */
     cplex_type *res = calloc( (size_t)2, (size_t)sizeof(cplex_type));
 
-    res->r = sqrt_mag * cos( theta / 2.0 );
-    res->i = sqrt_mag * sin( theta / 2.0 );
-
-    (res+1)->r = sqrt_mag * cos( PI_L + theta / 2.0 ); 
-    (res+1)->i = sqrt_mag * sin( PI_L + theta / 2.0 ); 
+    /* primary root */
+    res[0].r = sqrt_mag * cos( theta / 2.0 );
+    res[0].i = sqrt_mag * sin( theta / 2.0 );
+    /* Thanks to Euler we go around the circle pi radians */
+    res[1].r = sqrt_mag * cos( PI_L + theta / 2.0 ); 
+    res[1].i = sqrt_mag * sin( PI_L + theta / 2.0 ); 
 
     return res;
 
