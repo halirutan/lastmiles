@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include "v.h"
 
-void cplex_mult( cplex_type *op1, cplex_type *op2, cplex_type *res )
+void cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 )
 {
 
     /*  ( r1, i1 ) ( r2, i2 ) =  r1xr2 + r1xi2 + i1xr2 + i1xi2

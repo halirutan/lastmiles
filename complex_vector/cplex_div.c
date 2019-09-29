@@ -16,7 +16,7 @@
 #include "v.h"
 
 /* return op1 / op2 */
-void cplex_div( cplex_type *op1, cplex_type *op2, cplex_type *res )
+void cplex_div( cplex_type *res, cplex_type *op1, cplex_type *op2 )
 {
 
     double denom;

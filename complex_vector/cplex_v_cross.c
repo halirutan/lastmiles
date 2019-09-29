@@ -15,10 +15,10 @@
 #include <stdlib.h>
 #include "v.h"
 
-void cplex_sub( cplex_type *op1, cplex_type *op2, cplex_type * res );
-void cplex_mult( cplex_type *op1, cplex_type *op2, cplex_type *res );
+void cplex_sub( cplex_type *res, cplex_type *op1, cplex_type *op2 );
+void cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 );
 
-void cplex_v_cross( vec_type *op1, vec_type *op2, vec_type *res )
+void cplex_v_cross( vec_type *res, vec_type *op1, vec_type *op2 )
 {
 
     cplex_type op_left, op_right, op_sub;
@@ -58,21 +58,21 @@ void cplex_v_cross( vec_type *op1, vec_type *op2, vec_type *res )
      *
      */
 
-    cplex_mult( &op1->y, &op2->z, &op_left );
-    cplex_mult( &op1->z, &op2->y, &op_right );
-    cplex_sub( &op_left, &op_right, &op_sub );
+    cplex_mult( &op_left, &op1->y, &op2->z );
+    cplex_mult( &op_right, &op1->z, &op2->y );
+    cplex_sub( &op_sub, &op_left, &op_right );
     res->x.r = op_sub.r;
     res->x.i = op_sub.i;
     
-    cplex_mult( &op1->z, &op2->x, &op_left );
-    cplex_mult( &op1->x, &op2->z, &op_right );
-    cplex_sub( &op_left, &op_right, &op_sub );
+    cplex_mult( &op_left, &op1->z, &op2->x );
+    cplex_mult( &op_right, &op1->x, &op2->z );
+    cplex_sub( &op_sub, &op_left, &op_right );
     res->y.r = op_sub.r;
     res->y.i = op_sub.i;
     
-    cplex_mult( &op1->x, &op2->y, &op_left );
-    cplex_mult( &op1->y, &op2->x, &op_right );
-    cplex_sub( &op_left, &op_right, &op_sub );
+    cplex_mult( &op_left, &op1->x, &op2->y );
+    cplex_mult( &op_right, &op1->y, &op2->x );
+    cplex_sub( &op_sub, &op_left, &op_right );
     res->z.r = op_sub.r;
     res->z.i = op_sub.i;
     

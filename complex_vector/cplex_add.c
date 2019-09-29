@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include "v.h"
 
-void cplex_add( cplex_type *op1, cplex_type *op2, cplex_type *res )
+void cplex_add( cplex_type *res, cplex_type *op1, cplex_type *op2 )
 {
 
     res->r = op1->r + op2->r;
