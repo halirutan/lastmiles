@@ -15,15 +15,11 @@
 #include <stdlib.h>
 #include "v.h"
 
-cplex_type * cplex_add( cplex_type *op1, cplex_type *op2 )
+void cplex_add( cplex_type *res, cplex_type *op1, cplex_type *op2 )
 {
-
-    cplex_type *res = calloc( (size_t)1, (size_t)sizeof(cplex_type));
 
     res->r = op1->r + op2->r;
     res->i = op1->i + op2->i;
-
-    return res;
 
 }
 

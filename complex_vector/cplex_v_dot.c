@@ -15,27 +15,19 @@
 #include <stdlib.h>
 #include "v.h"
 
-cplex_type * cplex_mult( cplex_type *op1, cplex_type *op2 );
+void cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 );
 
-cplex_type * cplex_v_dot( vec_type *op1, vec_type *op2 )
+void cplex_v_dot( cplex_type *res, vec_type *op1, vec_type *op2 )
 {
 
-    cplex_type *res = calloc( (size_t)1, sizeof(cplex_type));
-    cplex_type **tmp = calloc( (size_t)3, sizeof(cplex_type*));
+    cplex_type tmp[3];
 
-    tmp[0] = cplex_mult( &op1->x, &op2->x );
-    tmp[1] = cplex_mult( &op1->y, &op2->y );
-    tmp[2] = cplex_mult( &op1->z, &op2->z );
+    cplex_mult( &tmp[0], &op1->x, &op2->x );
+    cplex_mult( &tmp[1], &op1->y, &op2->y );
+    cplex_mult( &tmp[2], &op1->z, &op2->z );
 
-    res->r = tmp[0]->r + tmp[1]->r + tmp[2]->r;
-    res->i = tmp[0]->i + tmp[1]->i + tmp[2]->i;
-
-    free(tmp[2]);
-    free(tmp[1]);
-    free(tmp[0]);
-    free(tmp);
-
-    return res;
+    res->r = tmp[0].r + tmp[1].r + tmp[2].r;
+    res->i = tmp[0].i + tmp[1].i + tmp[2].i;
 
 }
 

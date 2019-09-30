@@ -15,15 +15,14 @@
 #include <stdlib.h>
 #include "v.h"
 
-cplex_type * cplex_sub( cplex_type *op1, cplex_type *op2 );
-cplex_type * cplex_mult( cplex_type *op1, cplex_type *op2 );
+void cplex_sub( cplex_type *res, cplex_type *op1, cplex_type *op2 );
+void cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 );
 
-vec_type * cplex_v_cross( vec_type *op1, vec_type *op2 )
+void cplex_v_cross( vec_type *res, vec_type *op1, vec_type *op2 )
 {
 
-    cplex_type *op_left, *op_right, *op_sub;
-    vec_type *res = calloc( (size_t)1, sizeof(vec_type));
-
+    cplex_type op_left, op_right, op_sub;
+    
     /* the determinant of a 3x3 matrix with the top row
      * being the basis vectors i, j, k and then row 2
      * would be operand op1 components and row 3 is op2
@@ -59,28 +58,23 @@ vec_type * cplex_v_cross( vec_type *op1, vec_type *op2 )
      *
      */
 
-    op_left = cplex_mult( &op1->y, &op2->z );
-    op_right = cplex_mult( &op1->z, &op2->y );
-    op_sub = cplex_sub( op_left, op_right );
-    res->x.r = op_sub->r;
-    res->x.i = op_sub->i;
-    free(op_left); free(op_right); free(op_sub);
-
-    op_left = cplex_mult( &op1->z, &op2->x );
-    op_right = cplex_mult( &op1->x, &op2->z );
-    op_sub = cplex_sub( op_left, op_right );
-    res->y.r = op_sub->r;
-    res->y.i = op_sub->i;
-    free(op_left); free(op_right); free(op_sub);
-
-    op_left = cplex_mult( &op1->x, &op2->y );
-    op_right = cplex_mult( &op1->y, &op2->x );
-    op_sub = cplex_sub( op_left, op_right );
-    res->z.r = op_sub->r;
-    res->z.i = op_sub->i;
-    free(op_left); free(op_right); free(op_sub);
-
-    return res;
-
+    cplex_mult( &op_left, &op1->y, &op2->z );
+    cplex_mult( &op_right, &op1->z, &op2->y );
+    cplex_sub( &op_sub, &op_left, &op_right );
+    res->x.r = op_sub.r;
+    res->x.i = op_sub.i;
+    
+    cplex_mult( &op_left, &op1->z, &op2->x );
+    cplex_mult( &op_right, &op1->x, &op2->z );
+    cplex_sub( &op_sub, &op_left, &op_right );
+    res->y.r = op_sub.r;
+    res->y.i = op_sub.i;
+    
+    cplex_mult( &op_left, &op1->x, &op2->y );
+    cplex_mult( &op_right, &op1->y, &op2->x );
+    cplex_sub( &op_sub, &op_left, &op_right );
+    res->z.r = op_sub.r;
+    res->z.i = op_sub.i;
+    
 }
 

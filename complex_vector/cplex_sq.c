@@ -16,15 +16,11 @@
 #include "v.h"
 
 /* return the square of op1 */
-cplex_type * cplex_sq( cplex_type *op1 )
+void cplex_sq( cplex_type *res, cplex_type *op1 )
 {
-
-    cplex_type *res = calloc( 1, sizeof(cplex_type));
 
     res->r = op1->r * op1->r - ( op1->i * op1->i );
     res->i = op1->r * op1->i + ( op1->r * op1->i );
-
-    return res;
 
 }
 
