@@ -19,11 +19,11 @@
 double cplex_theta( cplex_type *op1 );
 double cplex_mag( cplex_type *op1 );
 
-void cplex_cubert( cplex_type res[3], cplex_type *op1 )
+void cplex_cbrt( cplex_type res[3], cplex_type *op1 )
 {
 
     double theta = cplex_theta( op1 );
-    double cubert_mag = cbrt(cplex_mag( op1 ));
+    double cbrt_mag = cbrt(cplex_mag( op1 ));
 
     /* Please see comment from Jefferson Carpenter 
      * regarding roots in the square root source.
@@ -36,14 +36,14 @@ void cplex_cubert( cplex_type res[3], cplex_type *op1 )
      */
     
     /* primary root */
-    res[0].r = cubert_mag * cos( theta / 3.0 );
-    res[0].i = cubert_mag * sin( theta / 3.0 );
+    res[0].r = cbrt_mag * cos( theta / 3.0 );
+    res[0].i = cbrt_mag * sin( theta / 3.0 );
     /* Thanks to Euler we go around the circle 2pi/3 radians */
-    res[1].r = cubert_mag * cos( PI3_L + theta / 3.0 ); 
-    res[1].i = cubert_mag * sin( PI3_L + theta / 3.0 ); 
+    res[1].r = cbrt_mag * cos( PI3_L + theta / 3.0 ); 
+    res[1].i = cbrt_mag * sin( PI3_L + theta / 3.0 ); 
 
-    res[2].r = cubert_mag * cos( 2.0L * PI3_L + theta / 3.0 ); 
-    res[2].i = cubert_mag * sin( 2.0L * PI3_L + theta / 3.0 ); 
+    res[2].r = cbrt_mag * cos( 2.0L * PI3_L + theta / 3.0 ); 
+    res[2].i = cbrt_mag * sin( 2.0L * PI3_L + theta / 3.0 ); 
 
 }
 

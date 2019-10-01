@@ -25,7 +25,7 @@ void cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 );
 void cplex_div( cplex_type *res, cplex_type *op1, cplex_type *op2 );
 void cplex_sq( cplex_type *res, cplex_type *op1 );
 void cplex_sqrt( cplex_type *res, cplex_type *op1 );
-void cplex_cubert( cplex_type *res, cplex_type *op1 );
+void cplex_cbrt( cplex_type *res, cplex_type *op1 );
 void cplex_v_dot( cplex_type *res, vec_type *op1, vec_type *op2 );
 void cplex_v_cross( vec_type *res, vec_type *op1, vec_type *op2 );
 
@@ -120,7 +120,7 @@ int main ( int argc, char **argv)
     printf("     :     theta = %16.12e\n", cplex_theta(&op1) );
     printf("     :     magnitude is %g\n", cplex_mag(&op1));
     
-    cplex_cubert( opr2, &op1 );
+    cplex_cbrt( opr2, &op1 );
     printf("root : 1 is ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
     printf("root : 2 is ( %16.12e, %16.12e )\n", opr2[1].r, opr2[1].i);
     printf("root : 3 is ( %16.12e, %16.12e )\n\n", opr2[2].r, opr2[2].i);
