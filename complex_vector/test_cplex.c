@@ -16,29 +16,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "v.h"
 
-void cplex_add( cplex_type *res, cplex_type *op1, cplex_type *op2 );
-void cplex_sub( cplex_type *res, cplex_type *op1, cplex_type *op2 );
-void cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 );
-void cplex_div( cplex_type *res, cplex_type *op1, cplex_type *op2 );
-void cplex_sq( cplex_type *res, cplex_type *op1 );
-void cplex_sqrt( cplex_type *res, cplex_type *op1 );
-void cplex_cbrt( cplex_type *res, cplex_type *op1 );
-void cplex_v_dot( cplex_type *res, vec_type *op1, vec_type *op2 );
-void cplex_v_cross( vec_type *res, vec_type *op1, vec_type *op2 );
+void check_status( int status ) {
 
-double cplex_mag( cplex_type *op1 );
-double cplex_theta( cplex_type *op1 );
+  assert( status == 0 );
+
+}
 
 int main ( int argc, char **argv)
 {
 
     cplex_type op1, op2, opr, opr2[3];
     vec_type v[3];
-    
-/* not using the vectors yet 
+    int status;
+
+/* not using the vectors yet
     v1->x.r = 1.0;
     v2->y.r = 1.0;
 */
@@ -47,38 +42,38 @@ int main ( int argc, char **argv)
     op2.i = 1.0; op2.r = 0.0;
     printf("dbug : op1 = ( %g, %g )\n", op1.r, op1.i);
     printf("     : op2 = ( %g, %g )\n", op2.r, op2.i);
-    cplex_mult( &opr, &op1, &op2 );
+    check_status( cplex_mult( &opr, &op1, &op2 ) );
     printf("     : opr = op1 * op2 = ( %g, %g )\n", opr.r, opr.i);
     printf("     :     should be i^2 = -1\n\n");
-    
+
 
     op1.r = 1.0;
     op1.i = 0.0;
     printf("dbug : op1 = ( %g, %g )\n", op1.r, op1.i);
     printf("     : op2 = ( %g, %g )\n", op2.r, op2.i);
-    cplex_mult( &opr, &op1, &op2 );
+    check_status( cplex_mult( &opr, &op1, &op2 ) );
 
     printf("     : opr = op1 * op2 = ( %g, %g )\n", opr.r, opr.i);
     printf("     :     should be 1i\n\n");
-    
+
     op1.r = 4.0;
     op1.i = 3.0;
     op2.r = 2.0;
     op2.i = -1.0;
     printf("dbug : op1 = ( %g, %g )\n", op1.r, op1.i);
     printf("     : op2 = ( %g, %g )\n", op2.r, op2.i);
-    cplex_div( &opr, &op1, &op2 );
+    check_status( cplex_div( &opr, &op1, &op2 ) );
     printf("dbug : opr = op1 / op2 = ( %g, %g )\n", opr.r, opr.i);
     printf("     :     should be 1 + 2i\n\n");
-    
+
     op2.r = -4.0;
     op2.i = -12.0;
     printf("dbug : op1 = ( %g, %g )\n", op1.r, op1.i);
     printf("     : op2 = ( %g, %g )\n", op2.r, op2.i);
-    cplex_div( &opr, &op1, &op2 );
+    check_status( cplex_div( &opr, &op1, &op2 ) );
     printf("dbug : opr = op1 / op2 = ( %g, %g )\n", opr.r, opr.i);
     printf("     :     should be -0.325 + 0.225i\n\n");
-    
+
     op1.r = 2.0;
     op1.i = 1.0;
     printf("dbug : op1 = ( %g, %g )\n", op1.r, op1.i);
@@ -89,7 +84,7 @@ int main ( int argc, char **argv)
     printf("dbug : op1 = ( %g, %g )\n", op1.r, op1.i);
     printf("     :     theta = %16.12e\n", cplex_theta( &op1 ) );
 
-    cplex_sq( &opr, &op1 );
+    check_status( cplex_sq( &opr, &op1 ) );
     printf("     : opr = op1^2 = ( %g, %g )\n", opr.r, opr.i);
     printf("     :     should be 7 + 24i\n");
     printf("     :     magnitude is %g\n", cplex_mag(&opr));
@@ -97,10 +92,10 @@ int main ( int argc, char **argv)
 
     op1.r = opr.r;
     op1.i = opr.i;
-    cplex_sqrt( opr2, &op1 );
+    check_status( cplex_sqrt( opr2, &op1 ) );
     printf("root : 1 is ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
     printf("root : 2 is ( %16.12e, %16.12e )\n\n", opr2[1].r, opr2[1].i);
-    
+
     /* square root of ( 0, 1 ) */
     printf("dbug : square root test\n");
     op1.r = 0.0;
@@ -108,7 +103,7 @@ int main ( int argc, char **argv)
     printf("dbug : op1 = ( %g, %g )\n", op1.r, op1.i);
     printf("     :     theta = %16.12e\n", cplex_theta(&op1) );
     printf("     :     magnitude is %g\n", cplex_mag(&op1));
-    cplex_sqrt( opr2, &op1 );
+    check_status( cplex_sqrt( opr2, &op1 ) );
     printf("root : 1 is ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
     printf("root : 2 is ( %16.12e, %16.12e )\n\n", opr2[1].r, opr2[1].i);
 
@@ -119,8 +114,8 @@ int main ( int argc, char **argv)
     printf("     : op1 = ( %g, %g )\n", op1.r, op1.i);
     printf("     :     theta = %16.12e\n", cplex_theta(&op1) );
     printf("     :     magnitude is %g\n", cplex_mag(&op1));
-    
-    cplex_cbrt( opr2, &op1 );
+
+    check_status( cplex_cbrt( opr2, &op1 ) );
     printf("root : 1 is ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
     printf("root : 2 is ( %16.12e, %16.12e )\n", opr2[1].r, opr2[1].i);
     printf("root : 3 is ( %16.12e, %16.12e )\n\n", opr2[2].r, opr2[2].i);
@@ -150,12 +145,12 @@ int main ( int argc, char **argv)
             v[1].y.r, v[1].y.i,
             v[1].z.r, v[1].z.i );
 
-    cplex_v_dot( &opr, v, v+1);
+    check_status( cplex_vec_dot( &opr, v, v+1) );
     printf("     : dot product = ( %g, %g )\n\n", opr.r, opr.i);
 
 
     /* tw0st3p says < 12 + 12im, -6 - 6im, 0 + 0im > */
-    cplex_v_cross( v+2, v, v+1 );
+    check_status( cplex_vec_cross( v+2, v, v+1 ) );
     printf("     : v1 cross v2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
             v[2].x.r, v[2].x.i,
             v[2].y.r, v[2].y.i,

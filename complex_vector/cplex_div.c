@@ -16,7 +16,7 @@
 #include "v.h"
 
 /* return op1 / op2 */
-void cplex_div( cplex_type *res, cplex_type *op1, cplex_type *op2 )
+int cplex_div( cplex_type *res, cplex_type *op1, cplex_type *op2 )
 {
 
     double denom;
@@ -42,9 +42,17 @@ void cplex_div( cplex_type *res, cplex_type *op1, cplex_type *op2 )
      *
      */
 
+    cplex_check(op1);
+    cplex_check(op2);
+
     denom = op2->r * op2->r + op2->i * op2->i;
+
+    if ( denom == 0.0 ) return 1;
+
     res->r = (op1->r * op2->r + op1->i * op2->i) / denom;
     res->i = (op1->i * op2->r - op1->r * op2->i) / denom;
+
+    return ( 0 );
 
 }
 

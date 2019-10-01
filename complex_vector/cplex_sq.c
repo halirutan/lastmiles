@@ -16,11 +16,15 @@
 #include "v.h"
 
 /* return the square of op1 */
-void cplex_sq( cplex_type *res, cplex_type *op1 )
+int cplex_sq( cplex_type *res, cplex_type *op1 )
 {
+
+    cplex_check(op1);
 
     res->r = op1->r * op1->r - ( op1->i * op1->i );
     res->i = op1->r * op1->i + ( op1->r * op1->i );
+
+    return ( 0 );
 
 }
 

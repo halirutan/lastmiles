@@ -15,11 +15,16 @@
 #include <stdlib.h>
 #include "v.h"
 
-void cplex_add( cplex_type *res, cplex_type *op1, cplex_type *op2 )
+int cplex_add( cplex_type *res, cplex_type *op1, cplex_type *op2 )
 {
+
+    cplex_check(op1);
+    cplex_check(op2);
 
     res->r = op1->r + op2->r;
     res->i = op1->i + op2->i;
+
+    return ( 0 );
 
 }
 

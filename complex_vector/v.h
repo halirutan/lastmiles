@@ -25,3 +25,17 @@ typedef struct vec {
     struct cplex x, y, z;
 } vec_type;
 
+int cplex_add( cplex_type *res, cplex_type *op1, cplex_type *op2 );
+int cplex_sub( cplex_type *res, cplex_type *op1, cplex_type *op2 );
+int cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 );
+int cplex_div( cplex_type *res, cplex_type *op1, cplex_type *op2 );
+int cplex_sq( cplex_type *res, cplex_type *op1 );
+int cplex_sqrt( cplex_type *res, cplex_type *op1 );
+int cplex_cbrt( cplex_type *res, cplex_type *op1 );
+int cplex_vec_dot( cplex_type *res, vec_type *op1, vec_type *op2 );
+int cplex_vec_cross( vec_type *res, vec_type *op1, vec_type *op2 );
+
+double cplex_mag( cplex_type *op1 );
+double cplex_theta( cplex_type *op1 );
+
+int cplex_check( cplex_type *op );
