@@ -19,7 +19,8 @@
 int cplex_sqrt( cplex_type res[2], cplex_type *op1 )
 {
 
-    cplex_check(op1);
+    int status = cplex_check(op1);
+    if ( status != 0 ) return status;
 
     double theta = cplex_theta( op1 );
     double sqrt_mag = sqrt(cplex_mag( op1 ));

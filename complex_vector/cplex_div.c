@@ -42,8 +42,10 @@ int cplex_div( cplex_type *res, cplex_type *op1, cplex_type *op2 )
      *
      */
 
-    cplex_check(op1);
-    cplex_check(op2);
+    int status = cplex_check(op1);
+    if ( status != 0 ) return status;
+    status = cplex_check(op2);
+    if ( status != 0 ) return status;
 
     denom = op2->r * op2->r + op2->i * op2->i;
 

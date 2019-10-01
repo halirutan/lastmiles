@@ -19,8 +19,9 @@
 int cplex_sq( cplex_type *res, cplex_type *op1 )
 {
 
-    cplex_check(op1);
-
+    int status = cplex_check(op1);
+    if ( status != 0 ) return status;
+    
     res->r = op1->r * op1->r - ( op1->i * op1->i );
     res->i = op1->r * op1->i + ( op1->r * op1->i );
 

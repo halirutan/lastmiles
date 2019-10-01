@@ -19,8 +19,9 @@
 int cplex_cbrt( cplex_type res[3], cplex_type *op1 )
 {
 
-    cplex_check(op1);
-
+    int status = cplex_check(op1);
+    if ( status != 0 ) return status;
+    
     double theta = cplex_theta( op1 );
     double cbrt_mag = cbrt(cplex_mag( op1 ));
 

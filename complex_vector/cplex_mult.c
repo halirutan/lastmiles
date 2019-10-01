@@ -22,8 +22,11 @@ int cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 )
      *
      * theddmage (x+i*y)*(a+i*b) == ax + i*bx + i*ya -1(by)
      */
-    cplex_check(op1);
-    cplex_check(op2);
+
+    int status = cplex_check(op1);
+    if ( status != 0 ) return status;
+    status = cplex_check(op2);
+    if ( status != 0 ) return status;
 
     res->r = op1->r * op2->r - ( op1->i * op2->i );
     res->i = op1->r * op2->i + ( op2->r * op1->i );
