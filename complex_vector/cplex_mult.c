@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include "v.h"
 
-void cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 )
+int cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 )
 {
 
     /*  ( r1, i1 ) ( r2, i2 ) =  r1xr2 + r1xi2 + i1xr2 + i1xi2
@@ -23,8 +23,15 @@ void cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 )
      * theddmage (x+i*y)*(a+i*b) == ax + i*bx + i*ya -1(by)
      */
 
+    int status = cplex_check(op1);
+    if ( status != 0 ) return status;
+    status = cplex_check(op2);
+    if ( status != 0 ) return status;
+
     res->r = op1->r * op2->r - ( op1->i * op2->i );
     res->i = op1->r * op2->i + ( op2->r * op1->i );
+
+    return ( 0 );
 
 }
 

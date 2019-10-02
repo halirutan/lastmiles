@@ -16,18 +16,18 @@
 #include <stdlib.h>
 #include "v.h"
 
-double cplex_theta( cplex_type *op1 );
-double cplex_mag( cplex_type *op1 );
-
-void cplex_sqrt( cplex_type res[2], cplex_type *op1 )
+int cplex_sqrt( cplex_type res[2], cplex_type *op1 )
 {
+
+    int status = cplex_check(op1);
+    if ( status != 0 ) return status;
 
     double theta = cplex_theta( op1 );
     double sqrt_mag = sqrt(cplex_mag( op1 ));
 
     /* Jefferson Carpenter says in cartesian coordinates,
      *
-     *     (r, i)^2 = (r^2 - i^2, 2 * r * i) 
+     *     (r, i)^2 = (r^2 - i^2, 2 * r * i)
      *              = ((-r)^2 - (-i)^2, 2 * (-r) * (-i))
      *              = (-r, -i)^2
      *
@@ -40,8 +40,10 @@ void cplex_sqrt( cplex_type res[2], cplex_type *op1 )
     res[0].r = sqrt_mag * cos( theta / 2.0 );
     res[0].i = sqrt_mag * sin( theta / 2.0 );
     /* Thanks to Euler we go around the circle pi radians */
-    res[1].r = sqrt_mag * cos( PI_L + theta / 2.0 ); 
-    res[1].i = sqrt_mag * sin( PI_L + theta / 2.0 ); 
+    res[1].r = sqrt_mag * cos( PI_L + theta / 2.0 );
+    res[1].i = sqrt_mag * sin( PI_L + theta / 2.0 );
+
+    return ( 0 );
 
 }
 

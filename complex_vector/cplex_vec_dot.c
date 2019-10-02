@@ -15,9 +15,7 @@
 #include <stdlib.h>
 #include "v.h"
 
-void cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 );
-
-void cplex_v_dot( cplex_type *res, vec_type *op1, vec_type *op2 )
+int cplex_vec_dot( cplex_type *res, vec_type *op1, vec_type *op2 )
 {
 
     cplex_type tmp[3];
@@ -28,6 +26,8 @@ void cplex_v_dot( cplex_type *res, vec_type *op1, vec_type *op2 )
 
     res->r = tmp[0].r + tmp[1].r + tmp[2].r;
     res->i = tmp[0].i + tmp[1].i + tmp[2].i;
+
+    return ( 0 );
 
 }
 
