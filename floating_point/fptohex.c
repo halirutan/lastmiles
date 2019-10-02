@@ -17,13 +17,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <string.h>
+#include <unistd.h>
 #include <errno.h>
  
 void sigsegv_handler( int sig, siginfo_t *si, void *vuctx ) {
-    execl( "/some/path/sigsegv", NULL );
+    execl( "/export/home/dclarke/pgm/lastmiles/floating_point/sigsegv",
+            NULL );
 }
 
-size_t fptohex( char *ret, const void *addr, const size_t n )
+size_t fptohex( char **ret, const void *addr, const size_t n )
 {
     /* Assume that addr is a pointer to a set of bytes in
      * memory and that we have n bytes that we can access.
@@ -33,17 +36,20 @@ size_t fptohex( char *ret, const void *addr, const size_t n )
      * Well actually we could trap a SIGSEGV just for fun.
      *
      * Return the uppercase hexadecimal representation of the
-     * data in ret.  
+     * data in buffer at address *ret and the number of hex
+     * digits processed is returned by the function itself.
      *
-     * We expect ret to be pre-allocated for us but if it is
+     * We expect *ret to be pre-allocated for us but if it is
      * NULL then we can handle the task here. A nice idea is
      * to trap a SIGSEGV on the event we wander into memory 
      * where we should not be.
      */
 
-    uint8_t byte, mask;
+    char buf[4] = "";
+    uint8_t byte;
+    uint8_t *inp = (uint8_t*)addr;
     int j;
-    size_t retval = 0;
+    size_t char_count = 0;
 
     /* trap the possible SIGSEGV */
     struct sigaction sa_sigsegv;
@@ -53,11 +59,10 @@ size_t fptohex( char *ret, const void *addr, const size_t n )
     sigfillset ( &sa_sigsegv.sa_mask );
     sigaction( SIGSEGV, &sa_sigsegv, NULL);
 
-    if ( ret == NULL ){
+    if ( *ret == NULL ){
         /* allocate twice n for the hex digits plus a nul
          * terminator on the char buffer and align on a
          * 16 byte number */
-
 
         size_t bytes_to_clear = 2 * n + 1;
 
@@ -66,7 +71,7 @@ size_t fptohex( char *ret, const void *addr, const size_t n )
             bytes_to_clear = bytes_to_clear + 16 - bytes_to_clear%16;
         }
 
-        ret = calloc( bytes_to_clear, sizeof(unsigned char));
+        *ret = calloc( bytes_to_clear, sizeof(unsigned char));
         if ( ret == NULL ) {
             /* really? possible ENOMEM? */
             if ( errno == ENOMEM ) {
@@ -80,47 +85,32 @@ size_t fptohex( char *ret, const void *addr, const size_t n )
             /* signal a failure and kill the whole process */
             exit( EXIT_FAILURE );
         }
+
+        fprintf(stderr,
+                    "dbug : %lu bytes allocated and cleared at %p\n",
+                    bytes_to_clear, *ret);
+
     }
 
     int foo = 1;  /* dummy test integer */
     if ( *(char *)&foo == 1) {
         /* little endian */
         for ( j=(n-1); j>(-1); j-- ) {
-            byte = f[j];
-            if ( byte ) {
-                mask = 0x80;
-                while (mask){
-                    printf ( "%d", (byte&mask ? 1 : 0) );
-                    mask >>= 1;
-                }
-            } else {
-                printf("00000000");
-            }
-            retval+=1;
+            byte = (uint8_t) *(inp+j);
+            sprintf ( buf, "%02X", byte );
+            strncat(*ret, buf, (size_t)2);
+            char_count+=2;
+
         }
     } else {
         /* big endian */
         for ( j=0; j<n; j++ ) {
-            if (j%8) {
-                printf(" ");
-            } else {
-                /* new line on every eight bytes */
-                printf("\n ");
-            }
-            byte = f[j];
-            if ( byte ) {
-                mask = 0x80;
-                while (mask){
-                    printf ( "%d", (byte&mask ? 1 : 0) );
-                    mask >>= 1;
-                }
-            } else {
-                printf("00000000");
-            }
-            retval+=1;
+            byte = (uint8_t) *(inp+j);
+            sprintf ( buf, "%02X", byte );
+            strncat(*ret, buf, (size_t)2);
+            char_count+=2;
         }
     }
-    printf("\n" );
-    return retval;
+    return char_count;
 }
 

@@ -31,7 +31,7 @@ int main( int argc, char **argv)
     sprintf ( time_buffer, "%10lu.%-9lu", time_tv.tv_sec, time_tv.tv_nsec );
     sprintf ( buffer, "SIGSEGV : %s:%d", __FILE__, __LINE__ );
     printf( "%s at %s\n", buffer, time_buffer );
-    exit ( EXIT_FAILURE );
+    return ( EXIT_FAILURE );
 
 }
 
