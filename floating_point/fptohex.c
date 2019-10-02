@@ -22,7 +22,7 @@
 #include <errno.h>
  
 void sigsegv_handler( int sig, siginfo_t *si, void *vuctx ) {
-    execl( "/export/home/dclarke/pgm/lastmiles/floating_point/sigsegv",
+    execl( "/home/dclarke/pgm/lastmiles/floating_point/sigsegv",
             NULL );
 }
 
@@ -86,9 +86,11 @@ size_t fptohex( char **ret, const void *addr, const size_t n )
             exit( EXIT_FAILURE );
         }
 
-        fprintf(stderr,
-                    "dbug : %lu bytes allocated and cleared at %p\n",
-                    bytes_to_clear, *ret);
+        /*
+         * fprintf(stderr,
+         *          "dbug : %lu bytes allocated and cleared at %p\n",
+         *          bytes_to_clear, *ret);
+         */
 
     }
 

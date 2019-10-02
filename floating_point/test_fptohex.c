@@ -49,6 +49,18 @@ int main( int argc, char **argv)
     printf ("     :      = \"400921FB54442D18\" is correct.\n");
 
     free(rbuf);
+    rbuf = NULL;
+    foo = M_PI_2;
+    /* here we will see the fptohex allocate the mem for us */
+    bar = fptohex( &rbuf, (void *)&foo, sizeof(double) );
+    printf ("dbug : bar = %lu\n", bar);
+    printf ("     : rbuf = \"%s\"\n", rbuf );
+    printf ("     :      = \"400.............\" is correct.\n");
+
+    foo = 3.14159265358979323846264793383250288L / 2.0L;
+    bar = fptohex( NULL, (void *)&foo, sizeof(double) );
+
+    free(rbuf);
     return ( EXIT_SUCCESS );
 }
 

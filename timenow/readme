@@ -1,0 +1,142 @@
+
+$ date -u
+Sun 24 Mar 2019 08:33:44 PM UTC
+
+Modified the test script to check for multiple trailing zeros 
+
+arm7$ ./test.sh 
+  space 0
+ 1 zero 34
+ 2 zero 6
+ 3 zero 1
+ 4 zero 1
+nonzero 58
+arm7$ 
+
+-------------------------------------------------------------------
+
+node000 $ dt
+Fri_Jan__1_005456_GMT_2016
+
+node000 $ ./test.sh ; grep "000$" out 
+1451609752.331926000
+
+node000 $ while read -r line; do echo ${#line}; done < out | sort -u 
+20
+node000 $ cat out | awk '{ print length($0) }' | sort -u
+20
+
+--------- on x86 linux years later 
+
+nix$ gcc -g -m64 -std=c99 -pedantic -O0 -fno-builtin -o tn tn.c -lrt 
+ 
+nix$ ./test.sh ; grep '000$' out 
+nix$ ./test.sh ; grep '000$' out 
+nix$ ./test.sh ; grep '000$' out 
+nix$ ./test.sh ; grep '000$' out 
+nix$ ./test.sh ; grep '000$' out 
+1548904839.210560000
+nix$ 
+
+Looking for terminating zeros :
+
+arm$ ./test.sh; grep -c '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][1-9]0' out
+3
+
+arm$ grep '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][1-9]0' out
+1548950698.558497350
+1548950698.612937790
+1548950698.691249680
+ 
+arm$ grep '[0-9][0-9][0-9][0-9][0-9][0-9][1-9]00' out
+1548950698.584104800
+ 
+arm$ grep '[0-9][0-9][0-9][0-9][0-9][1-9]000' out
+arm$ 
+
+How about four zeros ? 
+
+arm$ 
+arm$ ./test.sh; grep '[0-9][0-9][0-9][0-9][0-9][1-9]000' out
+1548950792.820923000
+arm$ grep '[0-9][0-9][0-9][0-9][1-9]0000' out
+arm$ ./test.sh; grep '[0-9][0-9][0-9][0-9][1-9]0000' out
+1548950872.765950000
+arm$ 
+
+
+however arm may end up with spaces in the midst of the time_buffer
+and so we need to change the search direction in lines 115 onwards:
+
+arm$ diff -c ./.backup/20181107181103/tn.c tn.c 
+*** ./.backup/20181107181103/tn.c       2018-12-24 03:24:44.815795393 +0000
+--- tn.c        2019-02-04 00:03:07.380733534 +0000
+***************
+*** 81,91 ****
+      int j;
+  
+      ec = clock_gettime( CLOCK_REALTIME, &tn );
+- 
+-     /*
+-      * sprintf ( time_buffer, "%9lu.%-9lu", tn.tv_sec, tn.tv_nsec );
+-      */
+- 
+      if ( ec == 0 ) {
+          sprintf ( time_buffer, "%9lu", tn.tv_sec );
+          fprintf ( stdout, "%s", time_buffer );
+--- 81,86 ----
+***************
+*** 118,134 ****
+              }
+  
+              if ( frac == 1 ) {
+!                 sprintf ( time_buffer, ".%-9lu", tn.tv_nsec );
+!                 for ( j=strlen(time_buffer); j>0; j-- ) {
+!                     if ( isspace(time_buffer[j] ) ) time_buffer[j] = 0x0;
+                  }
+!                 strcat ( time_buffer, "000000000" );
+                  /* output no more than 20 chars from the result such
+                   * that we get a time like 1447199009.123456789 or
+                   * possibly 1447199009.000000000 with trailing zeros.
+                   * Be aware we already printed the integer portion.
+                   */
+!                 strncpy ( buffer, time_buffer, (size_t) 10 );
+                  /* be aware we need the terminating null */
+                  buffer[10] = '\0';
+                  fprintf ( stdout, "%s", buffer );
+--- 113,132 ----
+              }
+  
+              if ( frac == 1 ) {
+!                 snprintf( time_buffer, (size_t)10, ".%-9lu", tn.tv_nsec );
+!                 for ( j=0; j<strlen(time_buffer); j++ ) {
+!                     if (isspace(time_buffer[j])){
+!                         time_buffer[j] = 0x0;
+!                         j = 32; /* some out of bounds val */
+!                     }
+                  }
+!                 strncat( time_buffer, "000000000", (size_t)9 );
+                  /* output no more than 20 chars from the result such
+                   * that we get a time like 1447199009.123456789 or
+                   * possibly 1447199009.000000000 with trailing zeros.
+                   * Be aware we already printed the integer portion.
+                   */
+!                 strncpy ( buffer, time_buffer, (size_t)10 );
+                  /* be aware we need the terminating null */
+                  buffer[10] = '\0';
+                  fprintf ( stdout, "%s", buffer );
+
+
+
+arm$ 
+arm$ ./test.sh ; grep -c ' ' out | sed 's/^/  space /'; grep -c '\.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][1-9]0$' out | sed 's/^/ 1 zero /';grep -c '\.[0-9][0-9][0-9][0-9][0-9][0-9][1-9]00$' out | sed 's/^/ 2 zero /';grep -c '\.[0-9][0-9][0-9][0-9][0-9][1-9]000$' out | sed 's/^/ 3 zero /';grep -c '\.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][1-9]$' out | sed 's/^/nonzero /'
+  space 0
+ 1 zero 92
+ 2 zero 7
+ 3 zero 1
+nonzero 0
+arm$ grep '\.[0-9][0-9][0-9][0-9][0-9][1-9]000$' out
+1549239054.655203000
+arm$ 
+
+
