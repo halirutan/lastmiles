@@ -13,6 +13,7 @@
 #define _XOPEN_SOURCE 600
 
 #include <stdlib.h>
+#include <math.h>
 #include "v.h"
 
 /* return the square of op1 */
@@ -24,6 +25,9 @@ int cplex_sq( cplex_type *res, cplex_type *op1 )
     
     res->r = op1->r * op1->r - ( op1->i * op1->i );
     res->i = op1->r * op1->i + ( op1->r * op1->i );
+
+    if ( fabs( res->r ) == 0.0 ) res->r = 0.0;
+    if ( fabs( res->i ) == 0.0 ) res->i = 0.0;
 
     return ( 0 );
 

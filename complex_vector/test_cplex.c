@@ -53,6 +53,14 @@ int main ( int argc, char **argv)
     printf("     : opr = op1 * op2 = ( %g, %g )\n", opr.r, opr.i);
     printf("     :     should be 1i\n\n");
 
+    op1.r = -1.0; op1.i = 0.0;
+    op2.r = 0.0; op2.i = 0.0;
+    printf("dbug : op1 = ( %g, %g )\n", op1.r, op1.i);
+    printf("     : op2 = ( %g, %g )\n", op2.r, op2.i);
+    check_status( cplex_mult( &opr, &op1, &op2 ) );
+    printf("     : opr = op1 * op2 = ( %g, %g )\n", opr.r, opr.i);
+    printf("     :     should be just zero.\n\n");
+
     op1.r = 4.0;
     op1.i = 3.0;
     op2.r = 2.0;

@@ -13,6 +13,7 @@
 #define _XOPEN_SOURCE 600
 
 #include <stdlib.h>
+#include <math.h>
 #include "v.h"
 
 int cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 )
@@ -28,8 +29,46 @@ int cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 )
     status = cplex_check(op2);
     if ( status != 0 ) return status;
 
+    if ( fabs( op1->r ) == 0.0 ) op1->r = 0.0;
+    if ( fabs( op1->i ) == 0.0 ) op1->i = 0.0;
+    if ( fabs( op2->r ) == 0.0 ) op2->r = 0.0;
+    if ( fabs( op2->i ) == 0.0 ) op2->i = 0.0;
+
+    /* this is just plain silly for a neg zero avoidance *
+    if (( op1->r == 0.0 )||(op2->r == 0.0)) {
+        if (( op1->i == 0.0 )||(op2->i == 0.0)) {
+            res->r = 0.0;
+        } else {
+            res->r = op1->i * op2->i;
+        }
+    } else {
+        if (( op1->i == 0.0 )||(op2->i == 0.0)) {
+            res->r = op1->r * op2->r;
+        } else {
+            res->r = op1->r * op2->r - ( op1->i * op2->i );
+        }
+    }
+
+    if (( op1->r == 0.0 )||(op2->i == 0.0)) {
+        if (( op2->r == 0.0 )||(op1->i == 0.0)) {
+            res->i = 0.0;
+        } else {
+            res->i = op2->r * op1->i;
+        }
+    } else {
+        if (( op2->r == 0.0 )||(op1->i == 0.0)) {
+            res->i = op1->r * op2->i;
+        } else {
+            res->i = op1->r * op2->i + ( op2->r * op1->i );
+        }
+    }
+    */
+
     res->r = op1->r * op2->r - ( op1->i * op2->i );
     res->i = op1->r * op2->i + ( op2->r * op1->i );
+
+    if ( fabs( res->r ) == 0.0 ) res->r = 0.0;
+    if ( fabs( res->i ) == 0.0 ) res->i = 0.0;
 
     return ( 0 );
 
