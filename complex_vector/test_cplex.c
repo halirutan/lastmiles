@@ -167,6 +167,21 @@ int main ( int argc, char **argv)
     op3.r = 14.0; op3.i = 0.0;
     cplex_quadratic( quad_res, &op1, &op2, &op3 );
 
+    op1.r = 1.0; op1.i = 0.0;
+    op2.r = 5.0; op2.i = 0.0;
+    op3.r = -14.0; op3.i = 0.0;
+    cplex_quadratic( quad_res, &op1, &op2, &op3 );
+
+    op1.r = 1.0; op1.i = 0.0;
+    op2.r = -5.0; op2.i = 0.0;
+    op3.r = 14.0; op3.i = 0.0;
+    cplex_quadratic( quad_res, &op1, &op2, &op3 );
+
+    op1.r = 2.0;  op1.i = 3.0;
+    op2.r = -5.0; op2.i = 2.0;
+    op3.r = -1.0; op3.i = -7.0;
+    cplex_quadratic( quad_res, &op1, &op2, &op3 );
+
 
     return ( EXIT_SUCCESS );
 

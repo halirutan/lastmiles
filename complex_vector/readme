@@ -20,3 +20,145 @@ vesta$ valgrind --leak-check=full ./test_cplex > /dev/null
 vesta$ 
 
 
+Basic complex math functions test with a questionable quadratic
+result from the complex terms : 
+
+dbug : op1 = ( 0, 1 )
+     : op2 = ( 0, 1 )
+     : opr = op1 * op2 = ( -1, 0 )
+     :     should be i^2 = -1
+
+dbug : op1 = ( 1, 0 )
+     : op2 = ( 0, 1 )
+     : opr = op1 * op2 = ( 0, 1 )
+     :     should be 1i
+
+dbug : op1 = ( -1, 0 )
+     : op2 = ( 0, 0 )
+     : opr = op1 * op2 = ( 0, 0 )
+     :     should be just zero.
+
+dbug : op1 = ( 4, 3 )
+     : op2 = ( 2, -1 )
+dbug : opr = op1 / op2 = ( 1, 2 )
+     :     should be 1 + 2i
+
+dbug : op1 = ( 4, 3 )
+     : op2 = ( -4, -12 )
+dbug : opr = op1 / op2 = ( -0.325, 0.225 )
+     :     should be -0.325 + 0.225i
+
+dbug : op1 = ( 2, 1 )
+     :     theta = 4.636476090008e-01
+
+dbug : op1 = ( 4, 3 )
+     :     theta = 6.435011087933e-01
+     : opr = op1^2 = ( 7, 24 )
+     :     should be 7 + 24i
+     :     magnitude is 25
+     :     theta = 1.287002217587e+00
+root : 1 is ( 5.000000000000e+00, 0.000000000000e+00 )
+root : 2 is ( 5.000000000000e+00, 0.000000000000e+00 )
+
+dbug : square root test
+dbug : op1 = ( 0, 1 )
+     :     theta = 1.570796326795e+00
+     :     magnitude is 1
+root : 1 is ( 1.000000000000e+00, 0.000000000000e+00 )
+root : 2 is ( 1.000000000000e+00, 0.000000000000e+00 )
+
+dbug : cube root test
+     : op1 = ( -11, 2 )
+     :     theta = 2.961739153797e+00
+     :     magnitude is 11.1803
+root : 1 is ( 1.232050807569e+00, 1.866025403784e+00 )
+root : 2 is ( -2.232050807569e+00, 1.339745962156e-01 )
+root : 3 is ( 1.000000000000e+00, -2.000000000000e+00 )
+
+Lets test vector dot product
+dbug : v1 = < ( 1, 1 ), ( 2, 2 ), ( 3, 3 ) >
+     : v2 = < ( -1, -1 ), ( -2, -2 ), ( 3, -3 ) >
+     : dot product = ( 18, -10 )
+
+     : v1 cross v2 = < ( 12, 12 ), ( -6, -6 ), ( 0, 0 ) >
+
+
+dbug : quad op1 = ( 1, 0 )
+     : quad op2 = ( -9, 0 )
+     : quad op3 = ( 14, 0 )
+     : denom = 2 * op1 = ( 2, 0 )
+     : tmp0 = op2^2 = ( 81, 0 )
+     : tmp1 = four * op1 = ( 4, 0 )
+     : tmp2 = four * op1 * op3 = ( 56, 0 )
+     : radicand = op2^2 - four * op1 * op3 = ( 25, 0 )
+     : radicand roots1 is ( 5.000000000000e+00, 0.000000000000e+00 )
+     : radicand roots2 is ( 5.000000000000e+00, 0.000000000000e+00 )
+
+     : -1 * op2 = ( 9, 0 )
+
+     : res[0] = ( 7.000000000000e+00, 0.000000000000e+00 )
+     : res[1] = ( 7.000000000000e+00, 0.000000000000e+00 )
+     : res[2] = ( 2.000000000000e+00, 0.000000000000e+00 )
+     : res[3] = ( 2.000000000000e+00, 0.000000000000e+00 )
+
+
+dbug : quad op1 = ( 1, 0 )
+     : quad op2 = ( 5, 0 )
+     : quad op3 = ( -14, 0 )
+     : denom = 2 * op1 = ( 2, 0 )
+     : tmp0 = op2^2 = ( 25, 0 )
+     : tmp1 = four * op1 = ( 4, 0 )
+     : tmp2 = four * op1 * op3 = ( -56, 0 )
+     : radicand = op2^2 - four * op1 * op3 = ( 81, 0 )
+     : radicand roots1 is ( 9.000000000000e+00, 0.000000000000e+00 )
+     : radicand roots2 is ( 9.000000000000e+00, 0.000000000000e+00 )
+
+     : -1 * op2 = ( -5, 0 )
+
+     : res[0] = ( 2.000000000000e+00, 0.000000000000e+00 )
+     : res[1] = ( 2.000000000000e+00, 0.000000000000e+00 )
+     : res[2] = ( -7.000000000000e+00, 0.000000000000e+00 )
+     : res[3] = ( -7.000000000000e+00, 0.000000000000e+00 )
+
+
+dbug : quad op1 = ( 1, 0 )
+     : quad op2 = ( -5, 0 )
+     : quad op3 = ( 14, 0 )
+     : denom = 2 * op1 = ( 2, 0 )
+     : tmp0 = op2^2 = ( 25, 0 )
+     : tmp1 = four * op1 = ( 4, 0 )
+     : tmp2 = four * op1 * op3 = ( 56, 0 )
+     : radicand = op2^2 - four * op1 * op3 = ( -31, 0 )
+     : radicand roots1 is ( 5.567764362830e+00, 0.000000000000e+00 )
+     : radicand roots2 is ( 5.567764362830e+00, 0.000000000000e+00 )
+
+     : -1 * op2 = ( 5, 0 )
+
+     : res[0] = ( 5.283882181415e+00, 0.000000000000e+00 )
+     : res[1] = ( 5.283882181415e+00, 0.000000000000e+00 )
+     : res[2] = ( -2.838821814150e-01, 0.000000000000e+00 )
+     : res[3] = ( -2.838821814150e-01, 0.000000000000e+00 )
+
+
+dbug : quad op1 = ( 2, 3 )
+     : quad op2 = ( -5, 2 )
+     : quad op3 = ( -1, -7 )
+     : denom = 2 * op1 = ( 4, 6 )
+     : tmp0 = op2^2 = ( 21, -20 )
+     : tmp1 = four * op1 = ( 8, 12 )
+     : tmp2 = four * op1 * op3 = ( 76, -68 )
+     : radicand = op2^2 - four * op1 * op3 = ( -55, 48 )
+     : radicand roots1 is ( 8.544003745318e+00, 0.000000000000e+00 )
+     : radicand roots2 is ( 8.544003745318e+00, 0.000000000000e+00 )
+
+     : -1 * op2 = ( 5, -2 )
+
+     : res[0] = ( 8.110772111783e-01, -1.716615816767e+00 )
+     : res[1] = ( 8.110772111783e-01, -1.716615816767e+00 )
+     : res[2] = ( -5.033849034860e-01, 2.550773552289e-01 )
+     : res[3] = ( -5.033849034860e-01, 2.550773552289e-01 )
+
+
+
+The last result should be perhaps -23/13 - 11/13 i  and also 4/13 - 19/13 i
+

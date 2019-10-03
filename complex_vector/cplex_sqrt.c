@@ -19,6 +19,7 @@
 int cplex_sqrt( cplex_type res[2], cplex_type *op1 )
 {
 
+    double epsilon = 1.0e-12;
     int status = cplex_check(op1);
     if ( status != 0 ) return status;
 
@@ -36,12 +37,23 @@ int cplex_sqrt( cplex_type res[2], cplex_type *op1 )
      *
      */
 
-    /* primary root */
-    res[0].r = sqrt_mag * cos( theta / 2.0 );
-    res[0].i = sqrt_mag * sin( theta / 2.0 );
-    /* Thanks to Euler we go around the circle pi radians */
-    res[1].r = sqrt_mag * cos( PI_L + theta / 2.0 );
-    res[1].i = sqrt_mag * sin( PI_L + theta / 2.0 );
+    /* Thanks to Euler we go around the circle pi radians
+     * however we need to check if theta is zero in which
+     * case we are staying with a zero result exactly.
+     * We also need to check for a theta nearly equal
+     * to pi or -pi. */
+
+    if ( ( fabs(theta) == 0.0 ) || ( (fabs(theta) - PI_L ) < epsilon ) ) {
+        res[0].r = sqrt_mag;
+        res[0].i = 0.0;
+        res[1].r = sqrt_mag;
+        res[1].i = 0.0;
+    } else {
+        res[0].r = sqrt_mag * cos( theta / 2.0 );
+        res[0].i = sqrt_mag * sin( theta / 2.0 );
+        res[1].r = sqrt_mag * cos( PI_L + theta / 2.0 );
+        res[1].i = sqrt_mag * sin( PI_L + theta / 2.0 );
+    }
 
     return ( 0 );
 

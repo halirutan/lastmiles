@@ -76,7 +76,7 @@ int cplex_quadratic( cplex_type res[4],
     status = cplex_check(op3);
     if ( status != 0 ) return status;
 
-    printf("dbug : quad op1 = ( %g, %g )\n", op1->r, op1->i);
+    printf("\n\ndbug : quad op1 = ( %g, %g )\n", op1->r, op1->i);
     printf("     : quad op2 = ( %g, %g )\n", op2->r, op2->i);
     printf("     : quad op3 = ( %g, %g )\n", op3->r, op3->i);
 
