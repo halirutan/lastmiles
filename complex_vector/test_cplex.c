@@ -12,6 +12,7 @@
  *********************************************************************/
 #define _XOPEN_SOURCE 600
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -20,23 +21,19 @@
 
 #include "v.h"
 
-void check_status( int status ) {
+void check_status( int status );
 
-  assert( status == 0 );
-
-}
+int cplex_quadratic( cplex_type res[4],
+                     cplex_type *op1,
+                     cplex_type *op2,
+                     cplex_type *op3 );
 
 int main ( int argc, char **argv)
 {
 
-    cplex_type op1, op2, opr, opr2[3];
+    cplex_type op1, op2, op3, opr, opr2[3], quad_res[4];
     vec_type v[3];
     int status;
-
-/* not using the vectors yet
-    v1->x.r = 1.0;
-    v2->y.r = 1.0;
-*/
 
     op1.i = 1.0; op1.r = 0.0;
     op2.i = 1.0; op2.r = 0.0;
@@ -157,6 +154,10 @@ int main ( int argc, char **argv)
             v[2].z.r, v[2].z.i );
 
 
+    op1.r = 1.0; op1.i = 0.0;
+    op2.r = -9.0; op2.i = 0.0;
+    op3.r = 14.0; op3.i = 0.0;
+    cplex_quadratic( quad_res, &op1, &op2, &op3 );
 
 
     return ( EXIT_SUCCESS );

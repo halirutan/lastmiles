@@ -12,6 +12,10 @@ int cplex_check( cplex_type *op )
     /* check for invalid data: null, nan, inf
      * not sure about using asserts here
      * should return error codes but not sure how to best proceed.
+     *
+     * Fair enough and we can sort this out later as we are in
+     * dirty prototype mode anyways.  Dennis 
+     *
      */
 
     assert( op );

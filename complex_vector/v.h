@@ -12,6 +12,8 @@
  *********************************************************************/
 #define _XOPEN_SOURCE 600
 
+#include <assert.h>
+
 #define PI_L  3.141592653589793238462643383279502884L
 
 /* for cube roots and deMoivre's Theorem we need 2pi / 3 */
