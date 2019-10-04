@@ -37,6 +37,17 @@ int cplex_cbrt( cplex_type *res, cplex_type *op1 );
 int cplex_vec_dot( cplex_type *res, vec_type *op1, vec_type *op2 );
 int cplex_vec_cross( vec_type *res, vec_type *op1, vec_type *op2 );
 
+int cplex_quadratic( cplex_type res[4],
+                     cplex_type *op1,
+                     cplex_type *op2,
+                     cplex_type *op3 );
+
+int cplex_det( cplex_type *res,
+               vec_type *r1,
+               vec_type *r2,
+               vec_type *r3 );
+
+
 double cplex_mag( cplex_type *op1 );
 double cplex_theta( cplex_type *op1 );
 

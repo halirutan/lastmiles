@@ -17,17 +17,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <tgmath.h>
 #include <complex.h>
 
 #include "v.h"
 
 void check_status( int status );
-
-int cplex_quadratic( cplex_type res[4],
-                     cplex_type *op1,
-                     cplex_type *op2,
-                     cplex_type *op3 );
 
 int main ( int argc, char **argv)
 {
@@ -104,7 +98,8 @@ int main ( int argc, char **argv)
     printf("root : 1 is ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
     printf("root : 2 is ( %16.12e, %16.12e )\n", opr2[1].r, opr2[1].i);
     double complex zr = csqrt(z);
-    printf("     : csqrt returns ( %16.12e, %16.12e )\n", creal(zr), cimag(zr) );
+    printf("     : csqrt returns ( %16.12e, %16.12e )\n",
+                                                creal(zr), cimag(zr) );
     printf("     : we should get back ( 4, 3i ) and ( -4, -3i ).\n\n");
 
     /* square root of ( 0, 1 ) */
@@ -115,8 +110,8 @@ int main ( int argc, char **argv)
     printf("     :     theta = %16.12e\n", cplex_theta(&op1) );
     printf("     :     magnitude is %g\n", cplex_mag(&op1));
     check_status( cplex_sqrt( opr2, &op1 ) );
-    printf("root : 1 is ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
-    printf("root : 2 is ( %16.12e, %16.12e )\n\n", opr2[1].r, opr2[1].i);
+    printf("root : 1 = ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
+    printf("root : 2 = ( %16.12e, %16.12e )\n\n", opr2[1].r, opr2[1].i);
 
     /* cube roots of ( -11 + 2i ) */
     printf("dbug : cube root test\n");
@@ -127,9 +122,9 @@ int main ( int argc, char **argv)
     printf("     :     magnitude is %g\n", cplex_mag(&op1));
 
     check_status( cplex_cbrt( opr2, &op1 ) );
-    printf("root : 1 is ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
-    printf("root : 2 is ( %16.12e, %16.12e )\n", opr2[1].r, opr2[1].i);
-    printf("root : 3 is ( %16.12e, %16.12e )\n\n", opr2[2].r, opr2[2].i);
+    printf("root : 1 = ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
+    printf("root : 2 = ( %16.12e, %16.12e )\n", opr2[1].r, opr2[1].i);
+    printf("root : 3 = ( %16.12e, %16.12e )\n\n", opr2[2].r, opr2[2].i);
 
     printf("Lets test vector dot product\n");
     /* < (1 + 1i), (2 + 2i), (3+3i) >
@@ -162,7 +157,7 @@ int main ( int argc, char **argv)
 
     /* tw0st3p says < 12 + 12im, -6 - 6im, 0 + 0im > */
     check_status( cplex_vec_cross( v+2, v, v+1 ) );
-    printf("     : v1 cross v2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+    printf("     : v1 X v2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
             v[2].x.r, v[2].x.i,
             v[2].y.r, v[2].y.i,
             v[2].z.r, v[2].z.i );
@@ -171,33 +166,97 @@ int main ( int argc, char **argv)
     op1.r = 1.0; op1.i = 0.0;
     op2.r = -9.0; op2.i = 0.0;
     op3.r = 14.0; op3.i = 0.0;
-    cplex_quadratic( quad_res, &op1, &op2, &op3 );
-    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n", quad_res[0].r, quad_res[0].i);
-    printf("          result 2 = ( %16.12e, %16.12e )\n\n", quad_res[1].r, quad_res[1].i);
+    check_status( cplex_quadratic( quad_res, &op1, &op2, &op3 ) );
+    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
+                                          quad_res[0].r, quad_res[0].i);
+    printf("          result 2 = ( %16.12e, %16.12e )\n\n",
+                                          quad_res[1].r, quad_res[1].i);
 
     op1.r = 1.0; op1.i = 0.0;
     op2.r = 5.0; op2.i = 0.0;
     op3.r = -14.0; op3.i = 0.0;
-    cplex_quadratic( quad_res, &op1, &op2, &op3 );
-    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n", quad_res[0].r, quad_res[0].i);
-    printf("          result 2 = ( %16.12e, %16.12e )\n\n", quad_res[1].r, quad_res[1].i);
+    check_status( cplex_quadratic( quad_res, &op1, &op2, &op3 ) );
+    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
+                                          quad_res[0].r, quad_res[0].i);
+    printf("          result 2 = ( %16.12e, %16.12e )\n\n",
+                                          quad_res[1].r, quad_res[1].i);
 
 
     op1.r = 1.0; op1.i = 0.0;
     op2.r = -5.0; op2.i = 0.0;
     op3.r = 14.0; op3.i = 0.0;
-    cplex_quadratic( quad_res, &op1, &op2, &op3 );
-    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n", quad_res[0].r, quad_res[0].i);
-    printf("          result 2 = ( %16.12e, %16.12e )\n\n", quad_res[1].r, quad_res[1].i);
+    check_status( cplex_quadratic( quad_res, &op1, &op2, &op3 ) );
+    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
+                                          quad_res[0].r, quad_res[0].i);
+    printf("          result 2 = ( %16.12e, %16.12e )\n\n",
+                                          quad_res[1].r, quad_res[1].i);
 
 
     op1.r = 2.0;  op1.i = 3.0;
     op2.r = -5.0; op2.i = 2.0;
     op3.r = -1.0; op3.i = -7.0;
-    cplex_quadratic( quad_res, &op1, &op2, &op3 );
-    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n", quad_res[0].r, quad_res[0].i);
-    printf("          result 2 = ( %16.12e, %16.12e )\n\n", quad_res[1].r, quad_res[1].i);
+    check_status( cplex_quadratic( quad_res, &op1, &op2, &op3 ) );
+    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
+                                          quad_res[0].r, quad_res[0].i);
+    printf("          result 2 = ( %16.12e, %16.12e )\n\n",
+                                          quad_res[1].r, quad_res[1].i);
 
+
+    /* Determinant of three row matrix */
+    v[0].x.r = 1.0; v[0].x.i = 0.0;
+    v[0].y.r = 2.0; v[0].y.i = 0.0;
+    v[0].z.r = 3.0; v[0].z.i = 0.0;
+    printf("dbug : row 1 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[0].x.r, v[0].x.i,
+            v[0].y.r, v[0].y.i,
+            v[0].z.r, v[0].z.i );
+
+    /* second row */
+    v[1].x.r = 4.0; v[1].x.i = 0.0;
+    v[1].y.r = 5.0; v[1].y.i = 0.0;
+    v[1].z.r = 6.0; v[1].z.i = 0.0;
+    printf("     : row 2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[1].x.r, v[1].x.i,
+            v[1].y.r, v[1].y.i,
+            v[1].z.r, v[1].z.i );
+
+    /* third row */
+    v[2].x.r = 7.0; v[2].x.i = 0.0;
+    v[2].y.r = 8.0; v[2].y.i = 0.0;
+    v[2].z.r = 9.0; v[2].z.i = 0.0;
+    printf("     : row 3 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[2].x.r, v[2].x.i,
+            v[2].y.r, v[2].y.i,
+            v[2].z.r, v[2].z.i );
+
+    check_status( cplex_det( &opr, &v[0], &v[1], &v[2] ) ); 
+    printf("     : det = ( %g, %g )\n", opr.r, opr.i);
+
+    printf("\n\nNew Row data on row1 \n");
+    v[0].x.r = 10.0; v[0].x.i = 0.0;
+    v[0].y.r = -2.0; v[0].y.i = 0.0;
+    v[0].z.r = -3.0; v[0].z.i = 0.0;
+    printf("dbug : row 1 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[0].x.r, v[0].x.i,
+            v[0].y.r, v[0].y.i,
+            v[0].z.r, v[0].z.i );
+    check_status( cplex_det( &opr, &v[0], &v[1], &v[2] ) ); 
+    printf("     : det = ( %g, %g )\n", opr.r, opr.i);
+
+    printf("\n\nComplex row data in row1 and row 3\n");
+    v[0].x.r = 0.5; v[0].x.i = -1.0;
+    printf("dbug : row 1 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[0].x.r, v[0].x.i,
+            v[0].y.r, v[0].y.i,
+            v[0].z.r, v[0].z.i );
+    v[2].y.r = -2.0; v[2].y.i = 4.0;
+    printf("     : row 3 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[2].x.r, v[2].x.i,
+            v[2].y.r, v[2].y.i,
+            v[2].z.r, v[2].z.i );
+
+    check_status( cplex_det( &opr, &v[0], &v[1], &v[2] ) ); 
+    printf("     : det = ( %g, %g )\n", opr.r, opr.i);
 
 
     return ( EXIT_SUCCESS );
