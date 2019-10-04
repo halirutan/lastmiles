@@ -13,6 +13,7 @@
 #define _XOPEN_SOURCE 600
 
 #include <assert.h>
+#include <stdlib.h>
 
 #define PI_L  3.141592653589793238462643383279502884L
 
@@ -52,3 +53,7 @@ double cplex_mag( cplex_type *op1 );
 double cplex_theta( cplex_type *op1 );
 
 int cplex_check( cplex_type *op );
+size_t tohex( char **ret, const void *addr, const size_t n );
+int double_cmp( double *a, double *b, size_t n);
+int cplex_cmp( cplex_type *a, cplex_type *b, size_t n);
+int vec_cmp( vec_type *a, vec_type *b, size_t n);
