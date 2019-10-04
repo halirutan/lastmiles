@@ -17,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <assert.h>
+#include <tgmath.h>
+#include <complex.h>
 
 #include "v.h"
 
@@ -95,11 +96,16 @@ int main ( int argc, char **argv)
     printf("     :     magnitude is %g\n", cplex_mag(&opr));
     printf("     :     theta = %16.12e\n", cplex_theta( &opr));
 
+    printf("     : now we take the square root(s) of opr\n");
     op1.r = opr.r;
     op1.i = opr.i;
+    double complex z = op1.r + op1.i * I;
     check_status( cplex_sqrt( opr2, &op1 ) );
     printf("root : 1 is ( %16.12e, %16.12e )\n", opr2[0].r, opr2[0].i);
-    printf("root : 2 is ( %16.12e, %16.12e )\n\n", opr2[1].r, opr2[1].i);
+    printf("root : 2 is ( %16.12e, %16.12e )\n", opr2[1].r, opr2[1].i);
+    double complex zr = csqrt(z);
+    printf("     : csqrt returns ( %16.12e, %16.12e )\n", creal(zr), cimag(zr) );
+    printf("     : we should get back ( 4, 3i ) and ( -4, -3i ).\n\n");
 
     /* square root of ( 0, 1 ) */
     printf("dbug : square root test\n");

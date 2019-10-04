@@ -43,7 +43,7 @@ int cplex_sqrt( cplex_type res[2], cplex_type *op1 )
      * We also need to check for a theta nearly equal
      * to pi or -pi. */
 
-    if ( ( fabs(theta) == 0.0 ) || ( (fabs(theta) - PI_L ) < epsilon ) ) {
+    if ( ( fabs(theta) == 0.0 ) || ( fabs(fabs(theta) - PI_L ) < epsilon ) ) {
         res[0].r = sqrt_mag;
         res[0].i = 0.0;
         res[1].r = sqrt_mag;

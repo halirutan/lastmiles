@@ -19,7 +19,8 @@
 double cplex_mag( cplex_type *op1 )
 {
 
-    return sqrt(op1->r * op1->r + op1->i * op1->i);
+    double hyp = op1->r * op1->r + op1->i * op1->i;
+    return sqrt( hyp );
 
 }
 
