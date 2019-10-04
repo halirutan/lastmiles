@@ -26,8 +26,14 @@ int cplex_sq( cplex_type *res, cplex_type *op1 )
     res->r = op1->r * op1->r - ( op1->i * op1->i );
     res->i = op1->r * op1->i + ( op1->r * op1->i );
 
+    /* quick hack test from Travis who has the excellent
+     * idea to just add 0.0 to avoid the damn neg zero 
     if ( fabs( res->r ) == 0.0 ) res->r = 0.0;
     if ( fabs( res->i ) == 0.0 ) res->i = 0.0;
+    */
+
+    res->r = res->r + 0.0;
+    res->i = res->i + 0.0;
 
     return ( 0 );
 
