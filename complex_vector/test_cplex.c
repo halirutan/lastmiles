@@ -172,21 +172,32 @@ int main ( int argc, char **argv)
     op2.r = -9.0; op2.i = 0.0;
     op3.r = 14.0; op3.i = 0.0;
     cplex_quadratic( quad_res, &op1, &op2, &op3 );
+    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n", quad_res[0].r, quad_res[0].i);
+    printf("          result 2 = ( %16.12e, %16.12e )\n\n", quad_res[1].r, quad_res[1].i);
 
     op1.r = 1.0; op1.i = 0.0;
     op2.r = 5.0; op2.i = 0.0;
     op3.r = -14.0; op3.i = 0.0;
     cplex_quadratic( quad_res, &op1, &op2, &op3 );
+    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n", quad_res[0].r, quad_res[0].i);
+    printf("          result 2 = ( %16.12e, %16.12e )\n\n", quad_res[1].r, quad_res[1].i);
+
 
     op1.r = 1.0; op1.i = 0.0;
     op2.r = -5.0; op2.i = 0.0;
     op3.r = 14.0; op3.i = 0.0;
     cplex_quadratic( quad_res, &op1, &op2, &op3 );
+    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n", quad_res[0].r, quad_res[0].i);
+    printf("          result 2 = ( %16.12e, %16.12e )\n\n", quad_res[1].r, quad_res[1].i);
+
 
     op1.r = 2.0;  op1.i = 3.0;
     op2.r = -5.0; op2.i = 2.0;
     op3.r = -1.0; op3.i = -7.0;
     cplex_quadratic( quad_res, &op1, &op2, &op3 );
+    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n", quad_res[0].r, quad_res[0].i);
+    printf("          result 2 = ( %16.12e, %16.12e )\n\n", quad_res[1].r, quad_res[1].i);
+
 
 
     return ( EXIT_SUCCESS );

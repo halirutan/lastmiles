@@ -20,7 +20,7 @@
 
 void check_status( int status );
 
-int cplex_quadratic( cplex_type res[4],
+int cplex_quadratic( cplex_type res[2],
                      cplex_type *op1,
                      cplex_type *op2,
                      cplex_type *op3 )
@@ -57,12 +57,13 @@ int cplex_quadratic( cplex_type res[4],
      * Therefore four possible solutions to the quadratic and this
      * is due to the fact that we are in the complex plane and not
      * a trivial R3 space.
+     *
      ****************************************************************/
 
     int j, status;
     cplex_type neg_one, two, four, denom, radicand;
     cplex_type tmp0, tmp1, tmp2;
-    cplex_type roots[2];
+    cplex_type full_res[4], roots[2];
     two.r = 2.0; two.i = 0.0;
     four.r = 4.0; four.i = 0.0;
     neg_one.r = -1.0; neg_one.i = 0.0;
@@ -102,28 +103,35 @@ int cplex_quadratic( cplex_type res[4],
     check_status( cplex_mult( &tmp1, &neg_one, op2 ) );
     printf("     : -1 * op2 = ( %g, %g )\n\n", tmp1.r, tmp1.i);
 
-    /* 
-     *     res[0] = ( -1 * op2 + roots[0] ) / 2 * op1
-     *     res[1] = ( -1 * op2 + roots[1] ) / 2 * op1
-     *     res[2] = ( -1 * op2 - roots[0] ) / 2 * op1
-     *     res[3] = ( -1 * op2 - roots[1] ) / 2 * op1
-    */
+    /* we are collecting all four possible results internally :
+     *     full_res[0] = ( -1 * op2 + roots[0] ) / 2 * op1
+     *     full_res[1] = ( -1 * op2 + roots[1] ) / 2 * op1
+     *     full_res[2] = ( -1 * op2 - roots[0] ) / 2 * op1
+     *     full_res[3] = ( -1 * op2 - roots[1] ) / 2 * op1
+     *
+     * However we only need full_res[0] and full_res[2].
+     */
 
     check_status( cplex_add( &tmp0, &tmp1, roots ) );
-    check_status( cplex_div( &res[0], &tmp0, &denom ) );
+    check_status( cplex_div( &full_res[0], &tmp0, &denom ) );
 
     check_status( cplex_add( &tmp0, &tmp1, (roots+1) ) );
-    check_status( cplex_div( &res[1], &tmp0, &denom ) );
+    check_status( cplex_div( &full_res[1], &tmp0, &denom ) );
 
     check_status( cplex_sub( &tmp0, &tmp1, roots ) );
-    check_status( cplex_div( &res[2], &tmp0, &denom ) );
+    check_status( cplex_div( &full_res[2], &tmp0, &denom ) );
 
     check_status( cplex_sub( &tmp0, &tmp1, (roots+1) ) );
-    check_status( cplex_div( &res[3], &tmp0, &denom ) );
+    check_status( cplex_div( &full_res[3], &tmp0, &denom ) );
 
     for (j=0; j<4; j++ ) {
-        printf("     : res[%i] = ( %16.12e, %16.12e )\n", j, res[j].r, res[j].i);
+        printf("     : full_res[%i] = ( %16.12e, %16.12e )\n", j, full_res[j].r, full_res[j].i);
     }
+
+    res[0].r = full_res[0].r;
+    res[0].i = full_res[0].i;
+    res[1].r = full_res[2].r;
+    res[1].i = full_res[2].i;
 
     return ( 0 );
 
