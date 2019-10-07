@@ -28,9 +28,9 @@ int main ( int argc, char **argv)
 
     cplex_type op1, op2, op3, opr, opr2[3], quad_res[4];
 
-    /* rv is right hand column for Cramer call with
+    /* rh_col is right hand column for Cramer call with
      * res_vec as the result if it exists */
-    vec_type v[3], rv, res_vec;
+    vec_type v[3], rh_col, res_vec;
     int status;
 
     op1.i = 1.0; op1.r = 0.0;
@@ -274,12 +274,34 @@ int main ( int argc, char **argv)
     check_status( cplex_det( &opr, &v[0], &v[1], &v[2] ) ); 
     printf("     : det = ( %g, %g )\n", opr.r, opr.i);
 
-    printf("\n\nCramers rule test with existing matrix :\n");
-    rv.x.r = 1.0; rv.x.i = 0.5;
-    rv.y.r = 2.0; rv.y.i = 0.7;
-    rv.z.r = 3.0; rv.z.i = -0.25;
+    /*
+     *
+     *  Solve for A,B,C where
+     *  ( 0.5 - i ) * A  - 2 * B - 3 * C = ( 1 + 0.5i ),
+     *  4 * A + 5 * B + 6 * C = ( 2 + 0.75i ),
+     *  7 * A + ( -2 + 4i ) * B + 9 * C = ( 3 -0.25i ).
+     *
+     */
+    printf("\n\nCramers rule test with existing matrix and\n");
+    rh_col.x.r = 1.0; rh_col.x.i = 0.5;
+    rh_col.y.r = 2.0; rh_col.y.i = 0.75;
+    rh_col.z.r = 3.0; rh_col.z.i = -0.25;
+    printf("rh_col = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+        rh_col.x.r, rh_col.x.i,
+        rh_col.y.r, rh_col.y.i,
+        rh_col.z.r, rh_col.z.i);
 
-    check_status( cplex_cramer( &res_vec, &v[0], &v[1], &v[2], &rv ) );
+    status = cplex_cramer( &res_vec, &v[0], &v[1], &v[2], &rh_col );
+    if ( status != 0 ) {
+        printf("dbug : There is no valid solution.\n");
+    } else {
+        printf("     : result col = < ( %16.12e, %16.12e ),\n",
+                    res_vec.x.r, res_vec.x.i );
+        printf("                      ( %16.12e, %16.12e ),\n",
+                    res_vec.y.r, res_vec.y.i );
+        printf("                      ( %16.12e, %16.12e ) >\n\n",
+                    res_vec.z.r, res_vec.z.i);
+    }
 
     return ( EXIT_SUCCESS );
 

@@ -38,43 +38,61 @@ int cplex_cramer( vec_type *res,
     /* we need to determine if we have a non-zero denominator */
     if ( denom_det_mag > 0.0 ) {
         result_status = 0;
-        /* attempt to compute res.x from d vector replacement
+        /* compute res.x from d vector replacement
          * in the first column */
         tmp_r1.x.r = d->x.r;  tmp_r1.x.i = d->x.i;
         tmp_r1.y.r = r1->y.r; tmp_r1.y.i = r1->y.i;
-        tmp_r1.z.r = r1->z.r; tmp_r1.y.i = r1->z.i;
+        tmp_r1.z.r = r1->z.r; tmp_r1.z.i = r1->z.i;
 
         tmp_r2.x.r = d->y.r;  tmp_r2.x.i = d->y.i;
         tmp_r2.y.r = r2->y.r; tmp_r2.y.i = r2->y.i;
-        tmp_r2.z.r = r2->z.r; tmp_r2.y.i = r2->z.i;
+        tmp_r2.z.r = r2->z.r; tmp_r2.z.i = r2->z.i;
 
         tmp_r3.x.r = d->z.r;  tmp_r3.x.i = d->z.i;
         tmp_r3.y.r = r3->y.r; tmp_r3.y.i = r3->y.i;
-        tmp_r3.z.r = r3->z.r; tmp_r3.y.i = r3->z.i;
+        tmp_r3.z.r = r3->z.r; tmp_r3.z.i = r3->z.i;
 
         det_status = cplex_det(&x_numerator, &tmp_r1, &tmp_r2, &tmp_r3);
 
+        /* compute res.y from d vector replacement
+         * in the second column */
+        tmp_r1.x.r = r1->x.r; tmp_r1.x.i = r1->x.i;
+        tmp_r1.y.r = d->x.r;  tmp_r1.y.i = d->x.i;
+        tmp_r1.z.r = r1->z.r; tmp_r1.z.i = r1->z.i;
 
+        tmp_r2.x.r = r2->x.r; tmp_r2.x.i = r2->x.i;
+        tmp_r2.y.r = d->y.r;  tmp_r2.y.i = d->y.i;
+        tmp_r2.z.r = r2->z.r; tmp_r2.z.i = r2->z.i;
 
-    } else {
-        return result_status;
+        tmp_r3.x.r = r3->x.r; tmp_r3.x.i = r3->x.i;
+        tmp_r3.y.r = d->z.r;  tmp_r3.y.i = d->z.i;
+        tmp_r3.z.r = r3->z.r; tmp_r3.z.i = r3->z.i;
+
+        det_status = cplex_det(&y_numerator, &tmp_r1, &tmp_r2, &tmp_r3);
+
+        /* compute res.z from d vector replacement
+         * in the third column */
+        tmp_r1.x.r = r1->x.r; tmp_r1.x.i = r1->x.i;
+        tmp_r1.y.r = r1->y.r; tmp_r1.y.i = r1->y.i;
+        tmp_r1.z.r = d->x.r;  tmp_r1.z.i = d->x.i;
+
+        tmp_r2.x.r = r2->x.r; tmp_r2.x.i = r2->x.i;
+        tmp_r2.y.r = r2->y.r; tmp_r2.y.i = r2->y.i;
+        tmp_r2.z.r = d->y.r;  tmp_r2.z.i = d->y.i;
+
+        tmp_r3.x.r = r3->x.r; tmp_r3.x.i = r3->x.i;
+        tmp_r3.y.r = r3->y.r; tmp_r3.y.i = r3->y.i;
+        tmp_r3.z.r = d->z.r;  tmp_r3.z.i = d->z.i;
+
+        det_status = cplex_det(&z_numerator, &tmp_r1, &tmp_r2, &tmp_r3);
+
+        cplex_div ( &res->x, &x_numerator, &denom_det );
+        cplex_div ( &res->y, &y_numerator, &denom_det );
+        cplex_div ( &res->z, &z_numerator, &denom_det );
+
     }
 
-
-    /* cplex_type cross[12], tmp[5]; */
-
-    /* please see https://en.wikipedia.org/wiki/Cramer%27s_rule
-     */
-
-    /*
-    cplex_mult( &cross[0], &r1->x, &r2->y );
-    cplex_mult( &cross[1], &cross[0], &r3->z );
-    cplex_add( &tmp[0], &cross[1], &cross[3] );
-    cplex_add( &tmp[1], &tmp[0], &cross[5] );
-    cplex_sub( &tmp[2], &tmp[1], &cross[7] );
-    res->r = tmp[4].r;
-    res->i = tmp[4].i;
-    */
+    return result_status;
 
 }
 

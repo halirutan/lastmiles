@@ -396,3 +396,40 @@ CFLAGS=-Xc -g -errfmt=error -erroff=%none -xmemalign=8s \
 
 CPPFLAGS= -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE -D_TS_ERRNO
 
+
+
+Merely a late night and early morning note that we did check a single
+test case with Cramer's Rule and we saw : 
+
+
+Complex row data in row1 and row 3
+dbug : row 1 = < ( 0.5, -1 ), ( -2, 0 ), ( -3, 0 ) >
+     : row 2 = < ( 4, 0 ), ( 5, 0 ), ( 6, 0 ) >
+     : row 3 = < ( 7, 0 ), ( -2, 4 ), ( 9, 0 ) >
+     : det = ( 121.5, -117 )
+
+
+
+Cramers rule test with existing matrix and
+rh_col = < ( 1, 0.5 ), ( 2, 0.75 ), ( 3, -0.25 ) >
+     : result col = < ( 5.857651245552e-01, 5.455516014235e-01 ),
+                      ( -1.992882562278e-02, 1.937722419929e-01 ),
+                      ( -4.056939501779e-02, -4.001779359431e-01 ) >
+
+vesta$
+vesta$
+vesta$
+vesta$ echo '16k 823 1405/p 1533 2810/p _28 1405 / p 1089 5620/p _57 1405/p _2249 5620/pq' | dc
+.5857651245551601
+.5455516014234875
+-.0199288256227758
+.1937722419928825
+-.0405693950177935
+-.4001779359430604
+vesta$
+
+
+see https://www.wolframalpha.com/input/?i=Solve+for+A%2CB%2CC+where+%28+0.5+-+i+%29+*+A++-+2+*+B+-+3+*+C+%3D+%28+1+%2B+0.5i+%29%2C+4+*+A+%2B+5+*+B+%2B+6+*+C+%3D+%28+2+%2B+0.75i+%29%2C++7+*+A+%2B+%28+-2+%2B+4i+%29+*+B+%2B+9+*+C+%3D+%28+3+-0.25i+%29.
+
+
+
