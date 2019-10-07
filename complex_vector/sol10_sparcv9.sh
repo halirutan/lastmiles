@@ -144,6 +144,7 @@ $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_vec_cross.o cplex_vec_cro
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_vec_dot.o cplex_vec_dot.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_det.o cplex_det.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_cmp.o cplex_cmp.c
+$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_cramer.o cplex_cramer.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o tohex.o tohex.c
 
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o test_cplex.o test_cplex.c
@@ -155,7 +156,7 @@ $CC $CFLAGS $CPPFLAGS -Wl,-rpath=/usr/local/lib -L/usr/local/lib -o test_cplex \
 test_cplex.o check_status.o cplex_add.o cplex_cbrt.o cplex_check.o cplex_div.o \
 cplex_mag.o cplex_mult.o cplex_quad.o cplex_sq.o cplex_sqrt.o cplex_sub.o \
 cplex_theta.o cplex_vec_cross.o cplex_vec_dot.o cplex_det.o cplex_cmp.o \
-tohex.o -lm
+cplex_cramer.o tohex.o -lm
 
 ls -lapb test_cplex
 

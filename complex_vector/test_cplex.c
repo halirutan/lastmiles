@@ -27,7 +27,10 @@ int main ( int argc, char **argv)
 {
 
     cplex_type op1, op2, op3, opr, opr2[3], quad_res[4];
-    vec_type v[3];
+
+    /* rv is right hand column for Cramer call with
+     * res_vec as the result if it exists */
+    vec_type v[3], rv, res_vec;
     int status;
 
     op1.i = 1.0; op1.r = 0.0;
@@ -240,6 +243,15 @@ int main ( int argc, char **argv)
             v[0].x.r, v[0].x.i,
             v[0].y.r, v[0].y.i,
             v[0].z.r, v[0].z.i );
+    printf("     : row 2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[1].x.r, v[1].x.i,
+            v[1].y.r, v[1].y.i,
+            v[1].z.r, v[1].z.i );
+    printf("     : row 3 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[2].x.r, v[2].x.i,
+            v[2].y.r, v[2].y.i,
+            v[2].z.r, v[2].z.i );
+
     check_status( cplex_det( &opr, &v[0], &v[1], &v[2] ) ); 
     printf("     : det = ( %g, %g )\n", opr.r, opr.i);
 
@@ -250,6 +262,10 @@ int main ( int argc, char **argv)
             v[0].y.r, v[0].y.i,
             v[0].z.r, v[0].z.i );
     v[2].y.r = -2.0; v[2].y.i = 4.0;
+    printf("     : row 2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[1].x.r, v[1].x.i,
+            v[1].y.r, v[1].y.i,
+            v[1].z.r, v[1].z.i );
     printf("     : row 3 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
             v[2].x.r, v[2].x.i,
             v[2].y.r, v[2].y.i,
@@ -258,6 +274,12 @@ int main ( int argc, char **argv)
     check_status( cplex_det( &opr, &v[0], &v[1], &v[2] ) ); 
     printf("     : det = ( %g, %g )\n", opr.r, opr.i);
 
+    printf("\n\nCramers rule test with existing matrix :\n");
+    rv.x.r = 1.0; rv.x.i = 0.5;
+    rv.y.r = 2.0; rv.y.i = 0.7;
+    rv.z.r = 3.0; rv.z.i = -0.25;
+
+    check_status( cplex_cramer( &res_vec, &v[0], &v[1], &v[2], &rv ) );
 
     return ( EXIT_SUCCESS );
 

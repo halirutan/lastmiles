@@ -49,6 +49,12 @@ int cplex_det( cplex_type *res,
                vec_type *r3 );
 
 
+int cplex_cramer( vec_type *res,
+                  vec_type *r1,
+                  vec_type *r2,
+                  vec_type *r3,
+                  vec_type *d );
+
 double cplex_mag( cplex_type *op1 );
 double cplex_theta( cplex_type *op1 );
 
