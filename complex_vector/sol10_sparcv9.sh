@@ -46,10 +46,10 @@ export AS
 AWK=/usr/xpg4/bin/gawk
 export AWK
 
-CC=/opt/developerstudio12.6/bin/c99
+CC=/opt/developerstudio12.6/bin/cc
 export CC
 
-CFLAGS=\-Xc\ \-g\ \-errfmt=error\ \-erroff=%none\ \-xmemalign=8s\ \
+CFLAGS=\-std=iso9899:1999\ \-g\ \-errfmt=error\ \-erroff=%none\ \-xmemalign=8s\ \
 \-errshort=full\ \-xstrconst\ \-xildoff\ \-m64\ \-xnolibmil\ \
 \-xcode=pic32\ \-xregs=no%appl\ \-xlibmieee\ \-ftrap=%none\ \
 \-xarch=sparc\ \-mc\ \-xs\ \-xbuiltin=%none\ \-xdebugformat=dwarf\ \
@@ -142,6 +142,10 @@ $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_sub.o cplex_sub.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_theta.o cplex_theta.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_vec_cross.o cplex_vec_cross.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_vec_dot.o cplex_vec_dot.c
+$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_det.o cplex_det.c
+$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_cmp.o cplex_cmp.c
+$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o tohex.o tohex.c
+
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o test_cplex.o test_cplex.c
 
 ls -lapb *.o
@@ -150,7 +154,8 @@ ls -lapb *.o
 $CC $CFLAGS $CPPFLAGS -Wl,-rpath=/usr/local/lib -L/usr/local/lib -o test_cplex \
 test_cplex.o check_status.o cplex_add.o cplex_cbrt.o cplex_check.o cplex_div.o \
 cplex_mag.o cplex_mult.o cplex_quad.o cplex_sq.o cplex_sqrt.o cplex_sub.o \
-cplex_theta.o cplex_vec_cross.o cplex_vec_dot.o -lm
+cplex_theta.o cplex_vec_cross.o cplex_vec_dot.o cplex_det.o cplex_cmp.o \
+tohex.o -lm
 
 ls -lapb test_cplex
 
