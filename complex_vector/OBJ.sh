@@ -1,5 +1,4 @@
 #!/bin/sh
-#echo `ls *.c | sed s/.c$/.o/ | xargs`
 echo check_status.o cplex_add.o cplex_cbrt.o cplex_check.o cplex_cmp.o \
 cplex_cramer.o cplex_det.o cplex_div.o cplex_mag.o cplex_mult.o \
 cplex_vec_normalize.o cplex_quad.o cplex_sq.o cplex_sqrt.o \
