@@ -132,9 +132,11 @@ $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o check_status.o check_status.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_add.o cplex_add.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_cbrt.o cplex_cbrt.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_check.o cplex_check.c
+$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_cmp.o cplex_cmp.c
+$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_cramer.o cplex_cramer.c
+$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_det.o cplex_det.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_div.o cplex_div.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_mag.o cplex_mag.c
-$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_norm.o cplex_norm.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_mult.o cplex_mult.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_quad.o cplex_quad.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_sq.o cplex_sq.c
@@ -143,9 +145,8 @@ $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_sub.o cplex_sub.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_theta.o cplex_theta.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_vec_cross.o cplex_vec_cross.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_vec_dot.o cplex_vec_dot.c
-$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_det.o cplex_det.c
-$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_cmp.o cplex_cmp.c
-$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_cramer.o cplex_cramer.c
+$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_vec_mag.o cplex_vec_mag.c
+$CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o cplex_vec_normalize.o cplex_vec_normalize.c
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o tohex.o tohex.c
 
 $CC $CFLAGS $CPPFLAGS -I/usr/local/include -c -o test_cplex.o test_cplex.c
@@ -157,7 +158,7 @@ $CC $CFLAGS $CPPFLAGS -Wl,-rpath=/usr/local/lib -L/usr/local/lib -o test_cplex \
 test_cplex.o check_status.o cplex_add.o cplex_cbrt.o cplex_check.o cplex_div.o \
 cplex_mag.o cplex_mult.o cplex_quad.o cplex_sq.o cplex_sqrt.o cplex_sub.o \
 cplex_theta.o cplex_vec_cross.o cplex_vec_dot.o cplex_det.o cplex_cmp.o \
-cplex_norm.o cplex_cramer.o tohex.o -lm
+cplex_vec_normalize.o cplex_vec_mag.o cplex_cramer.o tohex.o -lm
 
 ls -lapb test_cplex
 
