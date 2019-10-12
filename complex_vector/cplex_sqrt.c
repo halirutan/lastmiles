@@ -19,7 +19,7 @@
 int cplex_sqrt( cplex_type res[2], cplex_type *op1 )
 {
 
-    double epsilon = 1.0e-12;
+    double epsilon = RT_EPSILON;
     int status = cplex_check(op1);
     if ( status != 0 ) return status;
 

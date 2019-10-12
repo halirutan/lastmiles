@@ -31,54 +31,15 @@ int cplex_mult( cplex_type *res, cplex_type *op1, cplex_type *op2 )
 
     /*  Quick hack change from Travis to test the addition of 0.0
      *  on a possible negative zero value 
-    if ( fabs( op1->r ) == 0.0 ) op1->r = 0.0;
-    if ( fabs( op1->i ) == 0.0 ) op1->i = 0.0;
-    if ( fabs( op2->r ) == 0.0 ) op2->r = 0.0;
-    if ( fabs( op2->i ) == 0.0 ) op2->i = 0.0;
-    */
+     */
     op1->r = op1->r + 0.0;
     op1->i = op1->i + 0.0;
     op2->r = op2->r + 0.0;
     op2->i = op2->i + 0.0;
 
-    /* this is just plain silly for a neg zero avoidance *
-    if (( op1->r == 0.0 )||(op2->r == 0.0)) {
-        if (( op1->i == 0.0 )||(op2->i == 0.0)) {
-            res->r = 0.0;
-        } else {
-            res->r = op1->i * op2->i;
-        }
-    } else {
-        if (( op1->i == 0.0 )||(op2->i == 0.0)) {
-            res->r = op1->r * op2->r;
-        } else {
-            res->r = op1->r * op2->r - ( op1->i * op2->i );
-        }
-    }
-
-    if (( op1->r == 0.0 )||(op2->i == 0.0)) {
-        if (( op2->r == 0.0 )||(op1->i == 0.0)) {
-            res->i = 0.0;
-        } else {
-            res->i = op2->r * op1->i;
-        }
-    } else {
-        if (( op2->r == 0.0 )||(op1->i == 0.0)) {
-            res->i = op1->r * op2->i;
-        } else {
-            res->i = op1->r * op2->i + ( op2->r * op1->i );
-        }
-    }
-    */
-
     res->r = op1->r * op2->r - ( op1->i * op2->i );
     res->i = op1->r * op2->i + ( op2->r * op1->i );
 
-    /* as mentioned above a quick hack test to avoid
-     * the negative zero issue 
-    if ( fabs( res->r ) == 0.0 ) res->r = 0.0;
-    if ( fabs( res->i ) == 0.0 ) res->i = 0.0;
-    */
     res->r = res->r + 0.0;
     res->i = res->i + 0.0;
 

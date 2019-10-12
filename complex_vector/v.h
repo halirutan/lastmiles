@@ -20,6 +20,11 @@
 /* for cube roots and deMoivre's Theorem we need 2pi / 3 */
 #define PI3_L 2.0943951023931954923084289221863352533333L
 
+/* Given that this is a Ray Trace prototype we may limit
+ * ourselves to an epsilon for zero testing wherein anything
+ * smaller than 10^-12 is essentially zero. */
+#define RT_EPSILON 1.0e-12
+
 typedef struct cplex {
     double r, i;
 } cplex_type;
@@ -37,6 +42,7 @@ int cplex_sqrt( cplex_type *res, cplex_type *op1 );
 int cplex_cbrt( cplex_type *res, cplex_type *op1 );
 int cplex_vec_dot( cplex_type *res, vec_type *op1, vec_type *op2 );
 int cplex_vec_cross( vec_type *res, vec_type *op1, vec_type *op2 );
+int cplex_vec_normalize( vec_type *res, vec_type *op1 );
 
 int cplex_quadratic( cplex_type res[4],
                      cplex_type *op1,
@@ -57,6 +63,7 @@ int cplex_cramer( vec_type *res,
 
 double cplex_mag( cplex_type *op1 );
 double cplex_theta( cplex_type *op1 );
+double cplex_vec_mag( vec_type *op1 );
 
 int cplex_check( cplex_type *op );
 size_t tohex( char **ret, const void *addr, const size_t n );

@@ -30,7 +30,7 @@ int main ( int argc, char **argv)
 
     /* rh_col is right hand column for Cramer call with
      * res_vec as the result if it exists */
-    vec_type v[3], rh_col, res_vec;
+    vec_type v[4], rh_col, res_vec;
     int status;
 
     op1.i = 1.0; op1.r = 0.0;
@@ -129,14 +129,11 @@ int main ( int argc, char **argv)
     printf("root : 2 = ( %16.12e, %16.12e )\n", opr2[1].r, opr2[1].i);
     printf("root : 3 = ( %16.12e, %16.12e )\n\n", opr2[2].r, opr2[2].i);
 
-    printf("Lets test vector dot product\n");
-    /* < (1 + 1i), (2 + 2i), (3+3i) >
-     *                    . <( -1 - 1i), ( -2 -2i), ( 3 - 3i ) >
+    printf("\nTest the complex vector magnitude\n");
+    /* Test with < (1 + 1i), (2 + 2i), (3+3i) >
      *
-     *
-     * should be ( 18, -10i ) */
+     * should be 2 * sqrt(7) = 5.291502622129181 */
 
-    /* first vector is < (1 + 1i), (2 + 2i), (3+3i) > */
     v[0].x.r = 1.0; v[0].x.i = 1.0;
     v[0].y.r = 2.0; v[0].y.i = 2.0;
     v[0].z.r = 3.0; v[0].z.i = 3.0;
@@ -144,6 +141,8 @@ int main ( int argc, char **argv)
             v[0].x.r, v[0].x.i,
             v[0].y.r, v[0].y.i,
             v[0].z.r, v[0].z.i );
+    printf("     : |v1| = %16.12e\n", cplex_vec_mag( v ));
+    printf("     : Should be 5.2915026221291\n\n");
 
     /* second vector is <( -1 - 1i), ( -2 -2i), ( 3 - 3i ) > */
     v[1].x.r = -1.0; v[1].x.i = -1.0;
@@ -154,17 +153,45 @@ int main ( int argc, char **argv)
             v[1].y.r, v[1].y.i,
             v[1].z.r, v[1].z.i );
 
+    /* < (1 + 1i), (2 + 2i), (3+3i) >
+     *                    . <( -1 - 1i), ( -2 -2i), ( 3 - 3i ) >
+     *
+     *
+     * should be ( 18, -10i ) */
+
+    printf("Lets test vector dot product\n");
     check_status( cplex_vec_dot( &opr, v, v+1) );
     printf("     : dot product = ( %g, %g )\n\n", opr.r, opr.i);
 
 
     /* tw0st3p says < 12 + 12im, -6 - 6im, 0 + 0im > */
+    printf("Lets test vector cross product\n");
     check_status( cplex_vec_cross( v+2, v, v+1 ) );
     printf("     : v1 X v2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
             v[2].x.r, v[2].x.i,
             v[2].y.r, v[2].y.i,
             v[2].z.r, v[2].z.i );
 
+    /* Again thanks to cool data from Traviss we have some results
+     * for a normalized vector v[0] thus :
+     *
+     * Thanks to Julia we see : 
+     *
+     * < ( 0.1889822365046136 + 0.1889822365046136im ),
+     *   ( 0.3779644730092272 + 0.3779644730092272im ),
+     *   ( 0.5669467095138407 + 0.5669467095138407im ) >
+     */
+    printf("Lets test vector normalization of v[0] as described.\n");
+    printf("    : function call cplex_vec_normalize() returns %i\n",
+            cplex_vec_normalize( (v+3), v ) );
+
+    printf("    : |v[0]| = ");
+    printf(" < ( %16.12e, %16.12e ),\n", v[3].x.r, v[3].x.i );
+    printf("   ( %16.12e, %16.12e ),\n", v[3].y.r, v[3].y.i );
+    printf("   ( %16.12e, %16.12e ) >\n", v[3].z.r, v[3].z.i );
+    printf("Should be < ( 0.1889822365046 + 0.1889822365046 i ),\n");
+    printf("            ( 0.3779644730092 + 0.3779644730092 i ),\n");
+    printf("            ( 0.5669467095138 + 0.5669467095138 i )>\n\n");
 
     op1.r = 1.0; op1.i = 0.0;
     op2.r = -9.0; op2.i = 0.0;
