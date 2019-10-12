@@ -1,0 +1,7 @@
+
+bin_printf.c   the idea here was to just printout a binary data
+               dump of whatever is passed via the pointer. We do
+               make the assumption that the data is arranged in
+               bytes of 8-bits at a time.
+
+
