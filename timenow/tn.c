@@ -78,7 +78,7 @@ int main( int argc, char *argv[] ) {
     int ec;
     int bare = 0;
     int frac = 0;
-    int j;
+    size_t j;
 
     ec = clock_gettime( CLOCK_REALTIME, &tn );
     if ( ec == 0 ) {
@@ -87,7 +87,7 @@ int main( int argc, char *argv[] ) {
         if ( argc < 2 ) {
             fprintf ( stdout, "\n" );
         } else {
-            for ( j = 1; j < argc; j++ ) {
+            for ( j = 1; j < (size_t)argc; j++ ) {
                 /* ugly but works */
                 if ( strncmp( bare_opt, argv[j], (size_t) 2 ) == 0 ) {
                     /* bare output without a CR requested */
