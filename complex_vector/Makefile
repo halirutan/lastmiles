@@ -7,7 +7,7 @@ CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE -D_X_OPEN_
 LIBS = -lm
 
 DEPS = v.h
-OBJ = $(shell ./OBJ.sh)
+OBJ = $(shell ./obj.sh)
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)

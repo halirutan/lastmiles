@@ -12,7 +12,7 @@ LIBS = -lm
 
 DEPS = v.h
 
-OBJ = $(shell ./OBJ.sh)
+OBJ = $(shell ./obj.sh)
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
