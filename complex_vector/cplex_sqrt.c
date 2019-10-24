@@ -40,10 +40,9 @@ int cplex_sqrt( cplex_type res[2], cplex_type *op1 )
     /* Thanks to Euler we go around the circle pi radians
      * however we need to check if theta is zero in which
      * case we are staying with a zero result exactly.
-     * We also need to check for a theta nearly equal
-     * to pi or -pi. */
+     */
 
-    if ( ( fabs(theta) == 0.0 ) || ( fabs(fabs(theta) - PI_L ) < epsilon ) ) {
+    if ( fabs(theta) == 0.0 ) {
         res[0].r = sqrt_mag;
         res[0].i = 0.0;
         res[1].r = sqrt_mag;

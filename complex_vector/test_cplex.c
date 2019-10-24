@@ -144,6 +144,7 @@ int main ( int argc, char **argv)
     printf("     : |v1| = %16.12e\n", cplex_vec_mag( v ));
     printf("     : Should be 5.2915026221291\n\n");
 
+
     /* second vector is <( -1 - 1i), ( -2 -2i), ( 3 - 3i ) > */
     v[1].x.r = -1.0; v[1].x.i = -1.0;
     v[1].y.r = -2.0; v[1].y.i = -2.0;
@@ -153,24 +154,38 @@ int main ( int argc, char **argv)
             v[1].y.r, v[1].y.i,
             v[1].z.r, v[1].z.i );
 
-    /* < (1 + 1i), (2 + 2i), (3+3i) >
+
+    /* OKay not let us test the vector dot product of v[0] dot v[1]
+     * where we currently have operands :
+     *
+     * < (1 + 1i), (2 + 2i), (3+3i) >
      *                    . <( -1 - 1i), ( -2 -2i), ( 3 - 3i ) >
      *
-     *
-     * should be ( 18, -10i ) */
+     * result should be ( 18, -10i ) */
 
     printf("Lets test vector dot product\n");
     check_status( cplex_vec_dot( &opr, v, v+1) );
     printf("     : dot product = ( %g, %g )\n\n", opr.r, opr.i);
 
 
-    /* tw0st3p says < 12 + 12im, -6 - 6im, 0 + 0im > */
+    /*  Now let us test the vector cross product of v[0] X v[1]
+     *  with the same operands as above :
+     *
+     *  < (1 + 1i), (2 + 2i), (3+3i) >
+     *                    X <( -1 - 1i), ( -2 -2i), ( 3 - 3i ) >
+     *
+     * where again thankfulyl we have traviss on irc and tw0st3p
+     * with julia to confirm output as the vector 
+     *
+     * < 12 + 12im, -6 - 6im, 0 + 0im > */
     printf("Lets test vector cross product\n");
     check_status( cplex_vec_cross( v+2, v, v+1 ) );
     printf("     : v1 X v2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
             v[2].x.r, v[2].x.i,
             v[2].y.r, v[2].y.i,
             v[2].z.r, v[2].z.i );
+
+
 
     /* Again thanks to cool data from Traviss we have some results
      * for a normalized vector v[0] thus :
@@ -193,6 +208,19 @@ int main ( int argc, char **argv)
     printf("            ( 0.3779644730092 + 0.3779644730092 i ),\n");
     printf("            ( 0.5669467095138 + 0.5669467095138 i )>\n\n");
 
+
+    /* We shall now test the solution to a complex quadratic polynomial.
+     *
+     * see https://en.wikipedia.org/wiki/Complex_quadratic_polynomial
+     *
+     * Begin with trivial x^2 - 9 * x + 14 = 0 which is just 
+     *
+     *     ( x - 2 ) * ( x - 7 ) = 0 
+     *
+     *     thus the roots are trivial real values 2 and 7.
+     *
+     */
+
     op1.r = 1.0; op1.i = 0.0;
     op2.r = -9.0; op2.i = 0.0;
     op3.r = 14.0; op3.i = 0.0;
@@ -212,6 +240,14 @@ int main ( int argc, char **argv)
                                           quad_res[1].r, quad_res[1].i);
 
 
+    /* Wed Oct 23 2019 via IRC we have traviss who catches a bug here 
+     *
+     * see https://www.wolframalpha.com/input/?i=solve+for+x+where+x%5E2+-+5+*+x+%2B+14+%3D+0+
+     *
+     *
+     * roots should be x = 1/2 * ( 5 +- sqrt(31)*i )
+     *
+     */
     op1.r = 1.0; op1.i = 0.0;
     op2.r = -5.0; op2.i = 0.0;
     op3.r = 14.0; op3.i = 0.0;
@@ -220,6 +256,13 @@ int main ( int argc, char **argv)
                                           quad_res[0].r, quad_res[0].i);
     printf("          result 2 = ( %16.12e, %16.12e )\n\n",
                                           quad_res[1].r, quad_res[1].i);
+
+
+    printf("DBUG : ***********************************************\n\n");
+    printf("DBUG : 20191023141932 traviss catches error here where the\n");
+    printf("DBUG : results should be x = 1/2 * ( 5 +- sqrt(31)*i )\n");
+    printf("DBUG : ***********************************************\n\n");
+
 
 
     op1.r = 2.0;  op1.i = 3.0;
