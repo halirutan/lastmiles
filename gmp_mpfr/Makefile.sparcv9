@@ -1,0 +1,24 @@
+
+IDIR = /usr/local/include
+LDIR = /usr/local/lib
+
+CC=/usr/bin/cc
+
+CFLAGS= -I$(IDIR) -std=iso9899:1999 -g -errfmt=error -erroff=%none \
+	-xmemalign=8s -errshort=full -xstrconst -xildoff -m64 -xnolibmil \
+	-xcode=pic32 -xregs=no%appl -xlibmieee -ftrap=%none -xarch=sparc -mc \
+	-xs -xbuiltin=%none -xdebugformat=dwarf -xunroll=1
+
+CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE -D_X_OPEN_SOURCE=600
+LIBS = -lm -lgmp -lmpfr
+
+OBJ = mpfr_ver.o
+
+%.o: %.c
+	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
+
+mpfr_ver: $(OBJ)
+	$(CC) -o $@ $^ -L$(LDIR) $(CFLAGS) $(CPPFLAGS) $(LIBS)
+
+clean:
+	rm -f *.o mpfr_ver
