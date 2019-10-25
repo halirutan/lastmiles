@@ -51,10 +51,15 @@ int main(int argc, char *argv[])
             fprintf(stderr,"FAIL : IEEE754 minimum is 23 bits.\n");
             return ( EXIT_FAILURE );
         }
-        printf("INFO : you asked for %i bits.\n", prec );
-        if ( prec > 4096 ){
-            fprintf(stderr,"WARN : we shall limit to 384 bits.\n");
-            prec = 4096;
+        if ( prec > 327679 ){
+            fprintf(stderr,"DBUG : madness!! You want 100,000 digits!\n");
+            prec = 327680;
+        } else {
+            printf("INFO : you asked for %i bits.\n", prec );
+            if ( prec > 4096 ){
+                fprintf(stderr,"WARN : we shall limit to 384 bits.\n");
+                prec = 4096;
+            }
         }
     }
 
