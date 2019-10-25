@@ -53,9 +53,9 @@ int main(int argc, char *argv[])
             return ( EXIT_FAILURE );
         }
         printf("INFO : you asked for %i bits.\n", prec );
-        if ( prec > 384 ){
+        if ( prec > 4096 ){
             fprintf(stderr,"WARN : we shall limit to 384 bits.\n");
-            prec = 384;
+            prec = 4096;
         }
     }
 
