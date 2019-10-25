@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 {
 
     int inex = 0;
-    mpfr_t pi_mpfr;
+    mpfr_t pi_mpfr, atan_pi_mpfr, atan_pi4_mpfr, theta_mpfr, delta_mpfr;
 
     mpfr_prec_t prec = 113;
 
@@ -45,7 +45,6 @@ int main(int argc, char *argv[])
     printf("MPFR thresholds file used at compile time : %s\n",
                                       mpfr_buildopt_tune_case ());
 
-
     if ( argc > 1 ) {
         prec = atoi( argv[1] );
         if ( prec < 23 ) {
@@ -60,16 +59,37 @@ int main(int argc, char *argv[])
     }
 
     mpfr_init2 ( pi_mpfr, prec);
+    mpfr_init2 ( theta_mpfr, prec);
+    mpfr_init2 ( atan_pi4_mpfr, prec);
+    mpfr_init2 ( atan_pi_mpfr, prec);
+    mpfr_init2 ( delta_mpfr, prec);
+
     inex = mpfr_const_pi ( pi_mpfr, MPFR_RNDN);
 
     printf("\nINFO : we are using %i bits of precision.\n", prec );
-    mpfr_printf ("100 digits of pi may be %.100Rg\n\n", pi_mpfr );
+    mpfr_printf ("pi may be %.Re\n\n", pi_mpfr );
     printf("100 digits of pi is     3.141592653589793238462643383");
     printf("27950288419716939937510582097494459230781640628620899");
-    printf("86280348253421170679\n");
+    printf("86280348253421170679\n\n\n");
 
+    inex = mpfr_set_flt ( theta_mpfr, 1.0, MPFR_RNDN);
+    mpfr_printf ("theta = %.Re\n\n", theta_mpfr );
+
+    inex = mpfr_atan ( atan_pi4_mpfr, theta_mpfr, MPFR_RNDN);
+    mpfr_printf ("pi/4 may be %.Re\n\n", atan_pi4_mpfr );
+
+    inex = mpfr_mul_si ( atan_pi_mpfr, atan_pi4_mpfr, 4, MPFR_RNDN);
+    mpfr_printf ("pi may be %.Re\n\n", atan_pi_mpfr );
+
+    inex = mpfr_sub (delta_mpfr, pi_mpfr, atan_pi_mpfr, MPFR_RNDN);
+    inex = mpfr_abs (delta_mpfr, delta_mpfr, MPFR_RNDN);
+    mpfr_printf ("delta( 4 * atan(1) ) - pi = %.Re\n\n", delta_mpfr);
+
+    mpfr_clear  ( theta_mpfr );
+    mpfr_clear  ( atan_pi4_mpfr );
+    mpfr_clear  ( atan_pi_mpfr );
     mpfr_clear  ( pi_mpfr );
-
+    mpfr_clear  ( delta_mpfr );
     return ( EXIT_SUCCESS );
 
 }
