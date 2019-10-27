@@ -2,3 +2,14 @@
 
 A trivial ray trace experiment with analytic surfaces and 
 perhaps some complex math but nothing too adventurous. Yet.
+
+manually hack it together with 
+
+$CC $CFLAGS $CPPFLAGS -I ../complex_vector/ -c -o ../complex_vector/cplex_vec_add.o ../complex_vector/cplex_vec_add.c
+$CC $CFLAGS $CPPFLAGS -I ../complex_vector/ -c -o ../complex_vector/cplex_vec_scale.o ../complex_vector/cplex_vec_scale.c
+$CC $CFLAGS $CPPFLAGS -I ../complex_vector/ -c -o ../complex_vector/cplex_vec_set.o ../complex_vector/cplex_vec_set.c
+$CC $CFLAGS $CPPFLAGS -I ../complex_vector/ -c -o ../complex_vector/cplex_vec_print.o ../complex_vector/cplex_vec_print.c
+$CC $CFLAGS $CPPFLAGS -I ../complex_vector/ -c -o ../complex_vector/cplex_vec_copy.o ../complex_vector/cplex_vec_copy.c
+$CC $CFLAGS $CPPFLAGS -I ../complex_vector/ -c -o obs_point.o obs_point.c                                                
+$CC $CFLAGS $CPPFLAGS -I ../complex_vector/ -o obs_point obs_point.o ../complex_vector/cplex_vec_add.o ../complex_vector/cplex_vec_scale.o ../complex_vector/cplex_vec_set.o ../complex_vector/cplex_vec_print.o ../complex_vector/cplex_vec_copy.o
+

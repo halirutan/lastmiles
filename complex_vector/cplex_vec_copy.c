@@ -12,21 +12,21 @@
  *********************************************************************/
 #define _XOPEN_SOURCE 600
 
-#include <stdlib.h>
+#include <math.h>
 #include "v.h"
 
-int cplex_add( cplex_type *res, cplex_type *op1, cplex_type *op2 )
+int cplex_vec_copy( vec_type *dst, vec_type *src)
 {
 
-    int status = cplex_check(op1);
-    if ( status != 0 ) return status;
-    status = cplex_check(op2);
-    if ( status != 0 ) return status;
+    dst->x.r = src->x.r + 0.0;
+    dst->x.i = src->x.i + 0.0;
 
-    res->r = op1->r + op2->r + 0.0;
-    res->i = op1->i + op2->i + 0.0;
+    dst->y.r = src->y.r + 0.0;
+    dst->y.i = src->y.i + 0.0;
+
+    dst->z.r = src->z.r + 0.0;
+    dst->z.i = src->z.i + 0.0;
 
     return ( 0 );
-
 }
 

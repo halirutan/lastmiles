@@ -12,21 +12,19 @@
  *********************************************************************/
 #define _XOPEN_SOURCE 600
 
-#include <stdlib.h>
+#include <math.h>
 #include "v.h"
 
-int cplex_add( cplex_type *res, cplex_type *op1, cplex_type *op2 )
+/* initialize the values inside a complex vector */
+int cplex_vec_set( vec_type *op,
+                       double r0, double i0,
+                       double r1, double i1,
+                       double r2, double i2 )
 {
 
-    int status = cplex_check(op1);
-    if ( status != 0 ) return status;
-    status = cplex_check(op2);
-    if ( status != 0 ) return status;
-
-    res->r = op1->r + op2->r + 0.0;
-    res->i = op1->i + op2->i + 0.0;
-
+    op->x.r = r0; op->x.i = i0;
+    op->y.r = r1; op->y.i = i1;
+    op->z.r = r2; op->z.i = i2;
     return ( 0 );
-
 }
 

@@ -12,19 +12,16 @@
  *********************************************************************/
 #define _XOPEN_SOURCE 600
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "v.h"
 
-int cplex_add( cplex_type *res, cplex_type *op1, cplex_type *op2 )
+int cplex_vec_print( vec_type *op )
 {
 
-    int status = cplex_check(op1);
-    if ( status != 0 ) return status;
-    status = cplex_check(op2);
-    if ( status != 0 ) return status;
-
-    res->r = op1->r + op2->r + 0.0;
-    res->i = op1->i + op2->i + 0.0;
+    printf("< ( %16.12e, %16.12e ),\n", op->x.r, op->x.i );
+    printf("  ( %16.12e, %16.12e ),\n", op->y.r, op->y.i );
+    printf("  ( %16.12e, %16.12e ) >",  op->z.r, op->z.i);
 
     return ( 0 );
 

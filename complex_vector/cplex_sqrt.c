@@ -19,7 +19,6 @@
 int cplex_sqrt( cplex_type res[2], cplex_type *op1 )
 {
 
-    double epsilon = RT_EPSILON;
     int status = cplex_check(op1);
     if ( status != 0 ) return status;
 
@@ -35,6 +34,16 @@ int cplex_sqrt( cplex_type res[2], cplex_type *op1 )
      * Another easy proof that there are two unique
      * square roots of complex numbers
      *
+     *
+     * We had a check to see if theta was close to pi within
+     * RT_EPSILON and that serves little purpose with a value
+     * that is a negative real number.
+     *
+     *     if ( ( theta == 0.0 )
+     *          ||
+     *          ( fabs(theta - PI_L ) < RT_EPSILON ) ) 
+     *
+     * So we got rid of that thanks to our good man Traviss.
      */
 
     /* Thanks to Euler we go around the circle pi radians
@@ -42,7 +51,10 @@ int cplex_sqrt( cplex_type res[2], cplex_type *op1 )
      * case we are staying with a zero result exactly.
      */
 
-    if ( fabs(theta) == 0.0 ) {
+    /* note that we add 0.0 to avoid the signed zero */
+    theta += 0.0;
+
+    if ( theta == 0.0 ) {
         res[0].r = sqrt_mag;
         res[0].i = 0.0;
         res[1].r = sqrt_mag;

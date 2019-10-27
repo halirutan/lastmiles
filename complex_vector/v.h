@@ -40,6 +40,15 @@ int cplex_div( cplex_type *res, cplex_type *op1, cplex_type *op2 );
 int cplex_sq( cplex_type *res, cplex_type *op1 );
 int cplex_sqrt( cplex_type *res, cplex_type *op1 );
 int cplex_cbrt( cplex_type *res, cplex_type *op1 );
+
+int cplex_vec_set( vec_type *op, double r0, double i0,
+                                 double r1, double i1,
+                                 double r2, double i2 );
+
+int cplex_vec_print( vec_type *op );
+int cplex_vec_copy( vec_type *dst, vec_type *src);
+int cplex_vec_add( vec_type *res, vec_type *op1, vec_type *op2 );
+int cplex_vec_scale( vec_type *res, vec_type *op1, double factor );
 int cplex_vec_dot( cplex_type *res, vec_type *op1, vec_type *op2 );
 int cplex_vec_cross( vec_type *res, vec_type *op1, vec_type *op2 );
 int cplex_vec_normalize( vec_type *res, vec_type *op1 );
