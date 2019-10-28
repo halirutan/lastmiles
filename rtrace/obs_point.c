@@ -21,8 +21,18 @@
 
 #include "v.h"
 
+int intersect( cplex_type res[2],
+                vec_type *sign,
+                vec_type *loc,
+                vec_type *axi,
+                vec_type *obs_p,
+                vec_type *obs_v );
+
 int main ( int argc, char **argv)
 {
+
+    int intersect_cnt = 0;
+    cplex_type intersections[2];
 
     vec_type tmp[3];
 
@@ -88,10 +98,73 @@ int main ( int argc, char **argv)
     /* At this moment we have the observation point and the direction
      * of the plane within obs_normal. What we need is to pass all
      * this to an object_intercept function that will determine a
-     * k index value on the ray trace line. */
+     * k index value on the ray trace line.
+     *
+     * See page 6 of the note on github at :
+     *     https://github.com/blastwave/lastmiles/
+     *            rtrace/math_notes/notes_006.png
+     *
+     * So clearly we need :
+     *
+     *     Our L0 point is obs_point, sign_data, object_location,
+     *     semi_major_axi, ray_direction.
+     *
+     *     At the moment for this test we shall use : 
+     *
+     *         sign_data = < 1, 1, 1 >
+     *
+     *         object_location = < 0, 0, 0 >
+     *
+     *         semi_major_axi = < 5, 2, 6 >
+     *
+     *         ray_direct = obs_normal where this must be a
+     *                           normalized vector
+     *
+     * */
+    vec_type sign_data, object_location, semi_major_axi, ray_direct;
+
+    /* Within the set of signs Sx, Sy, and Sz we do not care about
+     * the complex component and merely want the real. The same
+     * may be said for object_location, semi_major_axi and the
+     * direction of our ray ray_direct */
+    cplex_vec_set( &sign_data, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    cplex_vec_set( &object_location, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0);
+    cplex_vec_copy( &ray_direct, &obs_normal );
+
+
+    intersect_cnt = intersect ( intersections, &sign_data,
+                                &object_location, &semi_major_axi,
+                                &obs_point, &obs_normal );
+
+    printf ("INFO : we have %i intersection points.\n", intersect_cnt);
 
 
     return ( EXIT_SUCCESS );
+
+}
+
+int intersect( cplex_type res[2],
+                vec_type *sign,
+                vec_type *loc,
+                vec_type *axi,
+                vec_type *obs_p,
+                vec_type *obs_v )
+{
+
+    /* computer the intersection points between our line and the
+     * analytic surface described and return an integer count
+     * of the real intersections. */
+
+    vec_type tmp[9];
+
+    /* we shall form the complex cooefficients of a quadratic */
+    cplex_type A, B, C;
+
+
+
+
+    return ( 0 );
 
 }
 
