@@ -18,7 +18,7 @@ OBJ = mpfr_ver.o
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
 
 mpfr_ver: $(OBJ)
-	$(CC) -o $@ $^ -L$(LDIR) $(CFLAGS) $(CPPFLAGS) $(LIBS)
+	$(CC) -o $@ $^ -L$(LDIR) -R$(LDIR) $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
 clean:
 	rm -f *.o mpfr_ver

@@ -17,10 +17,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <complex.h>
+#include <math.h>
 
 #include "v.h"
 
+/* we shall need some sort of function to do the heavy lifting and it
+ * should really return the actual points of intersection. However for
+ * a quick and dirty prototype of the basic ideas we shall just return
+ * the solutions to the complex cooefficient quadratic */
 int intersect( cplex_type res[2],
                 vec_type *sign,
                 vec_type *loc,
@@ -37,11 +41,11 @@ int main ( int argc, char **argv)
     vec_type tmp[3];
 
     /* We must first define where our observation plane is in R3
-     * as a point and a normal direction. The obs_normal direction 
+     * as a point and a normal direction. The obs_normal direction
      * will be the direction of all rays that we trace. */
     vec_type obs_origin, obs_normal;
 
-    /* The observation plane has its own coordinate system and 
+    /* The observation plane has its own coordinate system and
      * thus we have x_prime_vec and y_prime_vec as ortogonal
      * and normalized vectors */
     vec_type x_prime_vec, y_prime_vec;
@@ -73,11 +77,16 @@ int main ( int argc, char **argv)
     x_prime = 1.7;
     y_prime = -2.0;
 
+    /* try for a single result with a glance intercept */
+    x_prime = 2.0 + 0.003906250;
+    x_prime = 2.0;
+    y_prime = 0.0;
+
     /* All of the above allows us to compute a starting point on
      * the observation plane in R3 and in the coordinate system
      * of the observation object.
      *
-     * obs_point = x_prime * x_prime_vec 
+     * obs_point = x_prime * x_prime_vec
      *           + y_prime * y_prime_vec
      *           + obs_origin
      *
@@ -106,10 +115,11 @@ int main ( int argc, char **argv)
      *
      * So clearly we need :
      *
-     *     Our L0 point is obs_point, sign_data, object_location,
-     *     semi_major_axi, ray_direction.
+     *     Our L point is obs_point along with a ray_direction.
+     *     We shall need the sign_data, object_location and the
+     *     semi_major_axi of that ellipsoid.
      *
-     *     At the moment for this test we shall use : 
+     *     At the moment for this test we shall use :
      *
      *         sign_data = < 1, 1, 1 >
      *
@@ -168,7 +178,7 @@ int intersect( cplex_type res[2],
 
 
     /* create a tmp vector of the semi_major_axi data to be used
-     * in dot product calcs wherein we will have 
+     * in dot product calcs wherein we will have
      *
      *     < b^2 * c^2, a^2 * c^2, a^2 * b^2 >
      *
@@ -228,7 +238,7 @@ int intersect( cplex_type res[2],
     cplex_vec_print( tmp+3 );
     printf("\n\n");
 
-    /* now multiply each component of tmp[3] by the obs_v 
+    /* now multiply each component of tmp[3] by the obs_v
      * components */
     cplex_mult( c_tmp+3, &(obs_v->x), &(tmp[3]).x );
     cplex_mult( c_tmp+4, &(obs_v->y), &(tmp[3]).y );
@@ -293,11 +303,41 @@ int intersect( cplex_type res[2],
     printf("          result 2 = ( %16.12e, %16.12e )\n\n",
                                           quad_res[1].r, quad_res[1].i);
 
-
     printf("\n---------+---------+---------+---------+---------+");
     printf("---------+---------+--\n");
 
-    return ( 0 );
+    /* Did we get only complex results? */
+    if (    ( fabs(quad_res[0].i) > 0.0 )
+         || ( fabs(quad_res[1].i) > 0.0 ) ) {
+
+        printf("DBUG : no real results.\n");
+        return ( 0 );
+
+    }
+
+    /* We should check if these two results that were returned are
+     * near equal to within the bounds of our RT_EPSILON value */
+    if ( ( fabs( quad_res[0].r - quad_res[1].r ) < RT_EPSILON ) &&
+         ( fabs( quad_res[0].i - quad_res[1].i ) < RT_EPSILON ) ) {
+
+        printf("DBUG : both results are equal within RT_EPSILON.\n");
+
+        res[0].r = quad_res[0].r;
+
+        /* why bother to return anything here other than zero for
+         * the imaginary component? */
+        res[0].i = quad_res[0].i;
+        return (1);
+
+    } else {
+
+        res[0].r = quad_res[0].r;
+        res[0].i = quad_res[0].i;
+        res[1].r = quad_res[1].r;
+        res[1].i = quad_res[1].i;
+        return (2);
+
+    }
 
 }
 
