@@ -78,8 +78,8 @@ int main ( int argc, char **argv)
     y_prime = -2.0;
 
     /* try for a single result with a glance intercept */
-    x_prime = 2.0 + 0.003906250;
-    x_prime = 2.0;
+    x_prime = 2.0 - 0.003906250;
+    x_prime = 2.0 + 2.32830643653869628906250e-10;
     y_prime = 0.0;
 
     /* All of the above allows us to compute a starting point on
@@ -166,6 +166,7 @@ int intersect( cplex_type res[2],
      * analytic surface described and return an integer count
      * of the real intersections. */
 
+    int soln_count;
     vec_type tmp[9];
     cplex_type c_tmp[18];
     cplex_type quad_res[2];
@@ -308,11 +309,10 @@ int intersect( cplex_type res[2],
 
     /* Did we get only complex results? */
     if (    ( fabs(quad_res[0].i) > 0.0 )
-         || ( fabs(quad_res[1].i) > 0.0 ) ) {
+         && ( fabs(quad_res[1].i) > 0.0 ) ) {
 
         printf("DBUG : no real results.\n");
-        return ( 0 );
-
+        soln_count = 0;
     }
 
     /* We should check if these two results that were returned are
@@ -320,24 +320,49 @@ int intersect( cplex_type res[2],
     if ( ( fabs( quad_res[0].r - quad_res[1].r ) < RT_EPSILON ) &&
          ( fabs( quad_res[0].i - quad_res[1].i ) < RT_EPSILON ) ) {
 
-        printf("DBUG : both results are equal within RT_EPSILON.\n");
+        /* Our results are essentially equal but we should now
+         * check if the results are precisely equal.  This is a 
+         * special case wherein we usually have only a single 
+         * intercept. TODO : so what ? */
+        if (       ( quad_res[0].r == quad_res[1].r ) 
+                && ( quad_res[0].i == quad_res[1].i ) ) {
+            printf("DBUG : both results are equal.\n");
+        } else {
+            printf("DBUG : both results are equal within RT_EPSILON.\n");
+        }
 
         res[0].r = quad_res[0].r;
 
-        /* why bother to return anything here other than zero for
-         * the imaginary component? */
-        res[0].i = quad_res[0].i;
-        return (1);
+        /* While we hope that we have a result with zero imaginary 
+         * component we really do need to check here */
+        if ( ( quad_res[0].i == 0.0 ) || ( quad_res[1].i == 0.0 ) ) {
+            res[0].i = 0.0;
+        } else {
+            /* This is a problem as we know that we have some result
+             * with imaginary value to it. Let's choose the lesser of
+             * the imaginary values and return that.
+             */
+            if ( fabs( quad_res[0].i ) < fabs( quad_res[1].i ) ) {
+                res[0].i = quad_res[0].i;
+            } else {
+                res[0].i = quad_res[1].i;
+            }
+        }
+        soln_count = 1;
 
     } else {
 
+        /* We have two different result values and we should order them
+         * by magnitude. */
         res[0].r = quad_res[0].r;
         res[0].i = quad_res[0].i;
         res[1].r = quad_res[1].r;
         res[1].i = quad_res[1].i;
-        return (2);
+        soln_count = 2;
 
     }
+
+    return ( soln_count );
 
 }
 
