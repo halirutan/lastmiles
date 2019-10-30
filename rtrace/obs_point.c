@@ -78,8 +78,9 @@ int main ( int argc, char **argv)
     y_prime = -2.0;
 
     /* try for a single result with a glance intercept */
-    /* slight offset is 1 / ( 2 ^ 32 ) */
-    x_prime = 2.0 + 2.32830643653869628906250e-10;
+    /* slight offset is 1 / ( 2 ^ 32 )
+     *  which is 2.32830643653869628906250e-10  */
+    x_prime = 2.0;
     y_prime = 0.0;
 
     /* All of the above allows us to compute a starting point on
@@ -327,10 +328,18 @@ int intersect( cplex_type res[2],
         if (       ( quad_res[0].r == quad_res[1].r ) 
                 && ( quad_res[0].i == quad_res[1].i ) ) {
             printf("DBUG : both results are equal.\n");
+            soln_count = 1;
+            res[0].r = quad_res[0].r;
+            res[0].i = quad_res[0].i;
         } else {
             printf("DBUG : both results are equal within RT_EPSILON.\n");
         }
 
+        /* okay so we have two values that are either precisely equal or
+         * they are equal within RT_EPSILON and thus we should accept
+         * the solution that is closest in magnitude to the observation
+         * plane.  However the solution must be in front of the plane
+         * for the given ray direction. Let's call that a TODO. */
         res[0].r = quad_res[0].r;
 
         /* While we hope that we have a result with zero imaginary 
