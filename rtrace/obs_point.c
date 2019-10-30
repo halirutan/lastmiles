@@ -78,7 +78,7 @@ int main ( int argc, char **argv)
     y_prime = -2.0;
 
     /* try for a single result with a glance intercept */
-    x_prime = 2.0 - 0.003906250;
+    /* slight offset is 1 / ( 2 ^ 32 ) */
     x_prime = 2.0 + 2.32830643653869628906250e-10;
     y_prime = 0.0;
 
