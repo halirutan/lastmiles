@@ -85,6 +85,8 @@ int main(int argc, char*argv[])
 
     char *disp_name = NULL;
     XSetErrorHandler(X_error_handler);
+
+    /* should work with a null display name */
     dsp = XOpenDisplay(disp_name);
     if (dsp == NULL) {
         fprintf(stderr, "%s: no X server?? '%s'\n",
@@ -101,7 +103,13 @@ int main(int argc, char*argv[])
     printf("default depth is %i\n", depth);
 
     fixed_font = XLoadFont(dsp, "fixed");
-    type_font = XLoadFont(dsp, "*-lucidatypewriter-medium-r-normal-sans-14-100-100-100-*-iso8859-1");
+
+    /* really we need to get a list of the available fonts and then
+     * use one that should work in the correct size 
+     *
+     *    type_font = XLoadFont(dsp, "*-lucidatypewriter-medium-r-normal-sans-14-100-100-100-*-iso8859-1");
+     */
+    type_font = XLoadFont(dsp, "lucidasanstypewriter-10");
 
     disp_width = DisplayWidth(dsp, screen_num);
     disp_height = DisplayHeight(dsp, screen_num);

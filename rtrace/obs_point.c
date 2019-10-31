@@ -77,11 +77,11 @@ int main ( int argc, char **argv)
     x_prime = 1.7;
     y_prime = -2.0;
 
-    /* try for a single result with a glance intercept */
     /* slight offset is 1 / ( 2 ^ 32 )
-     *  which is 2.32830643653869628906250e-10  */
-    x_prime = 2.0;
-    y_prime = 0.0;
+     *         which is 2.32830643653869628906250e-10
+     *    x_prime = 2.0 - 2.32830643653869628906250e-10;
+     *    y_prime = 0.0;
+     */
 
     /* All of the above allows us to compute a starting point on
      * the observation plane in R3 and in the coordinate system
@@ -139,8 +139,13 @@ int main ( int argc, char **argv)
      * may be said for object_location, semi_major_axi and the
      * direction of our ray ray_direct */
     cplex_vec_set( &sign_data, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    cplex_vec_set( &object_location, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0);
+
+    /* by default we were using an object at the origin but we can
+     * shift around for testing purposes. */
+    cplex_vec_set( &object_location, 0.0, 0.0, 1.7, 0.0, -2.0, 0.0);
+
+    /* Again the diagrams we used had a=5, b=2 and c=6 */
+    cplex_vec_set( &semi_major_axi, 0.0001, 0.0, 1.0, 0.0, 1.0, 0.0);
     cplex_vec_copy( &ray_direct, &obs_normal );
 
 
