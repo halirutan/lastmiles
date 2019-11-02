@@ -1,10 +1,29 @@
 
 
 
-deimos$ 
-deimos$ $CC $CFLAGS $CPPFLAGS -o simple_grid simple_grid.c -lX11 -lrt
-deimos$ 
-deimos$ ./simple_grid
+Look around for whatever compiler you have on hand and set
+the env var : 
+
+CC=/usr/bin/gcc-9
+
+Be sure to select CFLAGS that make sense for you machine : 
+
+CFLAGS=-std=iso9899:1999 -m64 -O0 -g -march=k8 -mtune=k8 -fno-fast-math -fno-builtin
+
+This is critical for clock_gettime and possibly other items that are 
+cross platform safe within the POSIX spec world : 
+
+CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE -D_X_OPEN_SOURCE=600 -D_POSIX_C_SOURCE=199309L
+
+None of this will work very well if you don't have a display : 
+
+DISPLAY=localhost:10.0
+
+That could be as trivial as :0 on your machine in front of you.
+
+$ $CC $CFLAGS $CPPFLAGS -o simple_grid simple_grid.c -lX11 -lrt
+$ 
+$ ./simple_grid
 INFO : default width= 660 height= 660
 connection number 3
 screen number 0

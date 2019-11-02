@@ -142,10 +142,10 @@ int main ( int argc, char **argv)
 
     /* by default we were using an object at the origin but we can
      * shift around for testing purposes. */
-    cplex_vec_set( &object_location, 0.0, 0.0, 1.7, 0.0, -2.0, 0.0);
+    cplex_vec_set( &object_location, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* Again the diagrams we used had a=5, b=2 and c=6 */
-    cplex_vec_set( &semi_major_axi, 0.0001, 0.0, 1.0, 0.0, 1.0, 0.0);
+    cplex_vec_set( &semi_major_axi, 5, 0.0, 2.0, 0.0, 6.0, 0.0);
     cplex_vec_copy( &ray_direct, &obs_normal );
 
 
