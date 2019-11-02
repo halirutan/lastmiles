@@ -3,8 +3,10 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <sched.h>
+#include <time.h>
 #include <unistd.h>
 #include <math.h>
 #include <errno.h>
@@ -23,12 +25,14 @@ int X_error_handler(Display *dsp, XErrorEvent *errevt);
 
 int check_ascii_input ( char *inp );
 
+uint64_t timediff( struct timespec st, struct timespec en );
+
 #define handle_error_en(en, msg) \
     do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
 
 /* local defs for a gc plot area */
-#define WIN_WIDTH 640 
-#define WIN_HEIGHT 640
+#define WIN_WIDTH 660 
+#define WIN_HEIGHT 660
 #define OFFSET 10
 
 #define CELL_COUNT 16
@@ -50,6 +54,12 @@ int main(int argc, char*argv[])
     Status retcode0;  /* not really needed for trivial stuff */
     int retcode1;     /* curious what some funcs return */
 
+    /* setup mouse x and y as impossible negative values */
+    int x = -1, y = -1;
+    int button, left_count, mid_count, right_count;
+    uint64_t t_delta; /* left mouse button click timing */
+    struct timespec t0, t1;
+
     /* some primordial vars */
     int disp_width, disp_height, width, height;
     int conn_num, screen_num, depth;
@@ -58,30 +68,10 @@ int main(int argc, char*argv[])
     float radian_angle, s;
     char *buf;
 
-    if ( argc > 2 ) {
-        /* do we have reasonable width and height ? */
-        width = check_ascii_input(argv[1]);
-        if ( width > 0 ) {
-            fprintf(stdout,"INFO : width  %i accepted.\n", width);
-        } else {
-            fprintf(stderr,"FAIL : width  \"%s\" garbled.", argv[1]);
-            return EXIT_FAILURE;
-        }
-
-        height = check_ascii_input(argv[2]);
-        if ( height > 0 ) {
-            fprintf(stdout,"INFO : height %i accepted.\n", height);
-        } else {
-            fprintf(stderr,"FAIL : height \"%s\" garbled.", argv[2]);
-            return EXIT_FAILURE;
-        }
-
-    } else {
-        width = WIN_WIDTH;
-        height = WIN_HEIGHT;
-        fprintf(stdout,"INFO : ");
-        fprintf(stdout,"default width=%4i height=%4i\n", width, height);
-    }
+    width = WIN_WIDTH;
+    height = WIN_HEIGHT;
+    fprintf(stdout,"INFO : ");
+    fprintf(stdout,"default width=%4i height=%4i\n", width, height);
 
     char *disp_name = NULL;
     XSetErrorHandler(X_error_handler);
@@ -122,22 +112,23 @@ int main(int argc, char*argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* check for a dual head over wide display */
-    if (((float)disp_width/(float)disp_height)>3.0F) {
-        /* we shall use the left hand half of the screen
-         * width and try to center on it */
-        offset_x = (disp_width/2 - width)/2;
-    } else {
-        /* just try to center on the display */
-        offset_x = (disp_width - width)/2;
-    }
-    offset_y = (disp_height - height)/2;
+    /* check for a dual head over wide display
+     *      if (((float)disp_width/(float)disp_height)>3.0F) {
+     *           * we shall use the left hand half of the screen
+     *           * width and try to center on it * 
+     *          offset_x = (disp_width/2 - width)/2;
+     *      } else {
+     *           * just try to center on the display *
+     *          offset_x = (disp_width - width)/2;
+     *      }
+     *      offset_y = (disp_height - height)/2;
+     */
 
     /* temporary hack offset */
     offset_x = 40;
     offset_y = 40;
 
-    printf("try offset x=%i y=%i\n", offset_x, offset_y);
+    printf("INFO : offset x=%i y=%i\n", offset_x, offset_y);
 
     /* center a really pale grey window on the screen */
     win = create_borderless_topwin(dsp, width, height,
@@ -146,11 +137,11 @@ int main(int argc, char*argv[])
     gc = create_gc(dsp, win);
 
     /* create a smaller darker window to the right */
-    win2 = create_borderless_topwin(dsp, 400, 200, 696, 100, 0x080808);
+    win2 = create_borderless_topwin(dsp, 400, 300, 720, 60, 0x000020);
     gc2 = create_gc(dsp, win2);
 
     /* create another small window below that */
-    win3 = create_borderless_topwin(dsp, 400, 200, 696, 440, 0x080808);
+    win3 = create_borderless_topwin(dsp, 400, 300, 720, 380, 0x000040 );
     gc3 = create_gc(dsp, win2);
 
     XSync(dsp, False);
@@ -188,17 +179,17 @@ int main(int argc, char*argv[])
     XDrawPoint(dsp, win, gc, width - 5, 5);
     XDrawPoint(dsp, win, gc, width - 5, height - 5);
 
-    /* draw a blue box inside the second window */
-    XSetForeground(dsp, gc2, blue.pixel);
+    /* draw a red box inside the second window */
+    XSetForeground(dsp, gc2, red.pixel);
     retcode1 = XSetLineAttributes(dsp, gc2, 1, LineSolid, CapButt, JoinMiter);
     fprintf(stdout,"gc2 XSetLineAttributes returns %i\n", retcode1 );
-    XDrawRectangle(dsp, win2, gc2, 5, 5, 390, 190);
+    XDrawRectangle(dsp, win2, gc2, 5, 5, 390, 290);
 
     /* draw a yellow box inside the third window */
     XSetForeground(dsp, gc3, yellow.pixel);
     retcode1 = XSetLineAttributes(dsp, gc3, 1, LineSolid, CapButt, JoinMiter);
     fprintf(stdout,"gc3 XSetLineAttributes returns %i\n", retcode1 );
-    XDrawRectangle(dsp, win3, gc3, 5, 5, 390, 190);
+    XDrawRectangle(dsp, win3, gc3, 5, 5, 390, 290);
 
     /* try to set line characteristics on the gc
      * https://www.x.org/archive/X11R7.7/doc/man/man3/XSetLineAttributes.3.xhtml
@@ -250,13 +241,15 @@ int main(int argc, char*argv[])
     XSetFont(dsp, gc2, type_font);
 
     /* horizontal minor tic marks at every 16th */
+    printf("\n-------------------------------------------------\n");
+    printf("\n\nINFO : horizontal minor tic marks at every 16th\n");
     p = 0;
     for ( j=(offset_x + (eff_width/16)); j<lx; j+=(eff_width/16) ){
         XDrawLine(dsp, win, gc, j, 8, j, 12);
         XDrawLine(dsp, win, gc, j, height - 8, j, height - 12);
         sprintf(buf,"[%02i] j = %4i   minus offset = %4i", p, j, j - offset_x);
-        fprintf(stdout,"horizontal minor tic mark %s\n",buf);
-        k = 60 + 20 * p;
+        /* fprintf(stdout,"horizontal minor tic mark %s\n",buf); */
+        /* k = 61 + 20 * p; */
         /* note that the gc2 default color was commented out above */
         /* XDrawImageString(dsp,win2,gc2,10,k,buf,strlen(buf)); */
         p += 1;
@@ -270,7 +263,7 @@ int main(int argc, char*argv[])
         XDrawLine(dsp, win, gc, 8, j, 12, j);
         XDrawLine(dsp, win, gc, width - 8, j, width - 12, j);
         sprintf(buf,"[%02i] j = %4i   minus offset = %4i", p, j, j - offset_y);
-        fprintf(stdout,"vertical minor tic mark %s\n",buf);
+        /* fprintf(stdout,"vertical minor tic mark %s\n",buf); */
         k = 60 + 20 * p;
         /* XDrawImageString(dsp,win2,gc2,40,k,buf,strlen(buf)); */
         p += 1;
@@ -300,10 +293,6 @@ int main(int argc, char*argv[])
             offset_x + (eff_width/2), offset_y + (eff_height/2) );
 
     XFlush(dsp);
-
-
-
-
 
 
     /* outer edge green lines */
@@ -344,25 +333,92 @@ int main(int argc, char*argv[])
     }
 
     XFlush(dsp); /* flush all pending */
-    for(j=30;j>0;j--){
-        if(j%5==0) fprintf(stdout,"%2i",j);
-        fprintf(stdout,".");
-        fflush(stdout);
-        sleep(1);
-    }
-    fprintf(stdout,"\n");
 
-    /* setup a single cell worth of data */
-/*
-    node0303 = calloc((size_t) 1, sizeof(cell_t));
-    fprintf(stdout,"\nsizeof(node0303) = %llx\n", sizeof(node0303));
+    XGrabPointer(dsp, win, False, ButtonPressMask, GrabModeAsync,
+                           GrabModeAsync, None, None, CurrentTime);
 
-*/
+    XSelectInput(dsp, win, ButtonPressMask);
 
-    /* XFreeGC(dsp,gc);  should never do? */
+    left_count = 0;
+    mid_count = 0;
+    right_count = 0;
+
+    /* some initial time data before anyone clicks anything */
+    clock_gettime( CLOCK_MONOTONIC, &t0 );
+    printf("DBUG : just for snits and giggles ");
+    clock_gettime( CLOCK_MONOTONIC, &t1 );
+    t_delta = timediff( t0, t1 );
+    printf ("  %16lld nsec\n", t_delta );
+
+    /* we need to display timing data or whatever in the lower
+     * right window */
+    XSetForeground(dsp, gc3, green.pixel);
+    XSetFont(dsp, gc3, type_font);
+
+    while(1){
+
+        XNextEvent(dsp,&event);
+
+        switch(event.type){
+            case ButtonPress:
+                switch(event.xbutton.button){
+                    case Button1:
+                        x=event.xbutton.x;
+                        y=event.xbutton.y;
+                        button=Button1;
+                        left_count += 1;
+                        break;
+
+                    case Button2:
+                        x=event.xbutton.x;
+                        y=event.xbutton.y;
+                        button=Button2;
+                        mid_count += 1;
+                        break;
+
+                    case Button3:
+                        x=event.xbutton.x;
+                        y=event.xbutton.y;
+                        button=Button3;
+                        right_count += 1;
+                        break;
+                    default:
+                        break;
+                }
+            break;
+        default:
+            break;
+        }
+
+        if ( button == Button1 ){
+            printf("leftclick");
+        } else if ( button == Button2 ) {
+            printf("midclick");
+        } else {
+            printf("rightclick");
+            clock_gettime( CLOCK_MONOTONIC, &t1 );
+            t_delta = timediff( t0, t1 );
+
+            sprintf(buf,"[%04i] tdelta = %16lld nsec",
+                                            right_count, t_delta);
+
+            k = 20 + ( right_count%10 ) * 20;
+            XDrawImageString( dsp, win3, gc3,
+                               20, k,
+                               buf, strlen(buf));
+
+            t0.tv_sec = t1.tv_sec;
+            t0.tv_nsec = t1.tv_nsec;
+            /* If a 200ms right double click anywhere then quit */
+            if ( t_delta < 200000000 ) break;
+        }
+        printf(" at %d %d \n", x, y);
+
+        if ( (x >= 0) && (y >= 0) && ( mid_count > 2 ) ) break;
+
+    } /* while */
+
     XCloseDisplay(dsp);
-
-    /* free(node0303); */
 
     return EXIT_SUCCESS;
 }
@@ -478,5 +534,28 @@ int X_error_handler(Display *dsp, XErrorEvent *errevt)
                      errevt->minor_code);
     /* the returned value is ignored */
     return(EXIT_SUCCESS);
+}
+
+uint64_t timediff( struct timespec st, struct timespec en )
+{
+    /* return the delta time as a 64-bit positive number of
+     * nanoseconds.  Regardless of the time direction between
+     * start and end we always get a positive result. */
+
+    struct timespec temp;
+    uint64_t s, n;
+
+    if ( ( en.tv_nsec - st.tv_nsec ) < 0 ) {
+        /* make a full second adjustment to tv_sec */
+        temp.tv_sec = en.tv_sec - st.tv_sec - 1;
+        /* we have to add a full second to temp.tv_nsec */
+        temp.tv_nsec = 1000000000 + en.tv_nsec - st.tv_nsec;
+    } else {
+        temp.tv_sec = en.tv_sec - st.tv_sec;
+        temp.tv_nsec = en.tv_nsec - st.tv_nsec;
+    }
+    s = (uint64_t) temp.tv_sec;
+    n = (uint64_t) temp.tv_nsec;
+    return ( s * (uint64_t)1000000000 + n );
 }
 
