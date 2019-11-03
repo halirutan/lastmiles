@@ -1,0 +1,30 @@
+
+IDIR=/usr/include
+LDIR=/usr/openwin/lib
+
+CC=/opt/developerstudio12.6/bin/c99
+
+CFLAGS= -I$(IDIR) -Xc -g -errfmt=error -erroff=%none -xmemalign=8s -errshort=full \
+		-xstrconst -xildoff -m64 -xnolibmil -xcode=pic32 -xregs=no%appl \
+		-xlibmieee -ftrap=%none -xarch=sparc -mc -xs -xbuiltin=%none \
+		-xdebugformat=dwarf -xunroll=1
+
+CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE \
+	-D_X_OPEN_SOURCE=600
+
+LIBS = -lX11 -lrt
+
+SRCS = simple_grid.c x_error_handler.c create_gc.c \
+	create_borderless_topwin.c ../mem_hack/timediff.c
+
+OBJS = simple_grid.o x_error_handler.o create_gc.o \
+	create_borderless_topwin.o ../mem_hack/timediff.o
+
+%.o: %.c
+	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
+
+simple_grid: $(OBJS)
+	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) -L$(LDIR) $(LIBS)
+
+clean:
+	rm -f $(OBJS) simple_grid
