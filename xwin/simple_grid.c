@@ -42,8 +42,8 @@ int main(int argc, char*argv[])
     Status retcode0;  /* not really needed for trivial stuff */
     int retcode1;     /* curious what some funcs return */
 
-    /* setup mouse x and y as impossible negative values */
-    int x = -1, y = -1;
+    /* setup mouse x and y */
+    int mouse_x = -1, mouse_y = -1;
     int button, left_count, mid_count, right_count;
     uint64_t t_delta; /* left mouse button click timing */
     struct timespec t0, t1;
@@ -63,7 +63,7 @@ int main(int argc, char*argv[])
      * Therefore we need some very basic data about the actual
      * observation plane such as the location and the plane
      * normal vector. We need the dimensions of the observation
-     * box which is really just a subset of the plane.
+     * viewport which is really just a part of the plane.
      *
      *     obs_loc = < 12, 0, 0 >
      *     obs_vec = < -1, 0, 0 >
@@ -78,19 +78,30 @@ int main(int argc, char*argv[])
      *
      * It should be reasonably clear that a click of the mouse
      * within the active display region of our primary window
-     * will result in an x_prime and y_prime pair. The problem
-     * is that the X11 libs return global mouse click coordinates
-     * and thus we need to check that they map onto the observation
-     * plane display region.
+     * will result in an x_prime and y_prime pair. The Xll xlib
+     * return mouse click coordinates referenced to the graphics
+     * context and the window therein. This means we get possibly
+     * negative coordinates from a mouse click that is left and
+     * above the upper left corner of our grey window win.
+     *
+     * This will only make sense if mouse_x > offset and also
+     * mouse_x < eff_width + offset.
+     *
+     *     win_x = ( mouse_x - offset ) / eff_width
+     *     win_y = ( mouse_y - offset ) / eff_height
      *
      *
      *
+     *
+     *
+     * no idea what this crud is .. cant recall ...
      *    x_prime = ( eff_width / 2 ) + ( obs_x_width / eff_width )
      *               
      *
      *
      *
      */
+    double win_x, win_y;
 
     width = WIN_WIDTH;
     height = WIN_HEIGHT;
@@ -142,7 +153,7 @@ int main(int argc, char*argv[])
 
     printf("INFO : offset x=%i y=%i\n", offset_x, offset_y);
 
-    /* center a really pale grey window on the screen */
+    /* Our primary plotting windows is pale grey on the screen */
     win = create_borderless_topwin(dsp, width, height,
                                         offset_x, offset_y,
                                         0x0f0f0f);
@@ -361,6 +372,7 @@ int main(int argc, char*argv[])
     /* we need to display timing data or whatever in the lower
      * right window */
     XSetForeground(dsp, gc3, green.pixel);
+    XSetForeground(dsp, gc2, green.pixel);
     XSetFont(dsp, gc3, type_font);
 
     /* some initial time data before anyone clicks anything */
@@ -380,22 +392,22 @@ int main(int argc, char*argv[])
             case ButtonPress:
                 switch(event.xbutton.button){
                     case Button1:
-                        x=event.xbutton.x;
-                        y=event.xbutton.y;
+                        mouse_x=event.xbutton.x;
+                        mouse_y=event.xbutton.y;
                         button=Button1;
                         left_count += 1;
                         break;
 
                     case Button2:
-                        x=event.xbutton.x;
-                        y=event.xbutton.y;
+                        mouse_x=event.xbutton.x;
+                        mouse_y=event.xbutton.y;
                         button=Button2;
                         mid_count += 1;
                         break;
 
                     case Button3:
-                        x=event.xbutton.x;
-                        y=event.xbutton.y;
+                        mouse_x=event.xbutton.x;
+                        mouse_y=event.xbutton.y;
                         button=Button3;
                         right_count += 1;
                         break;
@@ -411,6 +423,24 @@ int main(int argc, char*argv[])
         if ( button == Button1 ){
 
             printf("leftclick");
+
+            if (    ( mouse_x >=  offset_x )  && ( mouse_y >= offset_y )
+                 && ( mouse_x < ( eff_width + offset_x ) ) 
+                 && ( mouse_y < ( eff_height + offset_y ) ) ) {
+    
+                /* we are inside the primary window plotting region */
+                win_x = ( 1.0 * ( mouse_x - offset_x ) ) / eff_width;
+                win_y = ( 1.0 * ( mouse_y - offset_y ) ) / eff_height;
+                /* TODO maybe someday ask which is a better way to go
+                 * on that cst to double. Look to the opcodes! */
+    
+                sprintf(buf,"( %8.6g , %8.6g )", win_x, win_y );
+                XDrawImageString( dsp, win2, gc2, 20, 240, buf, strlen(buf));
+    
+                sprintf(buf,"[ %4i , %4i ]", mouse_x, mouse_y );
+                XDrawImageString( dsp, win2, gc2, 20, 260, buf, strlen(buf));
+    
+            }
 
         } else if ( button == Button2 ) {
 
@@ -437,11 +467,9 @@ int main(int argc, char*argv[])
 
         }
 
-        printf(" at %d %d \n", x, y);
+        printf(" at %d %d \n", mouse_x, mouse_y);
 
-        if ( (x >= 0) && (y >= 0) && ( mid_count > 2 ) ) break;
-
-    } /* while */
+    }
 
     XCloseDisplay(dsp);
 
