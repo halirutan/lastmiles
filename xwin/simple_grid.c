@@ -68,6 +68,42 @@ int main(int argc, char*argv[])
     float radian_angle, s;
     char *buf;
 
+
+    /* The whole objective here is to map a point on the display
+     * to the observation plane for ray tracing.
+     *
+     * Therefore we need some very basic data about the actual
+     * observation plane such as the location and the plane
+     * normal vector. We need the dimensions of the observation
+     * box which is really just a subset of the plane.
+     *
+     *     obs_loc = < 12, 0, 0 >
+     *     obs_vec = < -1, 0, 0 >
+     *     obs_x_width = 6.0
+     *     obs_y_height = 6.0
+     *
+     * We will also require the coordinate basis vectors within
+     * the observation plane.
+     *
+     *     obs_x_hat_prime = < 0, 1, 0 >
+     *     obs_y_hat_prime = < 0, 0, 1 >
+     *
+     * It should be reasonably clear that a click of the mouse
+     * within the active display region of our primary window
+     * will result in an x_prime and y_prime pair. The problem
+     * is that the X11 libs return global mouse click coordinates
+     * and thus we need to check that they map onto the observation
+     * plane display region.
+     *
+     *
+     *
+     *    x_prime = ( eff_width / 2 ) + ( obs_x_width / eff_width )
+     *               
+     *
+     *
+     *
+     */
+
     width = WIN_WIDTH;
     height = WIN_HEIGHT;
     fprintf(stdout,"INFO : ");
@@ -111,18 +147,6 @@ int main(int argc, char*argv[])
         fprintf(stderr, "ERROR: screen is too small\n\n");
         exit(EXIT_FAILURE);
     }
-
-    /* check for a dual head over wide display
-     *      if (((float)disp_width/(float)disp_height)>3.0F) {
-     *           * we shall use the left hand half of the screen
-     *           * width and try to center on it * 
-     *          offset_x = (disp_width/2 - width)/2;
-     *      } else {
-     *           * just try to center on the display *
-     *          offset_x = (disp_width - width)/2;
-     *      }
-     *      offset_y = (disp_height - height)/2;
-     */
 
     /* temporary hack offset */
     offset_x = 40;
@@ -334,6 +358,9 @@ int main(int argc, char*argv[])
 
     XFlush(dsp); /* flush all pending */
 
+    /* TODO : at the moment the only events we are trapping are
+     * the mouse buttons but in the future we will want to redraw
+     * and re-expose the window if there other event types */
     XGrabPointer(dsp, win, False, ButtonPressMask, GrabModeAsync,
                            GrabModeAsync, None, None, CurrentTime);
 
@@ -343,18 +370,21 @@ int main(int argc, char*argv[])
     mid_count = 0;
     right_count = 0;
 
-    /* some initial time data before anyone clicks anything */
-    clock_gettime( CLOCK_MONOTONIC, &t0 );
-    printf("DBUG : just for snits and giggles ");
-    clock_gettime( CLOCK_MONOTONIC, &t1 );
-    t_delta = timediff( t0, t1 );
-    printf ("  %16lld nsec\n", t_delta );
-
     /* we need to display timing data or whatever in the lower
      * right window */
     XSetForeground(dsp, gc3, green.pixel);
     XSetFont(dsp, gc3, type_font);
 
+    /* some initial time data before anyone clicks anything */
+    clock_gettime( CLOCK_MONOTONIC, &t0 );
+    printf("DBUG : just for snits and giggles ");
+    clock_gettime( CLOCK_MONOTONIC, &t1 );
+    t_delta = timediff( t0, t1 );
+    sprintf(buf,"[0000] tdelta = %16lld nsec", t_delta);
+    XDrawImageString( dsp, win3, gc3, 20, 20, buf, strlen(buf));
+
+    /* TODO at some point check for why we are fetching the x and y
+     * values over and over and over inside the switch-case */
     while(1){
 
         XNextEvent(dsp,&event);
@@ -382,6 +412,7 @@ int main(int argc, char*argv[])
                         button=Button3;
                         right_count += 1;
                         break;
+
                     default:
                         break;
                 }
@@ -391,10 +422,15 @@ int main(int argc, char*argv[])
         }
 
         if ( button == Button1 ){
+
             printf("leftclick");
+
         } else if ( button == Button2 ) {
+
             printf("midclick");
+
         } else {
+
             printf("rightclick");
             clock_gettime( CLOCK_MONOTONIC, &t1 );
             t_delta = timediff( t0, t1 );
@@ -411,7 +447,9 @@ int main(int argc, char*argv[])
             t0.tv_nsec = t1.tv_nsec;
             /* If a 200ms right double click anywhere then quit */
             if ( t_delta < 200000000 ) break;
+
         }
+
         printf(" at %d %d \n", x, y);
 
         if ( (x >= 0) && (y >= 0) && ( mid_count > 2 ) ) break;
@@ -480,6 +518,7 @@ create_gc(Display *dsp, Window win)
     int screen_num = DefaultScreen(dsp);
 
     gc = XCreateGC(dsp, win, valuemask, &values);
+    printf("DBUG : sizeof(gc) = %ld\n", sizeof(gc) );
     if ((int64_t)gc < 0) { /* just taser me improper pointer comparison */
         fprintf(stderr, "XCreateGC failed\n");
         exit(EXIT_FAILURE); /* clumsy */
