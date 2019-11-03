@@ -11,10 +11,6 @@
 #include <math.h>
 #include <errno.h>
 
-Window create_simple_win(Display *dsp,
-                         int width, int height, int border_width,
-                         int x, int y);
-
 Window create_borderless_topwin(Display *dsp,
                          int width, int height,
                          int x, int y, int bg_color);
@@ -23,20 +19,12 @@ GC create_gc(Display *dsp, Window win);
 
 int X_error_handler(Display *dsp, XErrorEvent *errevt);
 
-int check_ascii_input ( char *inp );
-
 uint64_t timediff( struct timespec st, struct timespec en );
 
-#define handle_error_en(en, msg) \
-    do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
-
-/* local defs for a gc plot area */
+/* local defs */
 #define WIN_WIDTH 660 
 #define WIN_HEIGHT 660
 #define OFFSET 10
-
-#define CELL_COUNT 16
-#define ELEMENT_COUNT 16
 
 int main(int argc, char*argv[])
 {
@@ -377,7 +365,6 @@ int main(int argc, char*argv[])
 
     /* some initial time data before anyone clicks anything */
     clock_gettime( CLOCK_MONOTONIC, &t0 );
-    printf("DBUG : just for snits and giggles ");
     clock_gettime( CLOCK_MONOTONIC, &t1 );
     t_delta = timediff( t0, t1 );
     sprintf(buf,"[0000] tdelta = %16lld nsec", t_delta);
@@ -459,142 +446,5 @@ int main(int argc, char*argv[])
     XCloseDisplay(dsp);
 
     return EXIT_SUCCESS;
-}
-
-Window
-create_simple_win(Display *dsp,
-                  int width, int height,
-                  int border_width,
-                  int offset_x, int offset_y)
-{
-    /* we need to create a thing called an unmapped InputOutput
-     * subwindow of some given parent window. In this case the
-     * parent is the root level window.  See page 38 */
-    Window wn;
-    int scr = DefaultScreen(dsp);
-    wn = XCreateSimpleWindow(dsp, RootWindow(dsp, scr),
-                             offset_x, offset_y, width, height, border_width,
-                             XBlackPixel(dsp, scr),
-                             XBlackPixel(dsp, scr));
-    XSetWindowBackground( dsp, wn, 0x000000);
-    XClearWindow(dsp, wn);
-    XMapWindow(dsp, wn);
-    XFlush(dsp);
-    return wn;
-}
-
-Window
-create_borderless_topwin(Display *dsp,
-                         int width, int height,
-                         int offset_x, int offset_y, int bg_color)
-{
-    Window wn;
-    XSetWindowAttributes attribs;
-    attribs.override_redirect = 1;
-    /* note parameter 7 for border width is zero */
-    wn = XCreateWindow(dsp,
-                       RootWindow(dsp, DefaultScreen(dsp)),
-                       offset_x, offset_y, width, height, 0,
-                       CopyFromParent, CopyFromParent,
-                       CopyFromParent, CWOverrideRedirect,
-                       &attribs);
-    XSetWindowBackground( dsp, wn, bg_color);
-    XClearWindow(dsp, wn);
-    XMapWindow(dsp, wn);
-    XFlush(dsp);
-    return wn;
-}
-
-GC
-create_gc(Display *dsp, Window win)
-{
-    GC gc;
-    unsigned long valuemask = 0;
-    XGCValues values;
-    unsigned int line_width = 2;
-    int line_style = LineSolid;
-    int cap_style = CapButt;
-    int join_style = JoinBevel;
-    int screen_num = DefaultScreen(dsp);
-
-    gc = XCreateGC(dsp, win, valuemask, &values);
-    printf("DBUG : sizeof(gc) = %ld\n", sizeof(gc) );
-    if ((int64_t)gc < 0) { /* just taser me improper pointer comparison */
-        fprintf(stderr, "XCreateGC failed\n");
-        exit(EXIT_FAILURE); /* clumsy */
-    }
-
-    XSetForeground(dsp, gc, XWhitePixel(dsp, screen_num));
-    XSetBackground(dsp, gc, XBlackPixel(dsp, screen_num));
-
-    /* line style */
-    XSetLineAttributes(dsp, gc,
-        line_width, line_style,
-        cap_style, join_style);
-
-    /* fill style is solid */
-    XSetFillStyle(dsp, gc, FillSolid);
-
-    return gc;
-}
-
-int check_ascii_input(char *inp)
-{
-    /* ensure that the width and height are at least 512 pixels */
-    char *buf = calloc((size_t)32, sizeof(unsigned char));
-    int char_cnt, retval;
-
-    retval = (int)strtol( inp, (char **)NULL, 10);
-    char_cnt = snprintf(buf, (size_t)32, "%i", retval);
-    /* did we get at least a single valid digit ? */
-    if ( char_cnt < 1 ) {
-        retval = -1;
-    } else {
-        /* compare the input string to the integer conversion */
-        if ( strncmp( inp, buf, char_cnt) != 0 ){
-            retval = -1;
-        } else {
-            /* ensure that we have at least 512 pixels */
-            if ( retval < 512 ) retval = 512;
-        }
-    }
-    free(buf);
-    return retval;
-}
-
-int X_error_handler(Display *dsp, XErrorEvent *errevt)
-{
-    char msg[80];
-    XGetErrorText(dsp, errevt->error_code, msg, sizeof(msg));
-
-    fprintf(stderr, "Error %d (%s): request %d.%d\n",
-                     errevt->error_code, msg,
-                     errevt->request_code,
-                     errevt->minor_code);
-    /* the returned value is ignored */
-    return(EXIT_SUCCESS);
-}
-
-uint64_t timediff( struct timespec st, struct timespec en )
-{
-    /* return the delta time as a 64-bit positive number of
-     * nanoseconds.  Regardless of the time direction between
-     * start and end we always get a positive result. */
-
-    struct timespec temp;
-    uint64_t s, n;
-
-    if ( ( en.tv_nsec - st.tv_nsec ) < 0 ) {
-        /* make a full second adjustment to tv_sec */
-        temp.tv_sec = en.tv_sec - st.tv_sec - 1;
-        /* we have to add a full second to temp.tv_nsec */
-        temp.tv_nsec = 1000000000 + en.tv_nsec - st.tv_nsec;
-    } else {
-        temp.tv_sec = en.tv_sec - st.tv_sec;
-        temp.tv_nsec = en.tv_nsec - st.tv_nsec;
-    }
-    s = (uint64_t) temp.tv_sec;
-    n = (uint64_t) temp.tv_nsec;
-    return ( s * (uint64_t)1000000000 + n );
 }
 
