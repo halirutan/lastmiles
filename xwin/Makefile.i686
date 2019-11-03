@@ -1,6 +1,6 @@
 
 CC=/usr/bin/cc
-CFLAGS= -I$(IDIR) -std=iso9899:1999 -std=iso9899:1999 -m32 -g -O0 \
+CFLAGS= -I$(IDIR) -std=iso9899:1999 -m32 -g -O0 \
 	-march=i686 -mtune=i686 -Wl,-rpath=/opt/bw/lib,--enable-new-dtags \
 	-fno-builtin -malign-double -mpc80
 
