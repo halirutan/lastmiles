@@ -1,0 +1,26 @@
+
+CC=/usr/bin/cc
+
+CFLAGS= -I$(IDIR) -std=iso9899:1999 -m64 -g -O0 \
+	-Wl,-rpath=/opt/bw/lib,--enable-new-dtags \
+	-fno-fast-math -fno-builtin -malign-double -mpc80
+
+CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE \
+	-D_X_OPEN_SOURCE=600 -D_POSIX_C_SOURCE=199309L
+
+LIBS = -lX11 -lrt
+
+SRCS = simple_grid.c x_error_handler.c create_gc.c \
+	  create_borderless_topwin.c ../mem_hack/timediff.c
+
+OBJS = simple_grid.o x_error_handler.o create_gc.o \
+	   create_borderless_topwin.o ../mem_hack/timediff.o
+
+%.o: %.c
+	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
+
+simple_grid: $(OBJS)
+	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
+
+clean:
+	rm -f $(OBJS) simple_grid
