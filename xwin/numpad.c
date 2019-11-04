@@ -90,30 +90,35 @@ int main (int argc, char *argv[])
 
 
     screen_colormap = XDefaultColormap(dsp, DefaultScreen(dsp));
+
     if (XAllocNamedColor(dsp,
                          screen_colormap,
                          "red", &red, &red) == 0) {
         fprintf(stderr, "XAllocNamedColor - no red color?\n");
         exit(EXIT_FAILURE);
     }
+
     if (XAllocNamedColor(dsp,
                          screen_colormap,
                          "green", &green, &green) == 0) {
         fprintf(stderr, "XAllocNamedColor - red works but green no??\n");
         exit(EXIT_FAILURE);
     }
+
     if (XAllocNamedColor(dsp,
                          screen_colormap,
                          "blue", &blue, &blue) == 0) {
         fprintf(stderr, "XAllocNamedColor - red and green okay but blue??\n");
         exit(EXIT_FAILURE);
     }
+
     if (XAllocNamedColor(dsp,
                          screen_colormap,
                          "yellow", &yellow, &yellow) == 0) {
         fprintf(stderr, "XAllocNamedColor - yellow bork bork bork!\n");
         exit(EXIT_FAILURE);
     }
+
     if (XAllocNamedColor(dsp,
                          screen_colormap,
                          "cyan", &cyan, &cyan) == 0) {
@@ -142,7 +147,6 @@ int main (int argc, char *argv[])
     /* we have no idea if these fonts exist */
     pad_font = XLoadFont(dsp, "-adobe-courier-medium-r-normal--34-240-100-100-m-200-iso8859-1");
     dsp_font = XLoadFont(dsp, "*-lucidatypewriter-medium-r-normal-sans-14-100-100-100-*-iso8859-1");
-    /* pad_font = XLoadFont(dsp, "-adobe-new century schoolbook-medium-r-normal--34-240-100-100-p-181-iso8859-1"); */
     XSetFont(dsp, gc, pad_font);
 
     /* general purpose buffer */

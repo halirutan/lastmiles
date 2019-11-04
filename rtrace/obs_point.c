@@ -21,11 +21,9 @@
 
 #include "v.h"
 
-/* we shall need some sort of function to do the heavy lifting and it
- * should really return the actual points of intersection. However for
- * a quick and dirty prototype of the basic ideas we shall just return
- * the solutions to the complex cooefficient quadratic */
-int intersect( cplex_type res[2],
+/* A quick and dirty prototype of the basic ideas where we shall just
+ * return the solutions to the complex cooefficient quadratic */
+int intercept( cplex_type res[2],
                 vec_type *sign,
                 vec_type *loc,
                 vec_type *axi,
@@ -35,8 +33,11 @@ int intersect( cplex_type res[2],
 int main ( int argc, char **argv)
 {
 
-    int intersect_cnt = 0;
-    cplex_type intersections[2];
+    int intercept_cnt = 0;
+
+    /* per our diagrams we are just solving for k in the complex
+     * cooeficient quadratic */
+    cplex_type k_val[2];
 
     vec_type tmp[3];
 
@@ -149,234 +150,14 @@ int main ( int argc, char **argv)
     cplex_vec_copy( &ray_direct, &obs_normal );
 
 
-    intersect_cnt = intersect ( intersections, &sign_data,
+    intercept_cnt = intercept ( k_val, &sign_data,
                                 &object_location, &semi_major_axi,
                                 &obs_point, &obs_normal );
 
-    printf ("INFO : we have %i intersection points.\n", intersect_cnt);
+    printf ("INFO : we have %i real k values.\n", intercept_cnt);
 
 
     return ( EXIT_SUCCESS );
-
-}
-
-int intersect( cplex_type res[2],
-                vec_type *sign,
-                vec_type *loc,
-                vec_type *axi,
-                vec_type *obs_p,
-                vec_type *obs_v )
-{
-
-    /* computer the intersection points between our line and the
-     * analytic surface described and return an integer count
-     * of the real intersections. */
-
-    int soln_count;
-    vec_type tmp[9];
-    cplex_type c_tmp[18];
-    cplex_type quad_res[2];
-
-    /* we shall form the complex cooefficients of a quadratic */
-    cplex_type A, B, C;
-
-    printf("\n---------+---------+---------+---------+---------+");
-    printf("---------+---------+--\n");
-
-
-    /* create a tmp vector of the semi_major_axi data to be used
-     * in dot product calcs wherein we will have
-     *
-     *     < b^2 * c^2, a^2 * c^2, a^2 * b^2 >
-     *
-     * */
-    tmp[0].x.i = 0.0;
-    tmp[0].y.i = 0.0;
-    tmp[0].z.i = 0.0;
-
-    tmp[0].x.r = axi->y.r * axi->y.r * axi->z.r * axi->z.r;
-    tmp[0].y.r = axi->x.r * axi->x.r * axi->z.r * axi->z.r;
-    tmp[0].z.r = axi->x.r * axi->x.r * axi->y.r * axi->y.r;
-
-    printf("\n\nINFO : intermediate axi vector = ");
-    cplex_vec_print( tmp );
-    printf("\n\n");
-
-    /* product of the sign data with the intermediate axi vector
-     * in tmp[0] to form a factor of our complex cooefficient A */
-
-    tmp[1].x.i = 0.0;
-    tmp[1].y.i = 0.0;
-    tmp[1].z.i = 0.0;
-    tmp[1].x.r = sign->x.r * tmp[0].x.r;
-    tmp[1].y.r = sign->y.r * tmp[0].y.r;
-    tmp[1].z.r = sign->z.r * tmp[0].z.r;
-
-    /* another factor of A is the complex components of the ray
-     * direction squared. */
-    cplex_mult( &((tmp+2)->x), &(obs_v->x), &(obs_v->x) );
-    cplex_mult( &((tmp+2)->y), &(obs_v->y), &(obs_v->y) );
-    cplex_mult( &((tmp+2)->z), &(obs_v->z), &(obs_v->z) );
-    printf("dbug : Rx^2 = ( %g, %g )\n", tmp[2].x.r, tmp[2].x.i);
-    printf("dbug : Ry^2 = ( %g, %g )\n", tmp[2].y.r, tmp[2].y.i);
-    printf("dbug : Rz^2 = ( %g, %g )\n", tmp[2].z.r, tmp[2].z.i);
-
-    /* now we form the first complex cooefficient from the dot
-     * product of tmp[0] and tmp[2] to form A */
-    cplex_vec_dot( &A, tmp, tmp+2 );
-    printf("\n\nINFO : A = ( %g, %g )\n\n", A.r, A.i );
-
-
-    /* moving onwards to complex cooefficient B wherein we need
-     * multiple intermediate calculations */
-    cplex_sub( c_tmp, &(obs_p->x), &(loc->x) );
-    cplex_sub( c_tmp+1, &(obs_p->y), &(loc->y) );
-    cplex_sub( c_tmp+2, &(obs_p->z), &(loc->z) );
-
-    printf("dbug : Lx - Px = ( %g, %g )\n", c_tmp[0].r, c_tmp[0].i);
-    printf("dbug : Ly - Py = ( %g, %g )\n", c_tmp[1].r, c_tmp[1].i);
-    printf("dbug : Lz - Pz = ( %g, %g )\n", c_tmp[2].r, c_tmp[2].i);
-
-    cplex_vec_set( tmp+3, c_tmp[0].r, c_tmp[0].i,
-                          c_tmp[1].r, c_tmp[1].i,
-                          c_tmp[2].r, c_tmp[2].i);
-
-    printf("INFO : L - P = ");
-    cplex_vec_print( tmp+3 );
-    printf("\n\n");
-
-    /* now multiply each component of tmp[3] by the obs_v
-     * components */
-    cplex_mult( c_tmp+3, &(obs_v->x), &(tmp[3]).x );
-    cplex_mult( c_tmp+4, &(obs_v->y), &(tmp[3]).y );
-    cplex_mult( c_tmp+5, &(obs_v->z), &(tmp[3]).z );
-
-    cplex_vec_set( tmp+4, c_tmp[3].r, c_tmp[3].i,
-                          c_tmp[4].r, c_tmp[4].i,
-                          c_tmp[5].r, c_tmp[5].i);
-
-    printf("INFO : R * ( L - P ) = ");
-    cplex_vec_print( tmp+4 );
-    printf("\n\n");
-
-    /* dot product of the intermediate sign vec now */
-
-    cplex_vec_dot( c_tmp+6, tmp, tmp+4 );
-    c_tmp[7].r = 2.0; c_tmp[7].i = 0.0;
-    cplex_mult( &B, c_tmp+6, c_tmp+7 );
-
-    printf("\n\nINFO : B = ( %g, %g )\n\n", B.r, B.i );
-
-    /* we first need to create (L-P) component squares */
-    cplex_mult( c_tmp+8,  c_tmp,   c_tmp );
-    cplex_mult( c_tmp+9,  c_tmp+1, c_tmp+1 );
-    cplex_mult( c_tmp+10, c_tmp+2, c_tmp+2 );
-
-    cplex_vec_set( tmp+5, c_tmp[8].r,  c_tmp[8].i,
-                          c_tmp[9].r,  c_tmp[9].i,
-                          c_tmp[10].r, c_tmp[10].i);
-
-    printf("INFO : ( L - P )^2 = ");
-    cplex_vec_print( tmp+5 );
-    printf("\n\n");
-
-    /* now the dot product again with the intermediate signs */
-    cplex_vec_dot( c_tmp+11, tmp, tmp+5 );
-    printf("\n\nINFO : <sign bits> dot < L-P bits > = ( %g, %g )\n",
-                                             c_tmp[11].r, c_tmp[11].i );
-
-
-    /* now create a^2 * b^2 * c^2 */
-    cplex_mult( c_tmp+12, &(axi->x), &(axi->x));
-    cplex_mult( c_tmp+13, &(axi->y), &(axi->y));
-    cplex_mult( c_tmp+14, &(axi->z), &(axi->z));
-    cplex_mult( c_tmp+15, c_tmp+12, c_tmp+13);
-    cplex_mult( c_tmp+16, c_tmp+15, c_tmp+14);
-
-    printf("\n\nINFO : a^2 * b^2 * c^2 = ( %g, %g )\n",
-                                              c_tmp[16].r, c_tmp[16].i );
-
-    cplex_sub( &C, c_tmp+11, c_tmp+16);
-
-    printf("\n\nINFO : C = ( %g, %g )\n\n", C.r, C.i );
-
-    /* We shall get the solutions to a complex quadratic polynomial.
-     * see https://en.wikipedia.org/wiki/Complex_quadratic_polynomial */
-    cplex_quadratic( quad_res, &A, &B, &C );
-
-    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
-                                          quad_res[0].r, quad_res[0].i);
-
-    printf("          result 2 = ( %16.12e, %16.12e )\n\n",
-                                          quad_res[1].r, quad_res[1].i);
-
-    printf("\n---------+---------+---------+---------+---------+");
-    printf("---------+---------+--\n");
-
-    /* Did we get only complex results? */
-    if (    ( fabs(quad_res[0].i) > 0.0 )
-         && ( fabs(quad_res[1].i) > 0.0 ) ) {
-
-        printf("DBUG : no real results.\n");
-        soln_count = 0;
-    }
-
-    /* We should check if these two results that were returned are
-     * near equal to within the bounds of our RT_EPSILON value */
-    if ( ( fabs( quad_res[0].r - quad_res[1].r ) < RT_EPSILON ) &&
-         ( fabs( quad_res[0].i - quad_res[1].i ) < RT_EPSILON ) ) {
-
-        /* Our results are essentially equal but we should now
-         * check if the results are precisely equal.  This is a 
-         * special case wherein we usually have only a single 
-         * intercept. TODO : so what ? */
-        if (       ( quad_res[0].r == quad_res[1].r ) 
-                && ( quad_res[0].i == quad_res[1].i ) ) {
-            printf("DBUG : both results are equal.\n");
-            soln_count = 1;
-            res[0].r = quad_res[0].r;
-            res[0].i = quad_res[0].i;
-        } else {
-            printf("DBUG : both results are equal within RT_EPSILON.\n");
-        }
-
-        /* okay so we have two values that are either precisely equal or
-         * they are equal within RT_EPSILON and thus we should accept
-         * the solution that is closest in magnitude to the observation
-         * plane.  However the solution must be in front of the plane
-         * for the given ray direction. Let's call that a TODO. */
-        res[0].r = quad_res[0].r;
-
-        /* While we hope that we have a result with zero imaginary 
-         * component we really do need to check here */
-        if ( ( quad_res[0].i == 0.0 ) || ( quad_res[1].i == 0.0 ) ) {
-            res[0].i = 0.0;
-        } else {
-            /* This is a problem as we know that we have some result
-             * with imaginary value to it. Let's choose the lesser of
-             * the imaginary values and return that.
-             */
-            if ( fabs( quad_res[0].i ) < fabs( quad_res[1].i ) ) {
-                res[0].i = quad_res[0].i;
-            } else {
-                res[0].i = quad_res[1].i;
-            }
-        }
-        soln_count = 1;
-
-    } else {
-
-        /* We have two different result values and we should order them
-         * by magnitude. */
-        res[0].r = quad_res[0].r;
-        res[0].i = quad_res[0].i;
-        res[1].r = quad_res[1].r;
-        res[1].i = quad_res[1].i;
-        soln_count = 2;
-
-    }
-
-    return ( soln_count );
 
 }
 

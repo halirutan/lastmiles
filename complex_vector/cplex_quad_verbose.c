@@ -77,13 +77,31 @@ int cplex_quadratic( cplex_type res[2],
     status = cplex_check(op3);
     if ( status != 0 ) return status;
 
+    printf("\n\ndbug : quad op1 = ( %g, %g )\n", op1->r, op1->i);
+    printf("     : quad op2 = ( %g, %g )\n", op2->r, op2->i);
+    printf("     : quad op3 = ( %g, %g )\n", op3->r, op3->i);
+
     check_status( cplex_mult( &denom, &two, op1 ) );
+    printf("     : denom = 2 * op1 = ( %g, %g )\n", denom.r, denom.i);
+
     check_status( cplex_sq( &tmp0, op2 ) );
+    printf("     : tmp0 = op2^2 = ( %g, %g )\n", tmp0.r, tmp0.i);
+
     check_status( cplex_mult( &tmp1, &four, op1 ) );
+    printf("     : tmp1 = four * op1 = ( %g, %g )\n", tmp1.r, tmp1.i);
+
     check_status( cplex_mult( &tmp2, &tmp1, op3 ) );
+    printf("     : tmp2 = four * op1 * op3 = ( %g, %g )\n", tmp2.r, tmp2.i);
+
     check_status( cplex_sub( &radicand, &tmp0, &tmp2 ) );
+    printf("     : radicand = op2^2 - four * op1 * op3 = ( %g, %g )\n", radicand.r, radicand.i);
+
     check_status( cplex_sqrt( roots, &radicand ) );
+    printf("     : radicand roots1 is ( %16.12e, %16.12e )\n", roots[0].r, roots[0].i);
+    printf("     : radicand roots2 is ( %16.12e, %16.12e )\n\n", roots[1].r, roots[1].i);
+
     check_status( cplex_mult( &tmp1, &neg_one, op2 ) );
+    printf("     : -1 * op2 = ( %g, %g )\n\n", tmp1.r, tmp1.i);
 
     /* we are collecting all four possible results internally :
      *     full_res[0] = ( -1 * op2 + roots[0] ) / 2 * op1
@@ -106,11 +124,9 @@ int cplex_quadratic( cplex_type res[2],
     check_status( cplex_sub( &tmp0, &tmp1, (roots+1) ) );
     check_status( cplex_div( &full_res[3], &tmp0, &denom ) );
 
-    /*
     for (j=0; j<4; j++ ) {
         printf("     : full_res[%i] = ( %16.12e, %16.12e )\n", j, full_res[j].r, full_res[j].i);
     }
-    */
 
     res[0].r = full_res[0].r;
     res[0].i = full_res[0].i;

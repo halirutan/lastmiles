@@ -22,7 +22,7 @@ int X_error_handler(Display *dsp, XErrorEvent *errevt);
 uint64_t timediff( struct timespec st, struct timespec en );
 
 /* local defs */
-#define WIN_WIDTH 660 
+#define WIN_WIDTH 660
 #define WIN_HEIGHT 660
 #define OFFSET 10
 
@@ -105,7 +105,7 @@ int main(int argc, char*argv[])
      *
      * no idea what this crud is .. cant recall ...
      *    x_prime = ( eff_width / 2 ) + ( obs_x_width / eff_width )
-     *               
+     *
      *
      *
      *
@@ -139,9 +139,7 @@ int main(int argc, char*argv[])
     fixed_font = XLoadFont(dsp, "fixed");
 
     /* really we need to get a list of the available fonts and then
-     * use one that should work in the correct size 
-     *
-     *    type_font = XLoadFont(dsp, "*-lucidatypewriter-medium-r-normal-sans-14-100-100-100-*-iso8859-1");
+     * use one that should work in the correct size
      */
     type_font = XLoadFont(dsp, "lucidasanstypewriter-10");
 
@@ -156,7 +154,7 @@ int main(int argc, char*argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* temporary hack offset */
+    /* hard coded screen offset */
     offset_x = 40;
     offset_y = 40;
 
@@ -204,8 +202,8 @@ int main(int argc, char*argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* red pixel at each corner 5 pixels indented */
-    XSetForeground(dsp, gc, red.pixel);
+    /* yellow pixel at each corner 5 pixels indented */
+    XSetForeground(dsp, gc, yellow.pixel);
     XDrawPoint(dsp, win, gc, 5, 5);
     XDrawPoint(dsp, win, gc, 5, height - 5);
     XDrawPoint(dsp, win, gc, width - 5, 5);
@@ -223,19 +221,10 @@ int main(int argc, char*argv[])
     fprintf(stdout,"gc3 XSetLineAttributes returns %i\n", retcode1 );
     XDrawRectangle(dsp, win3, gc3, 5, 5, 390, 290);
 
-    /* try to set line characteristics on the gc
+    /* initial line characteristics on the gc are set in the XCreateGC
+     * calls that we do.
+     *
      * https://www.x.org/archive/X11R7.7/doc/man/man3/XSetLineAttributes.3.xhtml
-     * int XSetLineAttributes(Display *display, GC gc,
-     *                        unsigned int line_width,
-     *                        int line_style,
-     *                        int cap_style,
-     *                        int join_style);
-     *
-     *  line-style : LineSolid, LineOnOffDash, or LineDoubleDash
-     *  join-style : JoinMiter, JoinRound, or JoinBevel.
-     *  cap-style  : CapNotLast, CapButt, CapRound, or CapProjecting
-     *
-     *  the most normal seems to be CapButt and JoinMiter
      */
 
     /* set our graph box inside by OFFSET pixels
@@ -396,35 +385,35 @@ int main(int argc, char*argv[])
         switch(event.type){
             case ButtonPress:
                 switch(event.xbutton.button){
-                    case Button1:
+                    case Button1: /* left mouse button */
                         mouse_x=event.xbutton.x;
                         mouse_y=event.xbutton.y;
                         button=Button1;
                         left_count += 1;
                         break;
 
-                    case Button2:
+                    case Button2: /* middle mouse button or scroll wheel click */
                         mouse_x=event.xbutton.x;
                         mouse_y=event.xbutton.y;
                         button=Button2;
                         mid_count += 1;
                         break;
 
-                    case Button3:
+                    case Button3: /* right mouse button */
                         mouse_x=event.xbutton.x;
                         mouse_y=event.xbutton.y;
                         button=Button3;
                         right_count += 1;
                         break;
 
-                    case Button4:
+                    case Button4: /* mouse scroll wheel up */
                         mouse_x=event.xbutton.x;
                         mouse_y=event.xbutton.y;
                         button=Button4;
                         roll_up += 1;
                         break;
 
-                    case Button5:
+                    case Button5: /* mouse scroll wheel down */
                         mouse_x=event.xbutton.x;
                         mouse_y=event.xbutton.y;
                         button=Button5;
@@ -439,24 +428,54 @@ int main(int argc, char*argv[])
             break;
         }
 
+        sprintf(buf,"raw  [ %4i , %4i ]  ", mouse_x, mouse_y);
+        XSetForeground(dsp, gc2, red.pixel);
+        XDrawImageString( dsp, win2, gc2, 20, 180, buf, strlen(buf));
+
+        /* adjustment of one or two pixels */
+        mouse_x = mouse_x - 1;
+        mouse_y = mouse_y - 2;
+
         if ( button == Button1 ){
 
             printf("leftclick");
 
             if (    ( mouse_x >=  offset_x )  && ( mouse_y >= offset_y )
-                 && ( mouse_x < ( eff_width + offset_x ) ) 
+                 && ( mouse_x < ( eff_width + offset_x ) )
                  && ( mouse_y < ( eff_height + offset_y ) ) ) {
-    
+
                 /* we are inside the primary window plotting region */
                 win_x = ( 1.0 * ( mouse_x - offset_x ) ) / eff_width;
-                win_y = ( 1.0 * ( mouse_y - offset_y ) ) / eff_height;
-    
-                sprintf(buf,"( %8.6g , %8.6g )", win_x, win_y );
-                XDrawImageString( dsp, win2, gc2, 20, 240, buf, strlen(buf));
-    
+
+                /* lets try to invert the y axis */
+                sprintf(buf,"adj [ %4i , %4i ]  ",
+                              mouse_x - offset_x,
+                              eff_height - mouse_y + offset_y );
+
+                XSetForeground(dsp, gc2, green.pixel);
+                XDrawImageString( dsp, win2, gc2, 20, 200,
+                                                       buf, strlen(buf));
+
+                win_y = ( 1.0 * ( eff_height - mouse_y + offset_y ) )
+                                                            / eff_height;
+
+                sprintf(buf,"fp64( %8.6g , %8.6g )", win_x, win_y );
+                XDrawImageString( dsp, win2, gc2, 20, 220,
+                                                       buf, strlen(buf));
+
                 sprintf(buf,"[ %4i , %4i ]", mouse_x, mouse_y );
-                XDrawImageString( dsp, win2, gc2, 20, 260, buf, strlen(buf));
-    
+                XDrawImageString( dsp, win2, gc2, 20, 240,
+                                                       buf, strlen(buf));
+
+                /* center point shall be ( 0.0, 0.0 ) */
+                win_x = win_x * 2.0 - 1.0;
+                win_y = win_y * 2.0 - 1.0;
+
+                XSetForeground(dsp, gc2, red.pixel);
+                sprintf(buf,"fp64( %8.6g , %8.6g )", win_x, win_y );
+                XDrawImageString( dsp, win2, gc2, 20, 260,
+                                                       buf, strlen(buf));
+
             }
 
         } else if ( button == Button2 ) {
