@@ -44,7 +44,16 @@ int main(int argc, char*argv[])
 
     /* setup mouse x and y */
     int mouse_x = -1, mouse_y = -1;
-    int button, left_count, mid_count, right_count;
+
+    /* these next five are just mouse button counters where the
+     * roll_up and roll_dn are mouse wheel events */
+    int button, left_count, mid_count, right_count, roll_up, roll_dn;
+    left_count = 0;
+    mid_count = 0;
+    right_count = 0;
+    roll_up = 0;
+    roll_dn = 0;
+
     uint64_t t_delta; /* left mouse button click timing */
     struct timespec t0, t1;
 
@@ -365,10 +374,6 @@ int main(int argc, char*argv[])
 
     XSelectInput(dsp, win, ButtonPressMask);
 
-    left_count = 0;
-    mid_count = 0;
-    right_count = 0;
-
     /* we need to display timing data or whatever in the lower
      * right window */
     XSetForeground(dsp, gc3, green.pixel);
@@ -412,6 +417,20 @@ int main(int argc, char*argv[])
                         right_count += 1;
                         break;
 
+                    case Button4:
+                        mouse_x=event.xbutton.x;
+                        mouse_y=event.xbutton.y;
+                        button=Button4;
+                        roll_up += 1;
+                        break;
+
+                    case Button5:
+                        mouse_x=event.xbutton.x;
+                        mouse_y=event.xbutton.y;
+                        button=Button5;
+                        roll_dn += 1;
+                        break;
+
                     default:
                         break;
                 }
@@ -431,8 +450,6 @@ int main(int argc, char*argv[])
                 /* we are inside the primary window plotting region */
                 win_x = ( 1.0 * ( mouse_x - offset_x ) ) / eff_width;
                 win_y = ( 1.0 * ( mouse_y - offset_y ) ) / eff_height;
-                /* TODO maybe someday ask which is a better way to go
-                 * on that cst to double. Look to the opcodes! */
     
                 sprintf(buf,"( %8.6g , %8.6g )", win_x, win_y );
                 XDrawImageString( dsp, win2, gc2, 20, 240, buf, strlen(buf));
@@ -446,7 +463,7 @@ int main(int argc, char*argv[])
 
             printf("midclick");
 
-        } else {
+        } else if ( button == Button3 ) {
 
             printf("rightclick");
             clock_gettime( CLOCK_MONOTONIC, &t1 );
@@ -464,6 +481,21 @@ int main(int argc, char*argv[])
             t0.tv_nsec = t1.tv_nsec;
             /* If a 200ms right double click anywhere then quit */
             if ( t_delta < 200000000 ) break;
+
+
+        } else if ( button == Button4 ) {
+            /* TODO note that a mouse wheel event being used here to
+             * track observation plane position will result in all
+             * data being redrawn. */
+            printf("roll up");
+
+        } else if ( button == Button5 ) {
+
+            printf("roll down");
+
+        } else {
+
+            printf("unknown button");
 
         }
 
