@@ -171,7 +171,7 @@ int main(int argc, char*argv[])
     gc2 = create_gc(dsp, win2);
 
     /* create another small window below that */
-    win3 = create_borderless_topwin(dsp, 400, 300, 720, 380, 0x000040 );
+    win3 = create_borderless_topwin(dsp, 400, 300, 720, 380, 0x080808 );
     gc3 = create_gc(dsp, win2);
 
     XSync(dsp, False);
@@ -376,6 +376,12 @@ int main(int argc, char*argv[])
     sprintf(buf,"[0000] tdelta = %16lld nsec", t_delta);
     XDrawImageString( dsp, win3, gc3, 20, 20, buf, strlen(buf));
 
+    /* draw a red box inside the third window for ray trace data */
+    XSetForeground(dsp, gc3, red.pixel);
+    retcode1 = XSetLineAttributes(dsp, gc3, 1, LineSolid, CapButt, JoinMiter);
+    XDrawRectangle(dsp, win3, gc3, 10, 30, 380, 260);
+    XSetForeground(dsp, gc3, green.pixel);
+
     /* TODO at some point check for why we are fetching the x and y
      * values over and over and over inside the switch-case */
     while(1){
@@ -491,9 +497,8 @@ int main(int argc, char*argv[])
             sprintf(buf,"[%04i] tdelta = %16lld nsec",
                                             right_count, t_delta);
 
-            k = 20 + ( right_count%10 ) * 20;
-            XDrawImageString( dsp, win3, gc3,
-                               20, k,
+            /* k = 20 + ( right_count%5 ) * 20; */
+            XDrawImageString( dsp, win3, gc3, 20, 20,
                                buf, strlen(buf));
 
             t0.tv_sec = t1.tv_sec;

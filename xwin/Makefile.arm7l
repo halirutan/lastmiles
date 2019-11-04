@@ -10,10 +10,10 @@ CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE \
 LIBS = -lX11 -lrt
 
 SRCS = simple_grid.c x_error_handler.c create_gc.c \
-	  create_borderless_topwin.c ../mem_hack/timediff.c
+	  create_borderless_topwin.c ../time_and_date/timediff.c
 
 OBJS = simple_grid.o x_error_handler.o create_gc.o \
-	   create_borderless_topwin.o ../mem_hack/timediff.o
+	   create_borderless_topwin.o ../time_and_date/timediff.o
 
 %.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
