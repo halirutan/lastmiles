@@ -7,22 +7,61 @@ CFLAGS= -I$(IDIR) -std=iso9899:1999 -m64 -g -O0 \
 CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE \
 	-D_X_OPEN_SOURCE=600 -D_POSIX_C_SOURCE=199309L
 
-LIBS = -lX11 -lrt
+LIBS = -lX11 -lrt -lm
+
+IDIR=../complex_vector
 
 SRCS = grid.c numpad.c x_error_handler.c create_gc.c \
-	create_borderless_topwin.c ../time_and_date/timediff.c
+	create_borderless_topwin.c ../time_and_date/timediff.c \
+	../rtrace/intercept.c \
+	../complex_vector/check_status.c \
+	../complex_vector/cplex_add.c \
+	../complex_vector/cplex_check.c \
+	../complex_vector/cplex_div.c \
+	../complex_vector/cplex_mag.c \
+	../complex_vector/cplex_mult.c \
+	../complex_vector/cplex_quad.c \
+	../complex_vector/cplex_sq.c \
+	../complex_vector/cplex_sqrt.c \
+	../complex_vector/cplex_sub.c \
+	../complex_vector/cplex_theta.c \
+	../complex_vector/cplex_vec_add.c \
+	../complex_vector/cplex_vec_copy.c \
+	../complex_vector/cplex_vec_dot.c \
+	../complex_vector/cplex_vec_set.c \
+	../complex_vector/cplex_vec_print.c \
+	../complex_vector/cplex_vec_scale.c
+
 
 OBJS = x_error_handler.o create_gc.o \
-	create_borderless_topwin.o ../time_and_date/timediff.o
+	create_borderless_topwin.o ../time_and_date/timediff.o \
+	../rtrace/intercept.o \
+	../complex_vector/check_status.o \
+	../complex_vector/cplex_add.o \
+	../complex_vector/cplex_check.o \
+	../complex_vector/cplex_div.o \
+	../complex_vector/cplex_mag.o \
+	../complex_vector/cplex_mult.o \
+	../complex_vector/cplex_quad.o \
+	../complex_vector/cplex_sq.o \
+	../complex_vector/cplex_sqrt.o \
+	../complex_vector/cplex_sub.o \
+	../complex_vector/cplex_theta.o \
+	../complex_vector/cplex_vec_add.o \
+	../complex_vector/cplex_vec_copy.o \
+	../complex_vector/cplex_vec_dot.o \
+	../complex_vector/cplex_vec_set.o \
+	../complex_vector/cplex_vec_print.o \
+	../complex_vector/cplex_vec_scale.o
 
 %.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
 
 grid: grid.o $(OBJS)
-	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
+	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) -I$(IDIR) $(LIBS)
 
 numpad: numpad.o $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
 clean:
-	rm -f $(OBJS) grid numpad
+	rm -f $(OBJS) grid.o grid numpad numpad.o

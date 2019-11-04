@@ -11,6 +11,9 @@
 #include <math.h>
 #include <errno.h>
 
+/* we shall need the complex math functions */
+#include "v.h"
+
 Window create_borderless_topwin(Display *dsp,
                          int width, int height,
                          int x, int y, int bg_color);
@@ -20,6 +23,15 @@ GC create_gc(Display *dsp, Window win);
 int X_error_handler(Display *dsp, XErrorEvent *errevt);
 
 uint64_t timediff( struct timespec st, struct timespec en );
+
+/* A quick and dirty prototype of the basic ideas where we shall just
+ * return the solutions to the complex cooefficient quadratic */
+int intercept( cplex_type res[2],
+                vec_type *sign,
+                vec_type *loc,
+                vec_type *axi,
+                vec_type *obs_p,
+                vec_type *obs_v );
 
 /* local defs */
 #define WIN_WIDTH 660
@@ -62,9 +74,7 @@ int main(int argc, char*argv[])
     int conn_num, screen_num, depth;
     int j, k, p, q, offset_x, offset_y, lx, ly, ux, uy, px, py;
     int eff_width, eff_height;
-    float radian_angle, s;
     char *buf;
-
 
     /* The whole objective here is to map a point on the display
      * to the observation plane for ray tracing.
@@ -78,7 +88,29 @@ int main(int argc, char*argv[])
      *     obs_vec = < -1, 0, 0 >
      *     obs_x_width = 6.0
      *     obs_y_height = 6.0
-     *
+     */
+
+    int intercept_cnt = 0;
+    /* per our diagrams we are just solving for k in the complex
+     * cooeficient quadratic */
+    cplex_type k_val[2];
+
+    vec_type obs_origin, obs_normal, obs_point;
+
+    vec_type x_prime_vec, y_prime_vec;
+    vec_type tmp[3];
+
+    /* Test case will be an observation plane at ( 12, 0, 0 ) */
+    cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+    /* Observation direction is along negative i_hat basis vector */
+    cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+    double obs_x_width = 6.0;
+    double obs_y_height = 6.0;
+    double x_prime, y_prime;
+
+    /*
      * We will also require the coordinate basis vectors within
      * the observation plane.
      *
@@ -93,23 +125,47 @@ int main(int argc, char*argv[])
      * negative coordinates from a mouse click that is left and
      * above the upper left corner of our grey window win.
      *
-     * This will only make sense if mouse_x > offset and also
-     * mouse_x < eff_width + offset.
+     */
+
+    /* x_prime_vec is < 0, 1, 0 > */
+    cplex_vec_set( &x_prime_vec, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+
+    /* y_prime_vec is < 0, 0, 1 > */
+    cplex_vec_set( &y_prime_vec, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+    /*
+     *         sign_data = < 1, 1, 1 >
      *
-     *     win_x = ( mouse_x - offset ) / eff_width
-     *     win_y = ( mouse_y - offset ) / eff_height
+     *         object_location = < 0, 0, 0 >
      *
+     *         semi_major_axi = < 5, 2, 6 >
      *
-     *
-     *
-     *
-     * no idea what this crud is .. cant recall ...
-     *    x_prime = ( eff_width / 2 ) + ( obs_x_width / eff_width )
-     *
-     *
-     *
+     *         ray_direct = obs_normal where this must be a
+     *                           normalized vector
      *
      */
+    vec_type sign_data, object_location, semi_major_axi, ray_direct;
+    
+    /* Within the set of signs Sx, Sy, and Sz we do not care about
+     * the complex component and merely want the real. The same
+     * may be said for object_location, semi_major_axi and the
+     * direction of our ray ray_direct */
+    cplex_vec_set( &sign_data, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+    /* by default we were using an object at the origin but we can
+     * shift around for testing purposes. */
+    cplex_vec_set( &object_location, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+    /* Again the diagrams we used had a=5, b=2 and c=6 */
+    cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0);
+
+    /* we may need to change the sight line direction in the future
+     * thus we will make a copy of the viewport plane normal vector */
+    cplex_vec_copy( &ray_direct, &obs_normal );
+
+
+    /* These are the initial and normalized mouse fp64 values
+     * from within the observation viewport. */
     double win_x, win_y;
 
     width = WIN_WIDTH;
@@ -481,6 +537,60 @@ int main(int argc, char*argv[])
                 sprintf(buf,"fp64( %8.6g , %8.6g )", win_x, win_y );
                 XDrawImageString( dsp, win2, gc2, 20, 260,
                                                        buf, strlen(buf));
+
+                /* At this moment we have normalized values for a 
+                 * location within the observation viewport. We can
+                 * scale those values by half of the viewport width
+                 * and height to get actual x_prime and y_prime
+                 * values. 
+                 *
+                 * All of the above allows us to compute a starting
+                 * L_0 point on the observation plane in R3 and in
+                 * the coordinate system of the observation object.
+                 *
+                 * Note the x_prime = obs_x_width * win_x / 2.0 
+                 *          y_prime = obs_y_height * win_y / 2.0
+                 *
+                 * obs_point = x_prime * x_prime_vec
+                 *           + y_prime * y_prime_vec
+                 *           + obs_origin
+                 *
+                 */
+
+                x_prime = obs_x_width * win_x / 2.0;
+                y_prime = obs_y_height * win_y / 2.0;
+
+                XSetForeground(dsp, gc3, yellow.pixel);
+                sprintf(buf," x' ,  y' = ( %8.6g , %8.6g )   ",
+                        x_prime, y_prime );
+                XDrawImageString( dsp, win3, gc3, 30, 50,
+                                                    buf, strlen(buf));
+
+                cplex_vec_scale( tmp, &x_prime_vec, x_prime );
+                cplex_vec_scale( tmp+1, &y_prime_vec, y_prime );
+                cplex_vec_add( tmp+2, tmp, tmp+1);
+                cplex_vec_add( tmp, tmp+2, &obs_origin );
+                cplex_vec_copy( &obs_point, tmp );
+
+                sprintf(buf,"L = < %8.6g , %8.6g, %8.6g >       ",
+                        obs_point.x.r, obs_point.y.r, obs_point.z.r );
+                XDrawImageString( dsp, win3, gc3, 30, 70,
+                                                    buf, strlen(buf));
+
+                intercept_cnt = intercept ( k_val, &sign_data,
+                                &object_location, &semi_major_axi,
+                                &obs_point, &obs_normal );
+
+                sprintf(buf,"root 0 = ( %8.6g + %8.6g i )       ",
+                        k_val[0].r, k_val[0].i );
+                XDrawImageString( dsp, win3, gc3, 30, 90,
+                                                    buf, strlen(buf));
+
+                sprintf(buf,"root 1 = ( %8.6g + %8.6g i )       ",
+                        k_val[1].r, k_val[1].i );
+                XDrawImageString( dsp, win3, gc3, 30, 110,
+                                                    buf, strlen(buf));
+
 
             }
 
