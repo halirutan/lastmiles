@@ -1,4 +1,17 @@
 
+/*********************************************************************
+ * The Open Group Base Specifications Issue 6
+ * IEEE Std 1003.1, 2004 Edition
+ *
+ *    An XSI-conforming application should ensure that the feature
+ *    test macro _XOPEN_SOURCE is defined with the value 600 before
+ *    inclusion of any header. This is needed to enable the
+ *    functionality described in The _POSIX_C_SOURCE Feature Test
+ *    Macro and in addition to enable the XSI extension.
+ *
+ *********************************************************************/
+#define _XOPEN_SOURCE 600
+
 #include <X11/Xlib.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -68,6 +81,7 @@ int main(int argc, char*argv[])
 
     uint64_t t_delta; /* left mouse button click timing */
     struct timespec t0, t1;
+    struct timespec soln_t0, soln_t1;
 
     /* some primordial vars */
     int disp_width, disp_height, width, height;
@@ -106,8 +120,14 @@ int main(int argc, char*argv[])
     /* Observation direction is along negative i_hat basis vector */
     cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-    double obs_x_width = 6.0;
-    double obs_y_height = 6.0;
+
+    /* quick hack change where we test with 8 x 8 */
+    double obs_x_width = 8.0;
+    double obs_y_height = 8.0;
+
+
+
+
     double x_prime, y_prime;
 
     /*
@@ -577,9 +597,18 @@ int main(int argc, char*argv[])
                 XDrawImageString( dsp, win3, gc3, 30, 70,
                                                     buf, strlen(buf));
 
+                clock_gettime( CLOCK_MONOTONIC, &soln_t0 );
+
                 intercept_cnt = intercept ( k_val, &sign_data,
                                 &object_location, &semi_major_axi,
                                 &obs_point, &obs_normal );
+
+                clock_gettime( CLOCK_MONOTONIC, &soln_t1 );
+
+                t_delta = timediff( soln_t0, soln_t1 );
+                sprintf(buf,"[soln] = %16lld nsec", t_delta);
+                XDrawImageString( dsp, win3, gc3, 30, 180, buf, strlen(buf));
+
 
                 sprintf(buf,"root 0 = ( %8.6g + %8.6g i )       ",
                         k_val[0].r, k_val[0].i );
