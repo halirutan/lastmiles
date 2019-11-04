@@ -2,7 +2,6 @@
 CC=/usr/bin/cc
 
 CFLAGS= -I$(IDIR) -std=iso9899:1999 -m64 -g -O0 \
-	-Wl,-rpath=/opt/bw/lib,--enable-new-dtags \
 	-fno-fast-math -fno-builtin -malign-double
 
 CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE \

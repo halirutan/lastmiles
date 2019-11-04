@@ -12,17 +12,20 @@ CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE \
 
 LIBS = -lX11 -lrt
 
-SRCS = simple_grid.c x_error_handler.c create_gc.c \
+SRCS = grid.c numpad.c x_error_handler.c create_gc.c \
 	create_borderless_topwin.c ../mem_hack/timediff.c
 
-OBJS = simple_grid.o x_error_handler.o create_gc.o \
+OBJS = x_error_handler.o create_gc.o \
 	create_borderless_topwin.o ../mem_hack/timediff.o
 
 %.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
 
-simple_grid: $(OBJS)
+grid: grid.o $(OBJS)
+	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) -L$(LDIR) $(LIBS)
+
+numpad: numpad.o $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) -L$(LDIR) $(LIBS)
 
 clean:
-	rm -f $(OBJS) simple_grid
+	rm -f $(OBJS) grid numpad
