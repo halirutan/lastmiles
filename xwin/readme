@@ -1,6 +1,5 @@
 
 
-
 Look around for whatever compiler you have on hand and set
 the env var : 
 
@@ -43,5 +42,4 @@ XSetLineAttributes returns 1
 INFO : horizontal minor tic marks at every 16th
 DBUG : just for snits and giggles               1249 nsec
 rightclick at 312 174 
-
 
