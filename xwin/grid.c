@@ -115,7 +115,12 @@ int main(int argc, char*argv[])
     vec_type tmp[3];
 
     /* Test case will be an observation plane at ( 12, 0, 0 ) */
-    cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    /* cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0); */
+
+
+    /* 5 Nov 2019 let us now test for negative values due to an
+     * intercept behind the observation viewport */
+    cplex_vec_set( &obs_origin, 4.0, 0.0, 1.2, 0.0, 0.0, 0.0);
 
     /* Observation direction is along negative i_hat basis vector */
     cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -124,6 +129,15 @@ int main(int argc, char*argv[])
     /* quick hack change where we test with 8 x 8 */
     double obs_x_width = 8.0;
     double obs_y_height = 8.0;
+
+    /* lets try a much smaller viewport */
+    obs_x_width = 0.5;
+    obs_y_height = 0.5;
+
+    /* TODO compute the reasonable plank constant of this 
+     * observation viewport. Strictly a lowest level epsilon
+     * to be used for resolution. */
+
 
 
 
@@ -458,6 +472,10 @@ int main(int argc, char*argv[])
     XDrawRectangle(dsp, win3, gc3, 10, 30, 380, 260);
     XSetForeground(dsp, gc3, green.pixel);
 
+    /* it is high time we actually did plot a point on the
+     * grid that we created */
+    XSetForeground(dsp, gc, yellow.pixel);
+    XDrawPoint(dsp, win, gc, 5, 5);
     /* TODO at some point check for why we are fetching the x and y
      * values over and over and over inside the switch-case */
     while(1){
@@ -604,6 +622,67 @@ int main(int argc, char*argv[])
                                 &obs_point, &obs_normal );
 
                 clock_gettime( CLOCK_MONOTONIC, &soln_t1 );
+
+                /* figure out if we have a real root. */
+                if ( ( k_val[0].i == 0.0 ) || ( k_val[1].i == 0.0 ) ) {
+                    if ( ( k_val[0].i == 0.0 ) && ( k_val[1].i == 0.0 ) ) {
+                        /* two real roots.  pick the value that is not
+                         * negative and also closest to the viewport */
+                        if ( ( k_val[0].r < 0.0 ) && ( k_val[1].r >= 0.0 ) ) {
+                            /* we have a root in k_val[1].r */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"icept1 = %8.6g     ", k_val[1].r );
+                        } else if ( ( k_val[0].r >= 0.0 ) && ( k_val[1].r < 0.0 ) ) {
+                            /* we have a root in k_val[0].r */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"icept0 = %8.6g     ", k_val[0].r );
+                        } else if ( ( fabs( k_val[0].r ) < 0.001 )
+                                && ( k_val[1].r > 0.0 ) ) {
+                            /* viewport intersects the object on an edge */
+                            XSetForeground(dsp, gc, red.pixel);
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            XSetForeground(dsp, gc, yellow.pixel);
+                            sprintf(buf,"icept1v= %8.6g     ", k_val[1].r );
+                        } else if ( ( fabs( k_val[1].r ) < 0.001 )
+                                && ( k_val[0].r > 0.0 ) ) {
+                            /* viewport intersects the object on an edge */
+                            XSetForeground(dsp, gc, red.pixel);
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            XSetForeground(dsp, gc, yellow.pixel);
+                            sprintf(buf,"icept0^= %8.6g     ", k_val[0].r );
+                        } else if ( k_val[0].r < k_val[1].r ) {
+                            /* so root 0 is real and closer */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"icept0c= %8.6g     ", k_val[0].r );
+                        } else if ( k_val[1].r < k_val[0].r ) {
+                            /* root 1 is real and closer */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"icept1c= %8.6g     ", k_val[1].r );
+                        } else if (
+                                ( ( k_val[1].r - k_val[0].r ) < 0.001 )
+                                && ( k_val[0].r > 0.0 ) && ( k_val[1].r > 0.0 ) ) {
+                            /* we hit close enough to the edge of something */
+                            /* TODO calculate a reasonable epsilon value */
+                            XSetForeground(dsp, gc, green.pixel);
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            XSetForeground(dsp, gc, yellow.pixel);
+                            sprintf(buf,"icept0== %8.6g     ", k_val[0].r );
+                        }
+                    } else {
+                        /* bizarre condition wherein we have only a
+                         * single real root */
+                        if ( k_val[0].r >= 0.0 ) {
+                            /* root 0 is the only real value */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"ICEPT0 = %8.6g     ", k_val[0].r );
+                        } else if ( k_val[1].r >= 0.0 ) {
+                            /* root 1 is all that is left to us */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"ICEPT1 = %8.6g     ", k_val[1].r );
+                        }
+                    }
+                    XDrawImageString( dsp, win3, gc3, 30, 150, buf, strlen(buf));
+                }
 
                 t_delta = timediff( soln_t0, soln_t1 );
                 sprintf(buf,"[soln] = %16lld nsec", t_delta);
