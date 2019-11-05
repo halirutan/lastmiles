@@ -188,11 +188,13 @@ int intercept( cplex_type res[2],
      * see https://en.wikipedia.org/wiki/Complex_quadratic_polynomial */
     cplex_quadratic( quad_res, &A, &B, &C );
 
-    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
-                                          quad_res[0].r, quad_res[0].i);
-
-    printf("          result 2 = ( %16.12e, %16.12e )\n\n",
-                                          quad_res[1].r, quad_res[1].i);
+    /*
+     * printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
+     *                                      quad_res[0].r, quad_res[0].i);
+     *
+     * printf("          result 2 = ( %16.12e, %16.12e )\n\n",
+     *                                      quad_res[1].r, quad_res[1].i);
+     */
 
     /* do not make any value judgements about the data in the
      * root values. Simply accept them and return them */

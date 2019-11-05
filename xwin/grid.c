@@ -134,7 +134,7 @@ int main(int argc, char*argv[])
     obs_x_width = 0.5;
     obs_y_height = 0.5;
 
-    /* TODO compute the reasonable plank constant of this 
+    /* TODO compute the reasonable plank constant of this
      * observation viewport. Strictly a lowest level epsilon
      * to be used for resolution. */
 
@@ -179,7 +179,7 @@ int main(int argc, char*argv[])
      *
      */
     vec_type sign_data, object_location, semi_major_axi, ray_direct;
-    
+
     /* Within the set of signs Sx, Sy, and Sz we do not care about
      * the complex component and merely want the real. The same
      * may be said for object_location, semi_major_axi and the
@@ -576,17 +576,17 @@ int main(int argc, char*argv[])
                 XDrawImageString( dsp, win2, gc2, 20, 260,
                                                        buf, strlen(buf));
 
-                /* At this moment we have normalized values for a 
+                /* At this moment we have normalized values for a
                  * location within the observation viewport. We can
                  * scale those values by half of the viewport width
                  * and height to get actual x_prime and y_prime
-                 * values. 
+                 * values.
                  *
                  * All of the above allows us to compute a starting
                  * L_0 point on the observation plane in R3 and in
                  * the coordinate system of the observation object.
                  *
-                 * Note the x_prime = obs_x_width * win_x / 2.0 
+                 * Note the x_prime = obs_x_width * win_x / 2.0
                  *          y_prime = obs_y_height * win_y / 2.0
                  *
                  * obs_point = x_prime * x_prime_vec
