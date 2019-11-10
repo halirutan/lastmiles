@@ -77,5 +77,4 @@ double cplex_vec_mag( vec_type *op1 );
 int cplex_check( cplex_type *op );
 size_t tohex( char **ret, const void *addr, const size_t n );
 int double_cmp( double *a, double *b, size_t n);
-int cplex_cmp( cplex_type *a, cplex_type *b, size_t n);
 int vec_cmp( vec_type *a, vec_type *b, size_t n);
