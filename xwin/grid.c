@@ -89,6 +89,20 @@ int main(int argc, char*argv[])
     int j, k, p, q, offset_x, offset_y, lx, ly, ux, uy, px, py;
     int eff_width, eff_height, vbox_w, vbox_h;
 
+    /* The vbox idea on the table is to create an array of
+     * pointers to some sort of a magic struct wherein we
+     * can gather up the data for a view box region. 
+     *
+     * At this time we have no idea what that struct looks
+     * like or how we are going to dispatch out to POSIX
+     * thread type workers.
+     *
+     * However, having said all that, it is clear that we
+     * need to take advantage of parallel processing in some
+     * manner. My preference is to look at NVidia CUDA style
+     * workers. Eventually.
+     */
+
     /* small general purpose char buffer */
     char *buf = calloc((size_t)128,sizeof(unsigned char));
 
@@ -562,7 +576,7 @@ int main(int argc, char*argv[])
                 /* we are inside the primary window plotting region
                  * so lets try to create floating point values for
                  * the coordinates selected. We start with just a
-                 * nommalized value from zero to one. */
+                 * normalized value from zero to one. */
 
                 win_x = ( 1.0 * ( mouse_x - offset_x ) ) / eff_width;
 
