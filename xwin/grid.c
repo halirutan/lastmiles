@@ -87,8 +87,11 @@ int main(int argc, char*argv[])
     int disp_width, disp_height, width, height;
     int conn_num, screen_num, depth;
     int j, k, p, q, offset_x, offset_y, lx, ly, ux, uy, px, py;
-    int eff_width, eff_height;
-    char *buf;
+    int eff_width, eff_height, vbox_w, vbox_h;
+
+    /* small general purpose char buffer */
+    char *buf = calloc((size_t)128,sizeof(unsigned char));
+
 
     /* The whole objective here is to map a point on the display
      * to the observation plane for ray tracing.
@@ -100,8 +103,10 @@ int main(int argc, char*argv[])
      *
      *     obs_loc = < 12, 0, 0 >
      *     obs_vec = < -1, 0, 0 >
-     *     obs_x_width = 6.0
-     *     obs_y_height = 6.0
+     *
+     *     This is merely example data for the display viewport :
+     *     obs_x_width  = 8.0
+     *     obs_y_height = 8.0
      */
 
     int intercept_cnt = 0;
@@ -110,6 +115,8 @@ int main(int argc, char*argv[])
     cplex_type k_val[2];
 
     vec_type obs_origin, obs_normal, obs_point;
+
+    double obs_x_width, obs_y_height;
 
     vec_type x_prime_vec, y_prime_vec;
     vec_type tmp[3];
@@ -125,14 +132,9 @@ int main(int argc, char*argv[])
     /* Observation direction is along negative i_hat basis vector */
     cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-
-    /* quick hack change where we test with 8 x 8 */
-    double obs_x_width = 8.0;
-    double obs_y_height = 8.0;
-
-    /* lets try a much smaller viewport */
-    obs_x_width = 0.5;
-    obs_y_height = 0.5;
+    /* viewport is 8 x 8 */
+    obs_x_width = 8.0;
+    obs_y_height = 8.0;
 
     /* TODO compute the reasonable plank constant of this
      * observation viewport. Strictly a lowest level epsilon
@@ -325,7 +327,6 @@ int main(int argc, char*argv[])
      */
     offset_x = 10;
     offset_y = 10;
-    fprintf(stdout,"INFO : offset_x = %i  offset_y = %i\n", offset_x, offset_y );
 
     /* upper left point */
     ux = offset_x;
@@ -339,49 +340,93 @@ int main(int argc, char*argv[])
     /* therefore we have effective box width and height */
     eff_width = lx - ux;
     eff_height = ly - uy;
-    fprintf(stdout,"     : eff_width = %5i    eff_height = %5i\n", eff_width, eff_height);
 
-    retcode1 = XSetLineAttributes(dsp, gc, 1, LineSolid, CapButt, JoinMiter);
+    fprintf(stdout,"     : eff_width = %5i    eff_height = %5i\n",
+                           eff_width, eff_height);
+
+    retcode1 = XSetLineAttributes(dsp, gc, 1,
+                                  LineSolid, CapButt, JoinMiter);
+
     fprintf(stdout,"XSetLineAttributes returns %i\n", retcode1 );
 
-    /* make up a small char buffer */
-    buf = calloc((size_t)128,sizeof(unsigned char));
-
     XSetForeground(dsp, gc, WhitePixel(dsp, screen_num));
-    /* XSetForeground(dsp, gc2, yellow.pixel); */
+    XSetForeground(dsp, gc2, WhitePixel(dsp, screen_num));
     XSetFont(dsp, gc2, type_font);
 
-    /* horizontal minor tic marks at every 16th */
-    printf("\n-------------------------------------------------\n");
-    printf("\n\nINFO : horizontal minor tic marks at every 16th\n");
-    p = 0;
-    for ( j=(offset_x + (eff_width/16)); j<lx; j+=(eff_width/16) ){
+    /* horizontal minor tic marks at every 16th of the viewport 
+     * drawing area
+     * printf("\n-------------------------------------------------\n");
+     * printf("\n\nINFO : horizontal minor tic marks at every 16th\n");
+     * p = 0;
+     */
+
+    /****************************************************************
+     *
+     * The viewport is made up of a neat grid of 16 x 16 little box
+     * areas and we can lay down a lightly colored dashed lines to
+     * indicate where they are. We may as well refer to these little
+     * boxes as view box regions. Starting from the lower left at
+     * vbox [0] [0] upwards to the upper most right corner which
+     * we can call vbox [15] [15].
+     *
+     * Each of these vbox elements has a height and width in the
+     * on screen pixels of :
+     *
+     *     vbox_w = eff_width/16
+     *
+     *     vbox_h = eff_height/16
+     *
+     * These may come in handy later to identify where the user has
+     * clicked and to perhaps identify a small region that can be
+     * rendered without the burder of computing the entire viewport.
+     *
+     ****************************************************************/
+    vbox_w = eff_width/16;
+    vbox_h = eff_height/16;
+
+    for ( j=offset_x + vbox_w; j<lx; j+=vbox_w ){
         XDrawLine(dsp, win, gc, j, 8, j, 12);
         XDrawLine(dsp, win, gc, j, height - 8, j, height - 12);
-        sprintf(buf,"[%02i] j = %4i   minus offset = %4i", p, j, j - offset_x);
-        /* fprintf(stdout,"horizontal minor tic mark %s\n",buf); */
-        /* k = 61 + 20 * p; */
-        /* note that the gc2 default color was commented out above */
-        /* XDrawImageString(dsp,win2,gc2,10,k,buf,strlen(buf)); */
-        p += 1;
+
+        /*********** at one point we needed to see where we were ****
+         * sprintf(buf,"[%02i] j = %4i   minus offset = %4i",
+         *                                    p, j, j - offset_x);
+         *
+         * fprintf(stdout,"horizontal minor tic mark %s\n",buf);
+         * k = 61 + 20 * p;
+         * 
+         * note the gc2 default color above 
+         *
+         * XDrawImageString(dsp,win2,gc2,10,k,buf,strlen(buf));
+         * p += 1;
+         */
+
     }
     XFlush(dsp);
 
     XSetForeground(dsp, gc2, green.pixel);
-    /* vertical minor tic marks at every 16th */
-    p = 0;
-    for ( j = offset_y + (eff_height/16); j < ly; j = j + (eff_height/16) ){
+    /* vertical minor tic marks at every 16th of the interior viewport
+     * drawing area 
+     *
+     * p = 0;
+     * */
+    for ( j = offset_y + vbox_h; j < ly; j += vbox_h ){
         XDrawLine(dsp, win, gc, 8, j, 12, j);
         XDrawLine(dsp, win, gc, width - 8, j, width - 12, j);
-        sprintf(buf,"[%02i] j = %4i   minus offset = %4i", p, j, j - offset_y);
-        /* fprintf(stdout,"vertical minor tic mark %s\n",buf); */
-        k = 60 + 20 * p;
-        /* XDrawImageString(dsp,win2,gc2,40,k,buf,strlen(buf)); */
-        p += 1;
+        /*
+         *  sprintf(buf,"[%02i] j = %4i   minus offset = %4i",
+         *                                          p, j, j - offset_y);
+         *
+         * fprintf(stdout,"vertical minor tic mark %s\n",buf);
+         * k = 60 + 20 * p;
+         * XDrawImageString(dsp,win2,gc2,40,k,buf,strlen(buf));
+         * p += 1;
+         */
+
     }
     XFlush(dsp);
 
-    /* now we need an inner grid which is a very very dark grey.
+    /* We need an inner grid which is a very very dark grey.
      * Here we manually define the rgb components using 16bit
      * values and then create the new color */
     color_cell.flags= DoRed | DoGreen | DoBlue;
@@ -392,58 +437,32 @@ int main(int argc, char*argv[])
 
     /* now we use the color we created */
     XSetForeground(dsp,gc,color_cell.pixel);
-    for ( j=(offset_x + (eff_width/16)); j<lx; j+=(eff_width/16) ){
+
+    /* draw the vertical lines */
+    for ( j= offset_x + vbox_w; j<lx; j+=vbox_w ){
         XDrawLine(dsp, win, gc, j, 13, j, height-13);
     }
-    for ( j = offset_y + (eff_height/16); j < ly; j = j + (eff_height/16) ){
+
+    /* draw the horizontal lines */
+    for ( j = offset_y + vbox_h; j<ly; j+=vbox_h ){
         XDrawLine(dsp, win, gc, 13, j, width-13, j);
     }
-    /* a dead center white pixel */
+
+    /* a center white pixel */
     XSetForeground(dsp, gc, XWhitePixel(dsp, screen_num));
     XDrawPoint(dsp, win, gc,
-            offset_x + (eff_width/2), offset_y + (eff_height/2) );
+               offset_x + (eff_width/2), offset_y + (eff_height/2) );
 
-    XFlush(dsp);
-
-
-    /* outer edge green lines */
+    /* outer edge green lines and green text as default */
     XSetForeground(dsp, gc, green.pixel);
+    XSetForeground(dsp, gc2, green.pixel);
+    XSetForeground(dsp, gc3, green.pixel);
     XDrawLine(dsp, win, gc, 10, 10, width - 10, 10);
     XDrawLine(dsp, win, gc, width - 10, 10, width - 10, height - 10);
     XDrawLine(dsp, win, gc, width - 10, height - 10, 10, height - 10);
     XDrawLine(dsp, win, gc, 10, height - 10, 10, 10);
 
-    /* RGB values for a dark green */
-    color_cell.flags= DoRed | DoGreen | DoBlue;
-    color_cell.red = 0;
-    color_cell.green = 0x5f00;
-    color_cell.blue = 0;
-
-    /* output text to win2 */
-    if ( XAllocColor(dsp, screen_colormap, &color_cell) == 0 ){
-        fprintf(stderr,"WARN : XAllocColor failed\n");
-    } else {
-        /* watch for gc2 and win2 here */
-        XSetForeground(dsp,gc2,color_cell.pixel);
-        XDrawImageString(dsp,win2,gc2,20,20,"RGB color 0 0x5f00 0",20);
-        XFlush(dsp);
-
-        /* now by name */
-        if (XAllocNamedColor(dsp,screen_colormap,
-                             "red", &color_cell, &truecolor) == 0) {
-            fprintf(stderr,"WARN : Color '%s' unknown\n", "red");
-        } else {
-            if (truecolor.red != color_cell.red ||
-                truecolor.green != color_cell.green ||
-                truecolor.blue != color_cell.blue)
-                    fprintf(stderr,"WARN : %s color may be wrong\n", "red");
-        }
-
-        XSetForeground(dsp,gc2,color_cell.pixel);
-        XDrawImageString(dsp,win2,gc2,20,40, "named color",11);
-    }
-
-    XFlush(dsp); /* flush all pending */
+    XFlush(dsp);
 
     /* TODO : at the moment the only events we are trapping are
      * the mouse buttons but in the future we will want to redraw
@@ -453,10 +472,7 @@ int main(int argc, char*argv[])
 
     XSelectInput(dsp, win, ButtonPressMask);
 
-    /* we need to display timing data or whatever in the lower
-     * right window */
-    XSetForeground(dsp, gc3, green.pixel);
-    XSetForeground(dsp, gc2, green.pixel);
+    /* Display timing data in the lower right window */
     XSetFont(dsp, gc3, type_font);
 
     /* some initial time data before anyone clicks anything */
@@ -472,8 +488,7 @@ int main(int argc, char*argv[])
     XDrawRectangle(dsp, win3, gc3, 10, 30, 380, 260);
     XSetForeground(dsp, gc3, green.pixel);
 
-    /* it is high time we actually did plot a point on the
-     * grid that we created */
+    /* plot some points on the grid that we created */
     XSetForeground(dsp, gc, yellow.pixel);
     XDrawPoint(dsp, win, gc, 5, 5);
     /* TODO at some point check for why we are fetching the x and y
@@ -492,7 +507,7 @@ int main(int argc, char*argv[])
                         left_count += 1;
                         break;
 
-                    case Button2: /* middle mouse button or scroll wheel click */
+                    case Button2: /* middle mouse button */
                         mouse_x=event.xbutton.x;
                         mouse_y=event.xbutton.y;
                         button=Button2;
@@ -544,30 +559,35 @@ int main(int argc, char*argv[])
                  && ( mouse_x < ( eff_width + offset_x ) )
                  && ( mouse_y < ( eff_height + offset_y ) ) ) {
 
-                /* we are inside the primary window plotting region */
+                /* we are inside the primary window plotting region
+                 * so lets try to create floating point values for
+                 * the coordinates selected. We start with just a
+                 * nommalized value from zero to one. */
+
                 win_x = ( 1.0 * ( mouse_x - offset_x ) ) / eff_width;
+
+                win_y = ( 1.0 * ( eff_height - mouse_y + offset_y ) )
+                                                            / eff_height;
 
                 /* lets try to invert the y axis */
                 sprintf(buf,"adj [ %4i , %4i ]  ",
-                              mouse_x - offset_x,
-                              eff_height - mouse_y + offset_y );
+                             mouse_x - offset_x,
+                             eff_height - mouse_y + offset_y );
 
                 XSetForeground(dsp, gc2, green.pixel);
                 XDrawImageString( dsp, win2, gc2, 20, 200,
                                                        buf, strlen(buf));
 
-                win_y = ( 1.0 * ( eff_height - mouse_y + offset_y ) )
-                                                            / eff_height;
-
                 sprintf(buf,"fp64( %8.6g , %8.6g )", win_x, win_y );
                 XDrawImageString( dsp, win2, gc2, 20, 220,
                                                        buf, strlen(buf));
 
-                sprintf(buf,"[ %4i , %4i ]", mouse_x, mouse_y );
+                sprintf(buf,"int [ %4i , %4i ]", mouse_x, mouse_y );
                 XDrawImageString( dsp, win2, gc2, 20, 240,
                                                        buf, strlen(buf));
 
-                /* center point shall be ( 0.0, 0.0 ) */
+                /* Off set the floating point values such that the
+                 * center point shall be ( 0.0, 0.0 ) */
                 win_x = win_x * 2.0 - 1.0;
                 win_y = win_y * 2.0 - 1.0;
 
@@ -599,22 +619,27 @@ int main(int argc, char*argv[])
                 y_prime = obs_y_height * win_y / 2.0;
 
                 XSetForeground(dsp, gc3, yellow.pixel);
-                sprintf(buf," x' ,  y' = ( %8.6g , %8.6g )   ",
-                        x_prime, y_prime );
-                XDrawImageString( dsp, win3, gc3, 30, 50,
-                                                    buf, strlen(buf));
 
+                sprintf(buf," x' ,  y' = ( %8.6g , %8.6g )",
+                              x_prime, y_prime );
+
+                XDrawImageString( dsp, win3, gc3, 30, 50,
+                                  buf, strlen(buf));
+
+                /* computer the observation point */
                 cplex_vec_scale( tmp, &x_prime_vec, x_prime );
                 cplex_vec_scale( tmp+1, &y_prime_vec, y_prime );
                 cplex_vec_add( tmp+2, tmp, tmp+1);
                 cplex_vec_add( tmp, tmp+2, &obs_origin );
                 cplex_vec_copy( &obs_point, tmp );
 
-                sprintf(buf,"L = < %8.6g , %8.6g, %8.6g >       ",
+                sprintf(buf,"L = < %8.6g , %8.6g, %8.6g >",
                         obs_point.x.r, obs_point.y.r, obs_point.z.r );
-                XDrawImageString( dsp, win3, gc3, 30, 70,
-                                                    buf, strlen(buf));
 
+                XDrawImageString( dsp, win3, gc3, 30, 70,
+                                  buf, strlen(buf));
+
+                /* time the computation of the intercepts */
                 clock_gettime( CLOCK_MONOTONIC, &soln_t0 );
 
                 intercept_cnt = intercept ( k_val, &sign_data,
@@ -632,72 +657,105 @@ int main(int argc, char*argv[])
                             /* we have a root in k_val[1].r */
                             XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
                             sprintf(buf,"icept1 = %8.6g     ", k_val[1].r );
-                        } else if ( ( k_val[0].r >= 0.0 ) && ( k_val[1].r < 0.0 ) ) {
+                        } else if ( 
+                                    ( k_val[0].r >= 0.0 )
+                                    &&
+                                    ( k_val[1].r < 0.0 ) ) {
+
                             /* we have a root in k_val[0].r */
                             XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
                             sprintf(buf,"icept0 = %8.6g     ", k_val[0].r );
-                        } else if ( ( fabs( k_val[0].r ) < 0.001 )
-                                && ( k_val[1].r > 0.0 ) ) {
-                            /* viewport intersects the object on an edge */
+
+                        } else if ( 
+                                    ( fabs( k_val[0].r ) < 0.001 )
+                                    &&
+                                    ( k_val[1].r > 0.0 ) ) {
+
+                            /* viewport intersects the object */
                             XSetForeground(dsp, gc, red.pixel);
                             XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
                             XSetForeground(dsp, gc, yellow.pixel);
                             sprintf(buf,"icept1v= %8.6g     ", k_val[1].r );
-                        } else if ( ( fabs( k_val[1].r ) < 0.001 )
-                                && ( k_val[0].r > 0.0 ) ) {
-                            /* viewport intersects the object on an edge */
+
+                        } else if (
+                                    ( fabs( k_val[1].r ) < 0.001 )
+                                    &&
+                                    ( k_val[0].r > 0.0 ) ) {
+
+                            /* this is also the viewport intersects the
+                             * object */
                             XSetForeground(dsp, gc, red.pixel);
                             XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
                             XSetForeground(dsp, gc, yellow.pixel);
                             sprintf(buf,"icept0^= %8.6g     ", k_val[0].r );
+
                         } else if ( k_val[0].r < k_val[1].r ) {
+
                             /* so root 0 is real and closer */
                             XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
                             sprintf(buf,"icept0c= %8.6g     ", k_val[0].r );
+
                         } else if ( k_val[1].r < k_val[0].r ) {
+
                             /* root 1 is real and closer */
                             XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
                             sprintf(buf,"icept1c= %8.6g     ", k_val[1].r );
+
                         } else if (
-                                ( ( k_val[1].r - k_val[0].r ) < 0.001 )
-                                && ( k_val[0].r > 0.0 ) && ( k_val[1].r > 0.0 ) ) {
+                                    ( ( k_val[1].r - k_val[0].r ) < 0.001 )
+                                    && ( k_val[0].r > 0.0 )
+                                    && ( k_val[1].r > 0.0 ) ) {
                             /* we hit close enough to the edge of something */
                             /* TODO calculate a reasonable epsilon value */
                             XSetForeground(dsp, gc, green.pixel);
                             XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
                             XSetForeground(dsp, gc, yellow.pixel);
                             sprintf(buf,"icept0== %8.6g     ", k_val[0].r );
+
                         }
                     } else {
+
                         /* bizarre condition wherein we have only a
                          * single real root */
+
                         if ( k_val[0].r >= 0.0 ) {
+
                             /* root 0 is the only real value */
                             XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
                             sprintf(buf,"ICEPT0 = %8.6g     ", k_val[0].r );
+
                         } else if ( k_val[1].r >= 0.0 ) {
+
                             /* root 1 is all that is left to us */
                             XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
                             sprintf(buf,"ICEPT1 = %8.6g     ", k_val[1].r );
+
                         }
                     }
-                    XDrawImageString( dsp, win3, gc3, 30, 150, buf, strlen(buf));
+
+                    XDrawImageString( dsp, win3, gc3, 30, 150,
+                                      buf, strlen(buf));
+
                 }
 
                 t_delta = timediff( soln_t0, soln_t1 );
                 sprintf(buf,"[soln] = %16lld nsec", t_delta);
-                XDrawImageString( dsp, win3, gc3, 30, 180, buf, strlen(buf));
+
+                XDrawImageString( dsp, win3, gc3, 30, 180,
+                                  buf, strlen(buf));
 
 
                 sprintf(buf,"root 0 = ( %8.6g + %8.6g i )       ",
                         k_val[0].r, k_val[0].i );
+
                 XDrawImageString( dsp, win3, gc3, 30, 90,
-                                                    buf, strlen(buf));
+                                  buf, strlen(buf));
 
                 sprintf(buf,"root 1 = ( %8.6g + %8.6g i )       ",
                         k_val[1].r, k_val[1].i );
+
                 XDrawImageString( dsp, win3, gc3, 30, 110,
-                                                    buf, strlen(buf));
+                                  buf, strlen(buf));
 
 
             }
@@ -726,6 +784,7 @@ int main(int argc, char*argv[])
 
 
         } else if ( button == Button4 ) {
+
             /* TODO note that a mouse wheel event being used here to
              * track observation plane position will result in all
              * data being redrawn. */
