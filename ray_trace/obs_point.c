@@ -64,9 +64,7 @@ int main ( int argc, char **argv)
 
     /* Test case will be an observation plane at ( 12, 0, 0 ) */
 
-    /* sanity check with the observation plane intersecting the 
-     * object */
-    cplex_vec_set( &obs_origin, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* Observation direction is along negative i_hat basis vector */
     cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -83,11 +81,6 @@ int main ( int argc, char **argv)
      * ( 2 ^ -32 ) */
     x_prime = 1.7;
     y_prime = -2.0;
-
-
-    /* sanity check */
-    x_prime = 0.0;
-    y_prime = 0.0;
 
     /* All of the above allows us to compute a starting point on
      * the observation plane in R3 and in the coordinate system

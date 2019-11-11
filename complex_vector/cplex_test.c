@@ -31,7 +31,7 @@ int main ( int argc, char **argv)
     /* rh_col is right hand column for Cramer call with
      * res_vec as the result if it exists */
     vec_type v[4], rh_col, res_vec;
-    int status;
+    int status, real_root_count;
 
     op1.i = 1.0; op1.r = 0.0;
     op2.i = 1.0; op2.r = 0.0;
@@ -225,7 +225,8 @@ int main ( int argc, char **argv)
     op1.r = 1.0; op1.i = 0.0;
     op2.r = -9.0; op2.i = 0.0;
     op3.r = 14.0; op3.i = 0.0;
-    check_status( cplex_quadratic( quad_res, &op1, &op2, &op3 ) );
+    real_root_count = cplex_quadratic( quad_res, &op1, &op2, &op3 );
+    printf("Real root count = %i\n", real_root_count );
     printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
                                           quad_res[0].r, quad_res[0].i);
     printf("          result 2 = ( %16.12e, %16.12e )\n\n",
@@ -235,7 +236,8 @@ int main ( int argc, char **argv)
     op1.r = 1.0; op1.i = 0.0;
     op2.r = 5.0; op2.i = 0.0;
     op3.r = -14.0; op3.i = 0.0;
-    check_status( cplex_quadratic( quad_res, &op1, &op2, &op3 ) );
+    real_root_count = cplex_quadratic( quad_res, &op1, &op2, &op3 );
+    printf("Real root count = %i\n", real_root_count );
     printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
                                           quad_res[0].r, quad_res[0].i);
     printf("          result 2 = ( %16.12e, %16.12e )\n\n",
@@ -254,7 +256,8 @@ int main ( int argc, char **argv)
     op1.r = 1.0; op1.i = 0.0;
     op2.r = -5.0; op2.i = 0.0;
     op3.r = 14.0; op3.i = 0.0;
-    check_status( cplex_quadratic( quad_res, &op1, &op2, &op3 ) );
+    real_root_count = cplex_quadratic( quad_res, &op1, &op2, &op3 );
+    printf("Real root count = %i\n", real_root_count );
     printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
                                           quad_res[0].r, quad_res[0].i);
     printf("          result 2 = ( %16.12e, %16.12e )\n\n",
@@ -272,7 +275,8 @@ int main ( int argc, char **argv)
     op1.r = 2.0;  op1.i = 0.0;
     op2.r = -5.0; op2.i = 0.0;
     op3.r = -1.0; op3.i = 0.0;
-    check_status( cplex_quadratic( quad_res, &op1, &op2, &op3 ) );
+    real_root_count = cplex_quadratic( quad_res, &op1, &op2, &op3 );
+    printf("Real root count = %i\n", real_root_count );
     printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
                                           quad_res[0].r, quad_res[0].i);
     printf("          result 2 = ( %16.12e, %16.12e )\n\n",
@@ -290,7 +294,8 @@ int main ( int argc, char **argv)
     op1.r = 1.0;  op1.i = 1.0;
     op2.r = -2.0; op2.i = -1.0;
     op3.r = 1.0; op3.i = 0.0;
-    check_status( cplex_quadratic( quad_res, &op1, &op2, &op3 ) );
+    real_root_count = cplex_quadratic( quad_res, &op1, &op2, &op3 );
+    printf("Real root count = %i\n", real_root_count );
     printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
                                           quad_res[0].r, quad_res[0].i);
     printf("          result 2 = ( %16.12e, %16.12e )\n\n",

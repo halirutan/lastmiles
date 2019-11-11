@@ -127,16 +127,15 @@ int cplex_quadratic( cplex_type res[2],
     } else if ( ( fabs( res[0].i ) == 0.0 ) && ( fabs( res[1].i ) == 0.0 ) ) {
         real_root_count = 2;
     } else {
-        /* this is in fact an impossible situation */
         real_root_count = 1;
-        exit ( EXIT_FAILURE );
     }
 
     /* As seen in chat on 20191111014002 we saw 
      * potapeno: assert is a debugging tool for me, and imo one
      *           of the least well utilized
+     *
+     *    assert ( real_root_count != 1 );
      */
-    assert ( real_root_count != 1 );
 
     return ( real_root_count );
 
