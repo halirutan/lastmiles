@@ -221,6 +221,7 @@ int main ( int argc, char **argv)
      *
      */
 
+    printf("Quadratic x^2 - 9 * x + 14 = 0\n");
     op1.r = 1.0; op1.i = 0.0;
     op2.r = -9.0; op2.i = 0.0;
     op3.r = 14.0; op3.i = 0.0;
@@ -230,6 +231,7 @@ int main ( int argc, char **argv)
     printf("          result 2 = ( %16.12e, %16.12e )\n\n",
                                           quad_res[1].r, quad_res[1].i);
 
+    printf("Quadratic x^2 + 5 * x - 14 = 0\n");
     op1.r = 1.0; op1.i = 0.0;
     op2.r = 5.0; op2.i = 0.0;
     op3.r = -14.0; op3.i = 0.0;
@@ -248,6 +250,7 @@ int main ( int argc, char **argv)
      * roots should be x = 1/2 * ( 5 +- sqrt(31)*i )
      *
      */
+    printf("Quadratic x^2 - 5 * x + 14 = 0\n");
     op1.r = 1.0; op1.i = 0.0;
     op2.r = -5.0; op2.i = 0.0;
     op3.r = 14.0; op3.i = 0.0;
@@ -265,15 +268,37 @@ int main ( int argc, char **argv)
 
 
 
-    op1.r = 2.0;  op1.i = 3.0;
-    op2.r = -5.0; op2.i = 2.0;
-    op3.r = -1.0; op3.i = -7.0;
+    printf("Quadratic 2 * x^2 - 5 * x - 1 = 0\n");
+    op1.r = 2.0;  op1.i = 0.0;
+    op2.r = -5.0; op2.i = 0.0;
+    op3.r = -1.0; op3.i = 0.0;
     check_status( cplex_quadratic( quad_res, &op1, &op2, &op3 ) );
     printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
                                           quad_res[0].r, quad_res[0].i);
     printf("          result 2 = ( %16.12e, %16.12e )\n\n",
                                           quad_res[1].r, quad_res[1].i);
 
+
+    printf("DBUG : ***********************************************\n\n");
+    printf("DBUG : 201920191111020747\n");
+    printf("DBUG : potapeno: has a counter example which may toss\n");
+    printf("DBUG :           a monkey wrench into the workings\n");
+    /* https://www.wolframalpha.com/input/?i=%281%2Bi%29x%5E2-%282%2Bi%29x%2B1%3D0 */
+
+
+    printf("Quadratic ( 1 + i ) * x^2 - ( 2 + i ) * x + 1 = 0\n");
+    op1.r = 1.0;  op1.i = 1.0;
+    op2.r = -2.0; op2.i = -1.0;
+    op3.r = 1.0; op3.i = 0.0;
+    check_status( cplex_quadratic( quad_res, &op1, &op2, &op3 ) );
+    printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
+                                          quad_res[0].r, quad_res[0].i);
+    printf("          result 2 = ( %16.12e, %16.12e )\n\n",
+                                          quad_res[1].r, quad_res[1].i);
+
+
+
+    printf("\n\nDeterminant stuff follows \n");
 
     /* Determinant of three row matrix */
     v[0].x.r = 1.0; v[0].x.i = 0.0;

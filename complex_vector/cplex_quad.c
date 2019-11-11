@@ -56,11 +56,11 @@ int cplex_quadratic( cplex_type res[2],
      *
      * Therefore four possible solutions to the quadratic and this
      * is due to the fact that we are in the complex plane and not
-     * a trivial R3 space.
-     *
+     * a trivial R3 space. This function should return the number of
+     * real roots.
      ****************************************************************/
 
-    int j, status;
+    int j, status, real_root_count;
     cplex_type neg_one, two, four, denom, radicand;
     cplex_type tmp0, tmp1, tmp2;
     cplex_type full_res[4], roots[2];
@@ -82,6 +82,7 @@ int cplex_quadratic( cplex_type res[2],
     check_status( cplex_mult( &tmp1, &four, op1 ) );
     check_status( cplex_mult( &tmp2, &tmp1, op3 ) );
     check_status( cplex_sub( &radicand, &tmp0, &tmp2 ) );
+
     check_status( cplex_sqrt( roots, &radicand ) );
     check_status( cplex_mult( &tmp1, &neg_one, op2 ) );
 
@@ -106,18 +107,38 @@ int cplex_quadratic( cplex_type res[2],
     check_status( cplex_sub( &tmp0, &tmp1, (roots+1) ) );
     check_status( cplex_div( &full_res[3], &tmp0, &denom ) );
 
-    /*
-    for (j=0; j<4; j++ ) {
-        printf("     : full_res[%i] = ( %16.12e, %16.12e )\n", j, full_res[j].r, full_res[j].i);
-    }
-    */
+    /* we have already checked all this with deMoivre's theorem 
+     *     for (j=0; j<4; j++ ) {
+     *         printf("     : full_res[%i] = ( %16.12e, %16.12e )\n",
+     *                               j, full_res[j].r, full_res[j].i);
+     *     }
+     */
 
     res[0].r = full_res[0].r;
     res[0].i = full_res[0].i;
+
     res[1].r = full_res[2].r;
     res[1].i = full_res[2].i;
 
-    return ( 0 );
+
+    /* check how many real roots we have */
+    if ( ( fabs( res[0].i ) > 0.0 ) && ( fabs( res[1].i ) > 0.0 ) ) {
+        real_root_count = 0;
+    } else if ( ( fabs( res[0].i ) == 0.0 ) && ( fabs( res[1].i ) == 0.0 ) ) {
+        real_root_count = 2;
+    } else {
+        /* this is in fact an impossible situation */
+        real_root_count = 1;
+        exit ( EXIT_FAILURE );
+    }
+
+    /* As seen in chat on 20191111014002 we saw 
+     * potapeno: assert is a debugging tool for me, and imo one
+     *           of the least well utilized
+     */
+    assert ( real_root_count != 1 );
+
+    return ( real_root_count );
 
 }
 

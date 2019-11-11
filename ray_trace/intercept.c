@@ -29,7 +29,7 @@ int intercept( cplex_type res[2],
                 vec_type *obs_v )
 {
 
-    /* computer the intersection points between our line and the
+    /* compute the intersection points between our line and the
      * analytic surface described and return an integer count
      * of the real intersections. */
 
@@ -112,11 +112,6 @@ int intercept( cplex_type res[2],
 
     /* now the dot product again with the intermediate signs */
     cplex_vec_dot( c_tmp+11, tmp, tmp+5 );
-    /*
-    printf("\n\nINFO : <sign bits> dot < L-P bits > = ( %g, %g )\n",
-                                             c_tmp[11].r, c_tmp[11].i );
-     */
-
 
     /* now create a^2 * b^2 * c^2 */
     cplex_mult( c_tmp+12, &(axi->x), &(axi->x));
@@ -125,39 +120,17 @@ int intercept( cplex_type res[2],
     cplex_mult( c_tmp+15, c_tmp+12, c_tmp+13);
     cplex_mult( c_tmp+16, c_tmp+15, c_tmp+14);
 
-    /*
-    printf("\n\nINFO : a^2 * b^2 * c^2 = ( %g, %g )\n",
-                                              c_tmp[16].r, c_tmp[16].i );
-     */
-
     cplex_sub( &C, c_tmp+11, c_tmp+16);
-
-    /*
-    printf("\n\nINFO : C = ( %g, %g )\n\n", C.r, C.i );
-    */
 
     /* We shall get the solutions to a complex quadratic polynomial.
      * see https://en.wikipedia.org/wiki/Complex_quadratic_polynomial */
-    cplex_quadratic( quad_res, &A, &B, &C );
-
-    /*
-     * printf("Quadratic result 1 = ( %16.12e, %16.12e )\n",
-     *                                      quad_res[0].r, quad_res[0].i);
-     *
-     * printf("          result 2 = ( %16.12e, %16.12e )\n\n",
-     *                                      quad_res[1].r, quad_res[1].i);
-     */
-
-    /* do not make any value judgements about the data in the
-     * root values. Simply accept them and return them */
+    soln_count = cplex_quadratic( quad_res, &A, &B, &C );
 
     res[0].r = quad_res[0].r;
     res[0].i = quad_res[0].i;
+
     res[1].r = quad_res[1].r;
     res[1].i = quad_res[1].i;
-
-    /* for the moment at least just kick back a two always */
-    soln_count = 2;
 
     return ( soln_count );
 
