@@ -33,13 +33,23 @@ int intercept( cplex_type res[2],
 int main ( int argc, char **argv)
 {
 
+    vec_type tmp[3];
     int k, intercept_cnt = 0;
 
     /* per our diagrams we are just solving for k in the complex
      * cooeficient quadratic */
     cplex_type k_val[2];
 
-    vec_type tmp[3];
+    /* given that we only care about a real root that is forward
+     * looking from the observation plane then we need a double
+     * value for the root k */
+    double k_root;
+
+    /* if we actually do get an intercept then we need to determine
+     * the closest forward looking point which is out actual H.
+     * We can call that the hit_point just to be consistent with
+     * the diagrams thus far */
+    vec_type hit_point;
 
     /* We must first define where our observation plane is in R3
      * as a point and a normal direction. The obs_normal direction
@@ -63,7 +73,6 @@ int main ( int argc, char **argv)
     vec_type obs_point;
 
     /* Test case will be an observation plane at ( 12, 0, 0 ) */
-
     cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* Observation direction is along negative i_hat basis vector */
@@ -158,6 +167,69 @@ int main ( int argc, char **argv)
 
     printf ("   1 : k_val[1] = ( %16.12e, %16.12e )\n",
                                    k_val[1].r, k_val[1].i);
+
+
+    /* note from 
+     * ruffianeo: you can still go for
+     *     inline bool isZero(float f) { return !(0.0F == f || -0.0F == f); }
+     * ruffianeo: while - you are doing C - so it is not bool it is int
+     */
+
+    /* So did we get a real root ? */
+    if ( intercept_cnt > 0 ) {
+        /* great. Did we get two of them ? */
+        if ( intercept_cnt == 2 ) {
+
+            /* Is one of them non-negative? */
+            if ( ( k_val[0].r >= 0.0 )
+                 ||
+                 ( k_val[1].r >= 0.0 ) ) {
+
+                /* pick the closest value in front
+                 * of the viewport */
+
+                if ( (
+                       ( k_val[0].r >= 0.0 )
+                       && 
+                       ( k_val[0].r <= k_val[1].r ) )
+                    ||
+                     (
+                       ( k_val[0].r >= 0.0 )
+                       &&
+                       ( k_val[1].r < 0.0 ) ) ) {
+
+                    k_root = k_val[0].r;
+
+                } else {
+
+                    k_root = k_val[1].r;
+
+                }
+                /* now compute the point hit_point
+                 *
+                 * hit_point = obs_point + k_root * ray_direct
+                 *
+                 */
+                /* TODO : verify that this is correct in R3 space
+                 *
+                 *
+                 *    ALSO this is a bloody hack at this point ...
+                 *
+                 *       so do this correctly with the correct calls  */
+                cplex_vec_set( &hit_point,
+                               obs_point.x.r + k_root * ray_direct.x.r, 0.0,
+                               obs_point.y.r + k_root * ray_direct.y.r, 0.0,
+                               obs_point.z.r + k_root * ray_direct.z.r, 0.0 );
+
+                printf("INFO : hit_point = ");
+                cplex_vec_print( &hit_point );
+                printf("\n");
+
+            }
+
+        }
+
+    }
 
     return ( EXIT_SUCCESS );
 
