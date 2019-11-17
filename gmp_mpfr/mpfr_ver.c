@@ -63,11 +63,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    mpfr_init2 ( pi_mpfr, prec);
-    mpfr_init2 ( theta_mpfr, prec);
-    mpfr_init2 ( atan_pi4_mpfr, prec);
-    mpfr_init2 ( atan_pi_mpfr, prec);
-    mpfr_init2 ( delta_mpfr, prec);
+    mpfr_inits2 ( prec, pi_mpfr, theta_mpfr, atan_pi4_mpfr, atan_pi_mpfr, delta_mpfr, (mpfr_ptr*) 0 );
 
     inex = mpfr_const_pi ( pi_mpfr, MPFR_RNDN);
 
@@ -90,11 +86,7 @@ int main(int argc, char *argv[])
     inex = mpfr_abs (delta_mpfr, delta_mpfr, MPFR_RNDN);
     mpfr_printf ("delta( 4 * atan(1) ) - pi = %.Re\n\n", delta_mpfr);
 
-    mpfr_clear  ( theta_mpfr );
-    mpfr_clear  ( atan_pi4_mpfr );
-    mpfr_clear  ( atan_pi_mpfr );
-    mpfr_clear  ( pi_mpfr );
-    mpfr_clear  ( delta_mpfr );
+    mpfr_clears  ( theta_mpfr, atan_pi4_mpfr, atan_pi_mpfr, pi_mpfr, delta_mpfr, (mpfr_ptr*) 0 );
     return ( EXIT_SUCCESS );
 
 }
