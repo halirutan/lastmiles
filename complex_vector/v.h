@@ -74,6 +74,14 @@ double cplex_mag( cplex_type *op1 );
 double cplex_theta( cplex_type *op1 );
 double cplex_vec_mag( vec_type *op1 );
 
+/*return the solutions to the complex cooefficient quadratic */
+int intercept( cplex_type res[2],
+                vec_type *sign,
+                vec_type *loc,
+                vec_type *axi,
+                vec_type *obs_p,
+                vec_type *obs_v );
+
 int cplex_check( cplex_type *op );
 size_t tohex( char **ret, const void *addr, const size_t n );
 int double_cmp( double *a, double *b, size_t n);

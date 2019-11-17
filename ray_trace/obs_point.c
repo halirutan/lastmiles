@@ -21,15 +21,6 @@
 
 #include "v.h"
 
-/* A quick and dirty prototype of the basic ideas where we shall just
- * return the solutions to the complex cooefficient quadratic */
-int intercept( cplex_type res[2],
-                vec_type *sign,
-                vec_type *loc,
-                vec_type *axi,
-                vec_type *obs_p,
-                vec_type *obs_v );
-
 int main ( int argc, char **argv)
 {
 
@@ -211,7 +202,6 @@ int main ( int argc, char **argv)
                  *
                  */
                 /* TODO : verify that this is correct in R3 space
-                 *
                  *
                  *    ALSO this is a bloody hack at this point ...
                  *
