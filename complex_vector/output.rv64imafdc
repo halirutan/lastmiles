@@ -1,0 +1,141 @@
+dbug : op1 = ( 0, 1 )
+     : op2 = ( 0, 1 )
+     : opr = op1 * op2 = ( -1, 0 )
+     :     should be i^2 = -1
+
+dbug : op1 = ( 1, 0 )
+     : op2 = ( 0, 1 )
+     : opr = op1 * op2 = ( 0, 1 )
+     :     should be 1i
+
+dbug : op1 = ( -1, 0 )
+     : op2 = ( 0, 0 )
+     : opr = op1 * op2 = ( 0, 0 )
+     :     should be just zero.
+
+dbug : op1 = ( 4, 3 )
+     : op2 = ( 2, -1 )
+dbug : opr = op1 / op2 = ( 1, 2 )
+     :     should be 1 + 2i
+
+dbug : op1 = ( 4, 3 )
+     : op2 = ( -4, -12 )
+dbug : opr = op1 / op2 = ( -0.325, 0.225 )
+     :     should be -0.325 + 0.225i
+
+dbug : op1 = ( 2, 1 )
+     :     theta = 4.636476090008e-01
+
+dbug : op1 = ( 4, 3 )
+     :     theta = 6.435011087933e-01
+     : opr = op1^2 = ( 7, 24 )
+     :     should be 7 + 24i
+     :     magnitude is 25
+     :     theta = 1.287002217587e+00
+     : now we take the square root(s) of opr
+root : 1 is ( 4.000000000000e+00, 3.000000000000e+00 )
+root : 2 is ( -4.000000000000e+00, -3.000000000000e+00 )
+     : csqrt returns ( 4.000000000000e+00, 3.000000000000e+00 )
+     : we should get back ( 4, 3i ) and ( -4, -3i ).
+
+dbug : square root test
+dbug : op1 = ( 0, 1 )
+     :     theta = 1.570796326795e+00
+     :     magnitude is 1
+root : 1 = ( 7.071067811865e-01, 7.071067811865e-01 )
+root : 2 = ( -7.071067811865e-01, -7.071067811865e-01 )
+
+dbug : cube root test
+     : op1 = ( -11, 2 )
+     :     theta = 2.961739153797e+00
+     :     magnitude is 11.1803
+root : 1 = ( 1.232050807569e+00, 1.866025403784e+00 )
+root : 2 = ( -2.232050807569e+00, 1.339745962156e-01 )
+root : 3 = ( 1.000000000000e+00, -2.000000000000e+00 )
+
+
+Test the complex vector magnitude
+dbug : v1 = < ( 1, 1 ), ( 2, 2 ), ( 3, 3 ) >
+     : |v1| = 5.291502622129e+00
+     : Should be 5.2915026221291
+
+     : v2 = < ( -1, -1 ), ( -2, -2 ), ( 3, -3 ) >
+Lets test vector dot product
+     : dot product = ( 18, -10 )
+
+Lets test vector cross product
+     : v1 X v2 = < ( 12, 12 ), ( -6, -6 ), ( 0, 0 ) >
+Lets test vector normalization of v[0] as described.
+    : function call cplex_vec_normalize() returns 0
+    : |v[0]| =  < ( 1.889822365046e-01, 1.889822365046e-01 ),
+   ( 3.779644730092e-01, 3.779644730092e-01 ),
+   ( 5.669467095138e-01, 5.669467095138e-01 ) >
+Should be < ( 0.1889822365046 + 0.1889822365046 i ),
+            ( 0.3779644730092 + 0.3779644730092 i ),
+            ( 0.5669467095138 + 0.5669467095138 i )>
+
+Quadratic x^2 - 9 * x + 14 = 0
+Real root count = 2
+Quadratic result 1 = ( 7.000000000000e+00, 0.000000000000e+00 )
+          result 2 = ( 2.000000000000e+00, 0.000000000000e+00 )
+
+Quadratic x^2 + 5 * x - 14 = 0
+Real root count = 2
+Quadratic result 1 = ( 2.000000000000e+00, 0.000000000000e+00 )
+          result 2 = ( -7.000000000000e+00, 0.000000000000e+00 )
+
+Quadratic x^2 - 5 * x + 14 = 0
+Real root count = 0
+Quadratic result 1 = ( 2.500000000000e+00, 2.783882181415e+00 )
+          result 2 = ( 2.500000000000e+00, -2.783882181415e+00 )
+
+DBUG : ***********************************************
+
+DBUG : 20191023141932 traviss catches error here where the
+DBUG : results should be x = 1/2 * ( 5 +- sqrt(31)*i )
+DBUG : ***********************************************
+
+Quadratic 2 * x^2 - 5 * x - 1 = 0
+Real root count = 2
+Quadratic result 1 = ( 2.686140661635e+00, 0.000000000000e+00 )
+          result 2 = ( -1.861406616345e-01, 0.000000000000e+00 )
+
+DBUG : ***********************************************
+
+DBUG : 201920191111020747
+DBUG : potapeno: has a counter example which may toss
+DBUG :           a monkey wrench into the workings
+Quadratic ( 1 + i ) * x^2 - ( 2 + i ) * x + 1 = 0
+Real root count = 1
+Quadratic result 1 = ( 1.000000000000e+00, 0.000000000000e+00 )
+          result 2 = ( 5.000000000000e-01, -5.000000000000e-01 )
+
+
+
+Determinant stuff follows 
+dbug : row 1 = < ( 1, 0 ), ( 2, 0 ), ( 3, 0 ) >
+     : row 2 = < ( 4, 0 ), ( 5, 0 ), ( 6, 0 ) >
+     : row 3 = < ( 7, 0 ), ( 8, 0 ), ( 9, 0 ) >
+     : det = ( 0, 0 )
+
+
+New Row data on row1 
+dbug : row 1 = < ( 10, 0 ), ( -2, 0 ), ( -3, 0 ) >
+     : row 2 = < ( 4, 0 ), ( 5, 0 ), ( 6, 0 ) >
+     : row 3 = < ( 7, 0 ), ( 8, 0 ), ( 9, 0 ) >
+     : det = ( -33, 0 )
+
+
+Complex row data in row1 and row 3
+dbug : row 1 = < ( 0.5, -1 ), ( -2, 0 ), ( -3, 0 ) >
+     : row 2 = < ( 4, 0 ), ( 5, 0 ), ( 6, 0 ) >
+     : row 3 = < ( 7, 0 ), ( -2, 4 ), ( 9, 0 ) >
+     : det = ( 121.5, -117 )
+
+
+Cramers rule test with existing matrix and
+rh_col = < ( 1, 0.5 ), ( 2, 0.75 ), ( 3, -0.25 ) >
+     : result col = < ( 5.857651245552e-01, 5.455516014235e-01 ),
+                      ( -1.992882562278e-02, 1.937722419929e-01 ),
+                      ( -4.056939501779e-02, -4.001779359431e-01 ) >
+

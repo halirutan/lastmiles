@@ -1,0 +1,22 @@
+BLOCKSIZE=K
+CC=/usr/local/bin/gcc
+CFLAGS=-std=iso9899:1999 -O0 -fno-builtin -march=rv64imafdc -mabi=lp64d -L/lib -L/usr/lib -Wl,-rpath=/lib -Wl,-rpath=/usr/lib -mpreferred-stack-boundary=4 -mstrict-align -mexplicit-relocs
+COLUMNS=132
+CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTIC -D_LARGEFILE64_SOURCE
+EDITOR=vi
+ENV=/home/dclarke/.shrc
+HOME=/home/dclarke
+LINES=36
+LOGNAME=dclarke
+MAIL=/var/mail/dclarke
+OLDPWD=/home/dclarke/pgm/lastmiles/floating_point
+PAGER=less
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/home/dclarke/bin
+PWD=/home/dclarke/pgm/lastmiles/complex_vector
+SHELL=/bin/sh
+SSH_CLIENT=172.16.35.2 35593 22
+SSH_CONNECTION=172.16.35.2 35593 10.0.2.15 22
+SSH_TTY=/dev/pts/0
+TERM=vt100
+TMPDIR=/var/tmp/dclarke
+USER=dclarke
