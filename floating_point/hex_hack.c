@@ -15,6 +15,18 @@
 #include <locale.h>
 #include <sys/utsname.h>
 
+int endian( void )
+{
+    /* consistent width upper case hex address from
+     * an n-bit value in v such that we return a 
+     * string like 0xFEEDBEEFBADCAFFE
+     *                    ffffffff7ffff2d0         */
+    int eflag = 1; /* in mem 0x00000001 big endian */
+    eflag = (*(uint8_t*)&eflag == 1) ? 0 : 1;
+    /* fprintf ( stderr, "DBG : eflag = %i\n", eflag ); */
+    return ( eflag );
+}
+
 int main ( int argc, char *argv[] ) {
 
     /* note hex representation of pi is 
@@ -40,6 +52,13 @@ int main ( int argc, char *argv[] ) {
         printf ( "            release = %s\n", uname_data.release );
         printf ( "            version = %s\n", uname_data.version );
         printf ( "            machine = %s\n", uname_data.machine );
+        printf ( "             endian = ");
+        if ( endian() ){
+            printf ("big");
+        } else {
+            printf ("little");
+        }
+        printf (" endian\n");
         printf ( "-------------------------------" );
         printf ( "------------------------------" );
     }
@@ -119,12 +138,118 @@ int main ( int argc, char *argv[] ) {
     printf("  pi_fp128be  or be %18.14g\n", *(double*)&pi_fp128be);
     printf("-------------------------------------------------\n");
 
-    for ( j=0; j<sizeof(long double); j++ )
-        printf("%02x ", ((unsigned char *)&pi)[j] );
+    printf("In memory data for pi on this machine is : \n\n0x");
 
-    printf("\n" );
+    for ( j=0; j<sizeof(long double); j++ ) {
+        printf("%02x ", ((unsigned char *)&pi)[j] );
+    }
+    printf("\n\n" );
 
     printf("pi may be %38.34Le\n", pi);
+    printf("\n-------------------------------------------------\n");
+
+    /* try a trivial damn zero */
+    uint8_t zero_fp128[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    printf("zero_fp128[16]\n");
+    printf("    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\n");
+    printf("    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00\n");
+    printf("out ");
+    for ( j=0; j<16; j++ ) {
+        printf("0x%02x ", ((uint8_t *)&zero_fp128)[j] );
+    }
+    printf("\n");
+    printf("  zero_fp128 may be %38.34Le\n", *(long double*)&zero_fp128);
+    printf("-------------------------------------------------\n");
+
+
+    /* now a negative zero */
+    /* we need to be endian aware here so lets do little endian first */
+    zero_fp128[15] = 0x80;
+    printf("little endian negative zero ...\n");
+    printf("neg zero_fp128[16] le\n");
+    printf("    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\n");
+    printf("    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80\n");
+    printf("out ");
+    for ( j=0; j<16; j++ ) {
+        printf("0x%02x ", ((uint8_t *)&zero_fp128)[j] );
+    }
+    printf("\n");
+    printf("  zero_fp128 may be %38.34Le\n", *(long double*)&zero_fp128);
+    printf("-------------------------------------------------\n");
+
+    /* okay big endian now */
+    zero_fp128[15] = 0x00;
+    zero_fp128[0] = 0x80;
+    printf("big endian negative zero ...\n");
+    printf("neg zero_fp128[16] be\n");
+    printf("    0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\n");
+    printf("    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00\n");
+    printf("out ");
+    for ( j=0; j<16; j++ ) {
+        printf("0x%02x ", ((uint8_t *)&zero_fp128)[j] );
+    }
+    printf("\n");
+    printf("  zero_fp128 may be %38.34Le\n", *(long double*)&zero_fp128);
+    printf("-------------------------------------------------\n");
+
+    /* pos infinity */
+    uint8_t inf128[16] = { 0x7f, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    printf("big endian pos infinity ...\n");
+    printf("inf128[16] \n");
+    printf("    0x7f, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\n");
+    printf("    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00\n");
+    printf("out ");
+    for ( j=0; j<16; j++ ) {
+        printf("0x%02x ", ((uint8_t *)&inf128)[j] );
+    }
+    printf("\n");
+    printf(" pos infinity be %38.34Le\n", *(long double*)&inf128);
+    printf("-------------------------------------------------\n");
+    /* little endian pos infinity */
+    uint8_t inf128_le[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x7f };
+    printf("little endian pos infinity ...\n");
+    printf("inf128_le[16] \n");
+    printf("    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\n");
+    printf("    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x7f\n");
+    printf("out ");
+    for ( j=0; j<16; j++ ) {
+        printf("0x%02x ", ((uint8_t *)&inf128_le)[j] );
+    }
+    printf("\n");
+    printf(" pos infinity le %38.34Le\n", *(long double*)&inf128_le);
+    printf("-------------------------------------------------\n");
+
+    /* little endian negative infinity */
+    inf128_le[15] = 0xff;
+    printf("little endian neg infinity ...\n");
+    printf("inf128_le[16] \n");
+    printf("    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\n");
+    printf("    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff\n");
+    printf("out ");
+    for ( j=0; j<16; j++ ) {
+        printf("0x%02x ", ((uint8_t *)&inf128_le)[j] );
+    }
+    printf("\n");
+    printf(" neg infinity le %38.34Le\n", *(long double*)&inf128_le);
+    printf("-------------------------------------------------\n");
+
+    /* big endian neg infinity */
+    inf128[0] = 0xff;
+    printf("big endian neg infinity ...\n");
+    printf("inf128[16] \n");
+    printf("    0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\n");
+    printf("    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00\n");
+    printf("out ");
+    for ( j=0; j<16; j++ ) {
+        printf("0x%02x ", ((uint8_t *)&inf128)[j] );
+    }
+    printf("\n");
+    printf(" neg infinity be %38.34Le\n", *(long double*)&inf128);
+    printf("-------------------------------------------------\n");
+
 
     return (EXIT_SUCCESS);
 }
