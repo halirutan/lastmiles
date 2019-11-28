@@ -1,0 +1,849 @@
+
+
+$ /usr/bin/ssh -2 -4 -e\^ -l admin 172.16.35.13
+The authenticity of host '172.16.35.13 (172.16.35.13)' can't be established.
+ECDSA key fingerprint is SHA256:MQSQatfNL7oI4hqju3cRLWrmquVytwYELoDGMwsqWms.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '172.16.35.13' (ECDSA) to the list of known hosts.
+Password for admin@vesta:
+FreeBSD 12.0-RELEASE r341666 GENERIC 
+
+Welcome to FreeBSD!
+
+Release Notes, Errata: https://www.FreeBSD.org/releases/
+Security Advisories:   https://www.FreeBSD.org/security/
+FreeBSD Handbook:      https://www.FreeBSD.org/handbook/
+FreeBSD FAQ:           https://www.FreeBSD.org/faq/
+Questions List: https://lists.FreeBSD.org/mailman/listinfo/freebsd-questions/
+FreeBSD Forums:        https://forums.FreeBSD.org/
+
+Documents installed with the system are in the /usr/local/share/doc/freebsd/
+directory, or can be installed later with:  pkg install en-freebsd-doc
+For other languages, replace "en" with a language code like de or fr.
+
+Show the version of FreeBSD installed:  freebsd-version ; uname -a
+Please include that output and any error messages when posting questions.
+Introduction to manual pages:  man man
+FreeBSD directory layout:      man hier
+
+Edit /etc/motd to change this login announcement.
+Want to strip UTF-8 BOM(Byte Order Mark) from given files?
+
+        sed -e '1s/^\xef\xbb\xbf//' < bomfile > newfile
+$ su - 
+Password:
+su: Sorry
+$ su -
+Password:
+su: Sorry
+$ su -
+Password:
+root@vesta:~ # passwd root
+Changing local password for root
+New Password:
+Retype New Password:
+root@vesta:~ # 
+root@vesta:~ # 
+root@vesta:~ # setenv PATH /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/opt/schily/bin
+root@vesta:~ # setenv LANG en_US.UTF-8
+root@vesta:~ # setenv LC_ALL en_US.UTF-8
+root@vesta:~ # setenv LC_COLLATE en_US.UTF-8
+root@vesta:~ # setenv LC_CTYPE en_US.UTF-8
+root@vesta:~ # setenv LC_MESSAGES en_US.UTF-8
+root@vesta:~ # setenv LC_MONETARY en_US.UTF-8
+root@vesta:~ # setenv LC_NUMERIC en_US.UTF-8
+root@vesta:~ # setenv LC_TIME en_US.UTF-8
+root@vesta:~ # setenv XTERM_LOCALE en_US.UTF-8
+root@vesta:~ # setenv TMPDIR /var/tmp/root
+root@vesta:~ # mkdir -m 0750 /var/tmp/root
+root@vesta:~ # 
+root@vesta:~ # set prompt=`uname -n`\#\ 
+vesta# 
+vesta# 
+vesta# setenv LINES '43'
+vesta# setenv COLUMNS '132'
+vesta# setenv TERM vt100
+vesta# 
+
+change the default root .cshrc
+
+vesta# 
+vesta# cat .cshrc 
+# $FreeBSD: releng/12.0/bin/csh/dot.cshrc 338374 2018-08-29 16:59:19Z brd $
+#
+# .cshrc - csh resource script, read at beginning of execution by each shell
+#
+# see also csh(1), environ(7).
+# more examples available at /usr/share/examples/csh/
+#
+
+alias h         history 25
+alias j         jobs -l
+alias la        ls -aF
+alias lf        ls -FA
+alias ll        ls -lAF
+
+# A righteous umask
+umask 22
+
+set path = (/sbin /bin /usr/sbin /usr/bin /usr/local/sbin /usr/local/bin $HOME/bin)
+
+setenv  EDITOR  vi
+setenv  PAGER   less
+setenv  BLOCKSIZE       K
+
+if ($?prompt) then
+        # An interactive shell -- set some stuff up
+        set prompt = "%N@%m:%~ %# "
+        set promptchars = "%#"
+
+        set filec
+        set history = 1000
+        set savehist = (1000 merge)
+        set autolist = ambiguous
+        # Use history to aid expansion
+        set autoexpand
+        set autorehash
+        set mail = (/var/mail/$USER)
+        if ( $?tcsh ) then
+                bindkey "^W" backward-delete-word
+                bindkey -k up history-search-backward
+                bindkey -k down history-search-forward
+        endif
+
+endif
+vesta# 
+
+change that to something a tad more useful 
+
+vesta# 
+vesta# cat .cshrc 
+# $FreeBSD: releng/12.0/bin/csh/dot.cshrc 338374 2018-08-29 16:59:19Z brd $
+#
+# .cshrc - csh resource script, read at beginning of execution by each shell
+#
+# see also csh(1), environ(7).
+# more examples available at /usr/share/examples/csh/
+#
+
+umask 22
+
+set path = ( /usr/local/sbin /usr/local/bin /sbin /bin /usr/sbin /usr/bin /opt/schily/bin)
+
+setenv EDITOR /usr/bin/vi
+setenv VISUAL /usr/bin/vi
+setenv PAGER /usr/bin/more
+setenv BLOCKSIZE K
+setenv TZ 'GMT0'
+
+if ($?prompt) then
+        # An interactive shell -- set some stuff up
+        set prompt = "%m# "
+        set promptchars = "%#"
+
+        setenv TMPDIR /var/tmp/root
+        if ( ! -d /var/tmp/root ) then
+                mkdir -m 0750 /var/tmp/root
+        else
+                chmod 0750 /var/tmp/root
+        endif
+
+        set promptchars = "%#"
+
+        set filec
+        set history = 1000
+        set savehist = (1000 merge)
+        set autolist = ambiguous
+        # Use history to aid expansion
+        set autoexpand
+        set autorehash
+        set mail = (/var/mail/$USER)
+        if ( $?tcsh ) then
+                bindkey "^W" backward-delete-word
+                bindkey -k up history-search-backward
+                bindkey -k down history-search-forward
+        endif
+
+endif
+vesta# 
+
+manually apply some of that 
+
+vesta# setenv LANG en_US.UTF-8
+vesta# setenv LC_ALL en_US.UTF-8
+vesta# setenv LC_COLLATE en_US.UTF-8
+vesta# setenv LC_CTYPE en_US.UTF-8
+vesta# setenv LC_MESSAGES en_US.UTF-8
+vesta# setenv LC_MONETARY en_US.UTF-8
+vesta# setenv LC_NUMERIC en_US.UTF-8
+vesta# setenv LC_TIME en_US.UTF-8
+vesta# setenv TZ GMT0
+vesta# setenv XTERM_LOCALE en_US.UTF-8
+vesta# setenv TERM vt100
+vesta# setenv EDITOR /usr/bin/vi
+vesta# setenv VISUAL /usr/bin/vi
+vesta# setenv PAGER /usr/bin/more
+vesta# setenv BLOCKSIZE K
+vesta# set path = ( /usr/local/sbin /usr/local/bin /sbin /bin /usr/sbin /usr/bin /opt/schily/bin)
+vesta# 
+
+vesta# env | sort 
+BLOCKSIZE=K
+COLUMNS=132
+EDITOR=/usr/bin/vi
+GROUP=wheel
+HOME=/root
+HOST=vesta
+HOSTTYPE=FreeBSD
+LANG=en_US.UTF-8
+LC_ALL=en_US.UTF-8
+LC_COLLATE=en_US.UTF-8
+LC_CTYPE=en_US.UTF-8
+LC_MESSAGES=en_US.UTF-8
+LC_MONETARY=en_US.UTF-8
+LC_NUMERIC=en_US.UTF-8
+LC_TIME=en_US.UTF-8
+LINES=43
+LOGNAME=root
+MACHTYPE=x86_64
+MAIL=/var/mail/root
+OSTYPE=FreeBSD
+PAGER=/usr/bin/more
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/schily/bin
+PWD=/root
+REMOTEHOST=172.16.35.3
+SHELL=/bin/csh
+SHLVL=1
+TERM=vt100
+TMPDIR=/var/tmp/root
+TZ=GMT0
+USER=root
+VENDOR=amd
+VISUAL=/usr/bin/vi
+XTERM_LOCALE=en_US.UTF-8
+vesta# 
+
+
+
+Also a pretty zfs list script : 
+
+vesta# 
+vesta# cat bin/zl
+#!/bin/sh
+#
+# pretty zfs list
+#
+
+zfs list -t snapshot -t filesystem -o name,used,available,exec,devices,checksum,compression,compressratio,quota,usedbysnapshots,mounted,mountpoint \
+  | sed \
+  -e 's/EXEC/EX/' \
+    -e 's/DEVICES/DV/' \
+    -e 's/CHECKSUM/CKS/' \
+    -e 's/COMPRESS/CMP/' \
+    -e 's/USEDSNAP/SNAP/' \
+    -e 's/MOUNTED/MNT/' \
+  | awk '{printf("%-18s %6s %6s %4s %4s %8s %4s %6s %6s %6s %4s  %s\n", $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)}'
+vesta# 
+vesta# 
+
+setup ntpd which will run at boot time 
+
+vesta# ls -lap  /var/ntp/ntpstats/
+ls: /var/ntp/ntpstats/: No such file or directory
+vesta# mkdir -p  /var/ntp/ntpstats/
+vesta# 
+
+vesta# cp -p /etc/ntp.conf  /etc/ntp.conf.orig
+
+vesta# vi /etc/ntp.conf 
+
+#
+# The driftfile is by default /var/db/ntpd.drift, check
+# /etc/defaults/rc.conf on how to change the location.
+tos minclock 3 maxclock 6
+server time.chu.nrc.ca
+server time.nrc.ca
+server tock.utoronto.ca
+server ntp.torix.ca
+restrict 172.16.35.0 mask 255.255.255.192 nomodify notrap
+restrict default limited kod nomodify notrap noquery nopeer
+restrict source  limited kod nomodify notrap noquery
+restrict 127.0.0.1
+restrict ::1
+
+driftfile /var/ntp/ntp.drift
+statsdir /var/ntp/ntpstats/
+filegen peerstats file peerstats type day enable
+filegen loopstats file loopstats type day enable
+filegen clockstats file clockstats type day enable
+logconfig =syncevents +peerevents +sysevents +allclock
+
+# See http://support.ntp.org/bin/view/Support/ConfiguringNTP#Section_6.14.
+# for documentation regarding leapfile. Updates to the file can be obtained
+# from ftp://time.nist.gov/pub/ or ftp://tycho.usno.navy.mil/pub/ntp/.
+# Use either leapfile in /etc/ntp or periodically updated leapfile in /var/db.
+#leapfile "/etc/ntp/leap-seconds"
+leapfile "/var/db/ntpd.leap-seconds.list"
+
+
+
+lets add in at least three name servers to /etc/resolv.conf 
+
+vesta# 
+vesta# cat /etc/resolv.conf 
+nameserver 68.179.116.203
+nameserver 66.225.151.244
+nameserver 68.179.116.204
+vesta# 
+
+tighten up the sshd config 
+
+vesta# cp -p /etc/ssh/sshd_config /etc/ssh/sshd_config.orig 
+vesta# 
+vesta# vi /etc/ssh/sshd_config 
+
+
+vesta$ cat /etc/ssh/sshd_config 
+Port 22
+ListenAddress 172.16.35.13
+MaxAuthTries 3
+SyslogFacility AUTH
+PermitRootLogin no
+StrictModes yes
+AuthorizedKeysFile      .ssh/authorized_keys
+IgnoreRhosts yes
+AuthenticationMethods publickey
+ChallengeResponseAuthentication yes
+PubkeyAuthentication yes
+PasswordAuthentication no
+PermitEmptyPasswords no
+AllowTcpForwarding no
+GatewayPorts no
+X11Forwarding yes
+X11DisplayOffset 10
+X11UseLocalhost yes
+PrintMotd no
+TCPKeepAlive yes
+Banner /etc/ssh/sshd_banner
+Subsystem       sftp    /usr/libexec/sftp-server
+
+
+vesta# 
+vesta# cat /etc/ssh/sshd_banner
+
+ +=====================================================================+
+ |FreeBSD vesta 12.0-RELEASE FreeBSD 12.0-RELEASE r341666 GENERIC amd64|
+ +=====================================================================+
+ |                  * * *    W A R N I N G   * * *                     |
+ |                                                                     |
+ |                            Property of                              |
+ |                                                                     |
+ |        ####   ######  #    #  #    #  #    #     #    #    #        |
+ |       #    #  #       ##   #  #    #  ##   #     #     #  #         |
+ |       #       #####   # #  #  #    #  # #  #     #      ##          |
+ |       #  ###  #       #  # #  #    #  #  # #     #      ##          |
+ |       #    #  #       #   ##  #    #  #   ##     #     #  #         |
+ |        ####   ######  #    #   ####   #    #     #    #    #        |
+ |                                                                     |
+ | If you are not authorized to access this system, disconnect now.    |
+ | Users of this system have no expectation of privacy. By continuing, |
+ | you consent to your keystrokes and data content being monitored.    |
+ |                                                                     |
+ +=====================================================================+
+
+vesta# 
+
+
+Make damn sure a user exists that can login with ssh keys 
+
+vesta# 
+vesta# adduser
+Username: dclarke
+Full name: Dennis Clarke
+Uid (Leave empty for default): 16411
+Login group [dclarke]: 
+Login group is dclarke. Invite dclarke into other groups? []: staff
+Login class [default]: 
+Shell (sh csh tcsh nologin) [sh]: 
+Home directory [/home/dclarke]: 
+Home directory permissions (Leave empty for default): 
+Use password-based authentication? [yes]: 
+Use an empty password? (yes/no) [no]: 
+Use a random password? (yes/no) [no]: 
+Enter password: 
+Enter password again: 
+Lock out the account after creation? [no]: 
+Username   : dclarke
+Password   : *****
+Full Name  : Dennis Clarke
+Uid        : 16411
+Class      : 
+Groups     : dclarke staff
+Home       : /home/dclarke
+Home Mode  : 
+Shell      : /bin/sh
+Locked     : no
+OK? (yes/no): yes
+adduser: INFO: Successfully added (dclarke) to the user database.
+Add another user? (yes/no): no
+Goodbye!
+vesta# 
+
+create a developer group manually and stuff the user in it 
+
+vesta# 
+vesta# vi /etc/group 
+
+vesta# 
+vesta# grep 'devl' /etc/group 
+devl:*:20002:dclarke,admin
+vesta# 
+
+setup the ownership for that user and create the .ssh authorized_keys
+
+vesta# 
+vesta# cd /home
+vesta# ls -lapb
+total 26
+drwxr-xr-x   4 root     wheel     4 Jun  8 00:55 ./
+drwxr-xr-x  16 root     wheel    16 Jun  7 20:33 ../
+drwxr-xr-x   2 admin    admin     9 Jun  7 20:33 admin/
+drwxr-xr-x   2 dclarke  dclarke   9 Jun  8 00:55 dclarke/
+vesta# 
+vesta# chgrp -fR devl dclarke 
+vesta# cd dclarke 
+vesta# mkdir .ssh ; chown dclarke:devl .ssh 
+vesta# cd .ssh
+vesta# 
+
+vesta# 
+vesta# pwd
+/usr/home/dclarke/.ssh
+vesta# ls -lapb 
+total 14
+drwxr-xr-x  2 dclarke  devl    3 Jun  8 00:58 ./
+drwxr-xr-x  3 dclarke  devl   10 Jun  8 00:57 ../
+-rw-r--r--  1 dclarke  devl  222 Jun  8 00:58 authorized_keys
+vesta# 
+
+a few minor tweaks to the /etc/rc.conf and then reboot 
+
+original 
+
+clear_tmp_enable="YES"
+hostname="vesta"
+ifconfig_re0="inet 172.16.35.13 netmask 255.255.255.192"
+defaultrouter="172.16.35.1"
+sshd_enable="YES"
+ntpd_enable="YES"
+# Set dumpdev to "AUTO" to enable crash dumps, "NO" to disable
+dumpdev="AUTO"
+zfs_enable="YES"
+
+
+new rev 
+
+clear_tmp_enable="YES"
+syslogd_flags="-ss"
+hostname="vesta"
+ifconfig_re0="inet 172.16.35.13 netmask 255.255.255.192"
+defaultrouter="172.16.35.1"
+sshd_enable="YES"
+ntpd_enable="YES"
+powerd_enable="YES"
+# Set dumpdev to "AUTO" to enable crash dumps, "NO" to disable
+dumpdev="AUTO"
+zfs_enable="YES"
+
+
+reboot and ...
+
+
+
+
+
+login as that user 
+
+
+Also if needed we can change the name of a user and add them to
+a group with a changed name also.  Not in that order as the group
+much exist first. 
+
+vesta# 
+vesta# pw usermod -N -u 1001 -l admsys -c 'Systems Admin' -G admsys,wheel,devl 
+pw: group `admsys' does not exist
+vesta# 
+
+oops
+
+vesta# 
+vesta# pw groupmod -n admin -l admsys
+vesta# pw usermod -u 1001 -l admsys -c 'Systems Admin' -G admsys,wheel,devl
+vesta# exit
+logout
+$ id
+uid=1001(admsys) gid=1001(admsys) groups=1001(admsys),0(wheel),20002(devl)
+$ 
+
+
+Also a workable .profile for the average user could be :
+
+vesta$ cat .profile 
+# $FreeBSD: releng/12.0/share/skel/dot.profile 337497 2018-08-08 19:24:20Z asomers $
+#
+# .profile - Bourne Shell startup script for login shells
+#
+# see also sh(1), environ(7).
+#
+
+# These are normally set through /etc/login.conf.  You may override them here
+# if wanted.
+# PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:$HOME/bin; export PATH
+# BLOCKSIZE=K;  export BLOCKSIZE
+
+# Setting TERM is normally done through /etc/ttys.  Do only override
+# if you're sure that you'll never log in via telnet or xterm or a
+# serial line.
+# TERM=xterm;   export TERM
+
+# set ENV to a file invoked each time sh is started for interactive use.
+ENV=$HOME/.shrc; export ENV
+
+# Query terminal size; useful for serial lines.
+if [ -x /usr/bin/resizewin ] ; then /usr/bin/resizewin -z ; fi
+
+# Display a random cookie on each login.
+#if [ -x /usr/bin/fortune ] ; then /usr/bin/fortune freebsd-tips ; fi
+
+BLOCKSIZE=K
+export BLOCKSIZE
+
+EDITOR=/usr/bin/vi
+export EDITOR
+
+LANG=en_US.UTF-8
+export LANG
+
+LC_COLLATE=en_US.UTF-8
+export LC_COLLATE
+
+LC_CTYPE=en_US.UTF-8
+export LC_CTYPE
+
+LC_MESSAGES=en_US.UTF-8
+export LC_MESSAGES
+
+LC_MONETARY=en_US.UTF-8
+export LC_MONETARY
+
+LC_NUMERIC=en_US.UTF-8
+export LC_NUMERIC
+
+LC_TIME=en_US.UTF-8
+export LC_TIME
+
+unset LC_ALL
+unset LC_ADDRESS
+unset LC_IDENTIFICATION
+unset LC_MEASUREMENT
+unset LC_NAME
+unset LC_PAPER
+unset LC_TELEPHONE
+
+MAIL=/var/mail/{$USER}
+export MAIL
+
+PAGER=/usr/bin/more
+export PAGER
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/schily/bin
+export PATH
+
+SHELL=/bin/sh
+export SHELL
+
+# TERM=vt100
+# export TERM
+
+if [ -d /var/tmp/$USER ]; then
+    TMPDIR=/var/tmp/$USER
+    export TMPDIR
+    chmod 0750 /var/tmp/$USER
+else
+    mkdir -m 0750 /var/tmp/$USER
+    TMPDIR=/var/tmp/$USER
+    export TMPDIR
+fi
+
+TZ=GMT0
+export TZ
+
+VISUAL=/usr/bin/vi
+export VISUAL
+
+XTERM_LOCALE=en_US.UTF-8
+export XTERM_LOCALE
+
+PS1=`( uname -n )`\$\ 
+
+
+---------- finally ------------
+
+vesta# /usr/sbin/pkg query %t\ %n\ %v\ %o
+The package management tool is not yet installed on your system.
+Do you want to fetch and install it now? [y/N]: y
+Bootstrapping pkg from pkg+http://pkg.FreeBSD.org/FreeBSD:12:amd64/quarterly, please wait...
+Verifying signature with trusted certificate pkg.freebsd.org.2013102301... done
+Installing pkg-1.10.5_5...
+Extracting pkg-1.10.5_5: 100%
+1560013396 pkg 1.10.5_5 ports-mgmt/pkg
+vesta# 
+
+vesta# /usr/sbin/pkg install indexinfo
+Updating FreeBSD repository catalogue...
+pkg: Repository FreeBSD load error: access repo file(/var/db/pkg/repo-FreeBSD.sqlite) failed: No such file or directory
+Fetching meta.txz: 100%    944 B   0.9kB/s    00:01    
+Fetching packagesite.txz: 100%    6 MiB   6.7MB/s    00:01    
+Processing entries: 100%
+FreeBSD repository update completed. 31778 packages processed.
+All repositories are up to date.
+Updating database digests format: 100%
+The following 1 package(s) will be affected (of 0 checked):
+
+New packages to be INSTALLED:
+        indexinfo: 0.3.1
+
+Number of packages to be installed: 1
+
+6 KiB to be downloaded.
+
+Proceed with this action? [y/N]: y
+[1/1] Fetching indexinfo-0.3.1.txz: 100%    6 KiB   6.1kB/s    00:01    
+Checking integrity... done (0 conflicting)
+[1/1] Installing indexinfo-0.3.1...
+[1/1] Extracting indexinfo-0.3.1: 100%
+vesta# 
+
+vesta# /usr/sbin/pkg install gettext-runtime
+Updating FreeBSD repository catalogue...
+FreeBSD repository is up to date.
+All repositories are up to date.
+The following 1 package(s) will be affected (of 0 checked):
+
+New packages to be INSTALLED:
+        gettext-runtime: 0.19.8.1_2
+
+Number of packages to be installed: 1
+
+149 KiB to be downloaded.
+
+Proceed with this action? [y/N]: y
+[1/1] Fetching gettext-runtime-0.19.8.1_2.txz: 100%  149 KiB 153.0kB/s    00:01    
+Checking integrity... done (0 conflicting)
+[1/1] Installing gettext-runtime-0.19.8.1_2...
+[1/1] Extracting gettext-runtime-0.19.8.1_2: 100%
+vesta# 
+
+
+vesta# 
+vesta# /usr/sbin/pkg install gmp mpfr m4 libsigsegv readline bison \
+? gawk mpc gsed perl5 binutils p5-HTML-Tagset p5-Socket6 \
+? p5-HTML-Parser p5-Mozilla-CA p5-Net-SSLeay ca_root_nss \
+? gcc8 libffi libnghttp2 p5-Digest-HMAC p5-GSSAPI p5-IO-Socket-INET6 \
+? p5-CGI expat p5-Authen-SASL p5-IO-Socket-SSL python36 curl \
+? p5-Error pcre cvsps gcc git bash gmake libiconv \
+? p5-Locale-libintl p5-Unicode-EastAsianWidth p5-Text-Unidecode texinfo
+Updating FreeBSD repository catalogue...
+FreeBSD repository is up to date.
+All repositories are up to date.
+The following 42 package(s) will be affected (of 0 checked):
+
+New packages to be INSTALLED:
+        gmp: 6.1.2_1
+        mpfr: 4.0.2
+        m4: 1.4.18_1,1
+        libsigsegv: 2.12
+        readline: 7.0.5
+        bison: 3.3.2,1
+        gawk: 4.2.1
+        mpc: 1.1.0_2
+        gsed: 4.7
+        perl5: 5.28.1_1
+        binutils: 2.32,1
+        p5-HTML-Tagset: 3.20_1
+        p5-Socket6: 0.29
+        p5-HTML-Parser: 3.72
+        p5-Mozilla-CA: 20180117
+        p5-Net-SSLeay: 1.85
+        ca_root_nss: 3.44
+        gcc8: 8.3.0_2
+        libffi: 3.2.1_3
+        libnghttp2: 1.37.0
+        p5-Digest-HMAC: 1.03_1
+        p5-GSSAPI: 0.28_1
+        p5-IO-Socket-INET6: 2.72_1
+        p5-CGI: 4.42
+        expat: 2.2.6_1
+        p5-Authen-SASL: 2.16_1
+        p5-IO-Socket-SSL: 2.060
+        python36: 3.6.8_1
+        curl: 7.65.0_2
+        p5-Error: 0.17027
+        pcre: 8.43
+        cvsps: 2.1_2
+        gcc: 8_3
+        git: 2.21.0
+        bash: 5.0.3
+        gmake: 4.2.1_3
+        libiconv: 1.14_11
+        p5-Locale-libintl: 1.31
+        p5-Unicode-EastAsianWidth: 1.40
+        p5-Text-Unidecode: 1.30
+        texinfo: 6.6,1
+        python27: 2.7.16
+
+Number of packages to be installed: 42
+
+The process will require 681 MiB more space.
+116 MiB to be downloaded.
+
+Proceed with this action? [y/N]: y
+[1/42] Fetching gmp-6.1.2_1.txz: 100%  461 KiB 471.6kB/s    00:01    
+[2/42] Fetching mpfr-4.0.2.txz: 100%  430 KiB 440.0kB/s    00:01    
+.
+.
+.
+[38/42] Installing gcc-8_3...
+[38/42] Extracting gcc-8_3: 100%
+[39/42] Installing git-2.21.0...
+===> Creating groups.
+Creating group 'git_daemon' with gid '964'.
+===> Creating users
+Creating user 'git_daemon' with uid '964'.
+[39/42] Extracting git-2.21.0: 100%
+[40/42] Installing bash-5.0.3...
+[40/42] Extracting bash-5.0.3: 100%
+[41/42] Installing gmake-4.2.1_3...
+[41/42] Extracting gmake-4.2.1_3: 100%
+[42/42] Installing texinfo-6.6,1...
+[42/42] Extracting texinfo-6.6,1: 100%
+Message from perl5-5.28.1_1:
+
+The /usr/bin/perl symlink has been removed starting with Perl 5.20.
+For shebangs, you should either use:
+
+#!/usr/local/bin/perl
+
+or
+
+#!/usr/bin/env perl
+
+The first one will only work if you have a /usr/local/bin/perl,
+the second will work as long as perl is in PATH.
+Message from ca_root_nss-3.44:
+
+********************************* WARNING *********************************
+
+FreeBSD does not, and can not warrant that the certification authorities
+whose certificates are included in this package have in any way been
+audited for trustworthiness or RFC 3647 compliance.
+
+Assessment and verification of trust is the complete responsibility of the
+system administrator.
+
+*********************************** NOTE **********************************
+
+This package installs symlinks to support root certificates discovery by
+default for software that uses OpenSSL.
+
+This enables SSL Certificate Verification by client software without manual
+intervention.
+
+If you prefer to do this manually, replace the following symlinks with
+either an empty file or your site-local certificate bundle.
+
+  * /etc/ssl/cert.pem
+  * /usr/local/etc/ssl/cert.pem
+  * /usr/local/openssl/cert.pem
+
+***************************************************************************
+Message from libsigsegv-2.12:
+
+====
+Note that the stackoverflow handling functions of this library need
+procfs mounted on /proc.
+====
+Message from gcc8-8.3.0_2:
+
+To ensure binaries built with this toolchain find appropriate versions
+of the necessary run-time libraries, you may want to link using
+
+  -Wl,-rpath=/usr/local/lib/gcc8
+
+For ports leveraging USE_GCC, USES=compiler, or USES=fortran this happens
+transparently.
+Message from cvsps-2.1_2:
+
+===>   NOTICE:
+
+The cvsps port currently does not have a maintainer. As a result, it is
+more likely to have unresolved issues, not be up-to-date, or even be removed in
+the future. To volunteer to maintain this port, please create an issue at:
+
+https://bugs.freebsd.org/bugzilla
+
+More information about port maintainership is available at:
+
+https://www.freebsd.org/doc/en/articles/contributing/ports-contributing.html#maintain-port
+Message from python27-2.7.16:
+
+===========================================================================
+
+Note that some standard Python modules are provided as separate ports
+as they require additional dependencies. They are available as:
+
+bsddb           databases/py-bsddb
+gdbm            databases/py-gdbm
+sqlite3         databases/py-sqlite3
+tkinter         x11-toolkits/py-tkinter
+
+===========================================================================
+Message from python36-3.6.8_1:
+
+===========================================================================
+
+Note that some standard Python modules are provided as separate ports
+as they require additional dependencies. They are available as:
+
+py36-gdbm       databases/py-gdbm@py36
+py36-sqlite3    databases/py-sqlite3@py36
+py36-tkinter    x11-toolkits/py-tkinter@py36
+
+===========================================================================
+Message from git-2.21.0:
+
+------------------------------------------------------------------------
+*************************** GITWEB *************************************
+If you installed the GITWEB option please follow these instructions:
+
+In the directory /usr/local/share/examples/git/gitweb you can find all files to
+make gitweb work as a public repository on the web.
+
+All you have to do to make gitweb work is:
+1) Please be sure you're able to execute CGI scripts in
+   /usr/local/share/examples/git/gitweb.
+2) Set the GITWEB_CONFIG variable in your webserver's config to
+   /usr/local/etc/git/gitweb.conf. This variable is passed to gitweb.cgi.
+3) Restart server.
+*************************** GITWEB *************************************
+
+*************************** CONTRIB ************************************
+If you installed the CONTRIB option please note that the scripts are
+installed in /usr/local/share/git-core/contrib. Some of them require
+other ports to be installed (perl, python, etc), which you may need to
+install manually.
+*************************** CONTRIB ************************************
+------------------------------------------------------------------------
+vesta# 
+
+
