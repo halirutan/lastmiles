@@ -15,22 +15,22 @@ int main(int argc, char *argv[])
     int j = 1;  /* dummy test integer */
     int little_endian = (*(uint8_t*)&j == 1) ? 1 : 0;
 
-    printf("the sizeof(long double pi) is %lld bytes\n",
-                                        sizeof(long double) );
+    printf("the sizeof(long double pi) is %" PRIuPTR " bytes\n",
+                                        (size_t)sizeof(long double) );
 
-    printf("the sizeof(double pi) is      %lld bytes\n",
-                                        sizeof(double) );
+    printf("the sizeof(double pi) is      %" PRIuPTR " bytes\n",
+                                        (size_t)sizeof(double) );
 
-    printf("the sizeof(float pi) is       %lld bytes\n",
-                                        sizeof(float) );
+    printf("the sizeof(float pi) is       %" PRIuPTR " bytes\n",
+                                        (size_t)sizeof(float) );
 
-    pi_fp128 = calloc ( (size_t)1, sizeof(long double) );
+    pi_fp128 = calloc ( (size_t)1, (size_t)sizeof(long double) );
     *pi_fp128 = 3.141592653589793238462643383279502884197L;
 
-    pi_fp64 = calloc ( (size_t)1, sizeof(double) );
+    pi_fp64 = calloc ( (size_t)1, (size_t)sizeof(double) );
     *pi_fp64 = 3.141592653589793238462643;
 
-    pi_fp32 = calloc ( (size_t)1, sizeof(float) );
+    pi_fp32 = calloc ( (size_t)1, (size_t)sizeof(float) );
     *pi_fp32 = 3.141592653589793;
 
     if (little_endian) {
