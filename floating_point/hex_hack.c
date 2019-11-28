@@ -162,7 +162,6 @@ int main ( int argc, char *argv[] ) {
     printf("  zero_fp128 may be %38.34Le\n", *(long double*)&zero_fp128);
     printf("-------------------------------------------------\n");
 
-
     /* now a negative zero */
     /* we need to be endian aware here so lets do little endian first */
     zero_fp128[15] = 0x80;
@@ -249,7 +248,6 @@ int main ( int argc, char *argv[] ) {
     printf("\n");
     printf(" neg infinity be %38.34Le\n", *(long double*)&inf128);
     printf("-------------------------------------------------\n");
-
 
     return (EXIT_SUCCESS);
 }
