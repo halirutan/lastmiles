@@ -13,7 +13,8 @@ CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE \
 
 LIBS = -lm
 
-SRCS = obs_point.c ../complex_vector/check_status.c \
+SRCS = obs_point.c intercept.c \
+	../complex_vector/check_status.c \
 	../complex_vector/cplex_add.c \
 	../complex_vector/cplex_check.c \
 	../complex_vector/cplex_div.c \
@@ -31,7 +32,8 @@ SRCS = obs_point.c ../complex_vector/check_status.c \
 	../complex_vector/cplex_vec_print.c \
 	../complex_vector/cplex_vec_scale.c
 
-OBJS = obs_point.o ../complex_vector/check_status.o \
+OBJS = obs_point.o intercept.o \
+	../complex_vector/check_status.o \
 	../complex_vector/cplex_add.o \
 	../complex_vector/cplex_check.o \
 	../complex_vector/cplex_div.o \

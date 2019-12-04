@@ -154,10 +154,6 @@ int main(int argc, char*argv[])
      * observation viewport. Strictly a lowest level epsilon
      * to be used for resolution. */
 
-
-
-
-
     double x_prime, y_prime;
 
     /*

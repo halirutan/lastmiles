@@ -18,7 +18,7 @@ IDIR=../complex_vector
 
 SRCS = grid.c numpad.c x_error_handler.c create_gc.c \
 	create_borderless_topwin.c ../time_and_date/timediff.c \
-	../rtrace/intercept.c \
+	../ray_trace/intercept.c \
 	../complex_vector/check_status.c \
 	../complex_vector/cplex_add.c \
 	../complex_vector/cplex_check.c \
@@ -40,7 +40,7 @@ SRCS = grid.c numpad.c x_error_handler.c create_gc.c \
 
 OBJS = x_error_handler.o create_gc.o \
 	create_borderless_topwin.o ../time_and_date/timediff.o \
-	../rtrace/intercept.o \
+	../ray_trace/intercept.o \
 	../complex_vector/check_status.o \
 	../complex_vector/cplex_add.o \
 	../complex_vector/cplex_check.o \

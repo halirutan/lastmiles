@@ -80,10 +80,8 @@ int main ( int argc, char **argv)
      * However we have tested with slight offset values such as
      * ( 2 ^ -32 ) */
     x_prime = 1.7;
-    y_prime = -2.0;
-
-    x_prime = 2.0;
-    y_prime = 0.0;
+    y_prime = 2.0 + ( 1.0 / ( 1.0 * ( 2 ^ 32 ) ));
+    printf("INFO : initial x' and y' : ( %g, %g )\n", x_prime, y_prime );
 
     /* All of the above allows us to compute a starting point on
      * the observation plane in R3 and in the coordinate system
@@ -105,7 +103,6 @@ int main ( int argc, char **argv)
     printf("INFO : obs_point = ");
     cplex_vec_print( &obs_point );
     printf("\n");
-
 
     /* At this moment we have the observation point and the direction
      * of the plane within obs_normal. What we need is to pass all
