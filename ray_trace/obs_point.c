@@ -80,7 +80,10 @@ int main ( int argc, char **argv)
      * However we have tested with slight offset values such as
      * ( 2 ^ -32 ) */
     x_prime = 1.7;
-    y_prime = 2.0 + ( 1.0 / ( 1.0 * ( 2 ^ 32 ) ));
+    y_prime = -2.0;
+
+    x_prime = 2.0 + ( 1.0 / ( 2 ^ 32 ) );
+    y_prime = 0.0;
     printf("INFO : initial x' and y' : ( %g, %g )\n", x_prime, y_prime );
 
     /* All of the above allows us to compute a starting point on
