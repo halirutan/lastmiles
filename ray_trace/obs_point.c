@@ -64,7 +64,8 @@ int main ( int argc, char **argv)
     vec_type obs_point;
 
     /* Test case will be an observation plane at ( 12, 0, 0 ) */
-    cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    /* cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0); */
+    cplex_vec_set( &obs_origin, -2.039539708420069, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* Observation direction is along negative i_hat basis vector */
     cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -78,13 +79,12 @@ int main ( int argc, char **argv)
 
     /* A test point to begin with on the observation plane.
      * However we have tested with slight offset values such as
-     * ( 2 ^ -32 ) */
+     * ( 2 ^ -32 ) == 0.00000000023283064365386962890625 */
     x_prime = 1.7;
     y_prime = -2.0;
 
-    x_prime = 2.0 + ( 1.0 / ( 2 ^ 32 ) );
-    y_prime = 0.0;
-    printf("INFO : initial x' and y' : ( %g, %g )\n", x_prime, y_prime );
+    printf("INFO : initial x' and y' : ( %-18.14e, %-18.14e )\n",
+                                                    x_prime, y_prime );
 
     /* All of the above allows us to compute a starting point on
      * the observation plane in R3 and in the coordinate system
@@ -147,6 +147,11 @@ int main ( int argc, char **argv)
 
     /* Again the diagrams we used had a=5, b=2 and c=6 */
     cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0);
+
+
+    /*****************************************************
+     *   WARNING : the ray direction must be normalized  *
+     *****************************************************/
     cplex_vec_copy( &ray_direct, &obs_normal );
 
 
@@ -156,28 +161,22 @@ int main ( int argc, char **argv)
 
     printf ("INFO : we have %i real k values.\n", intercept_cnt);
 
-    printf ("   0 : k_val[0] = ( %16.12e, %16.12e )\n",
+    printf ("   0 : k_val[0] = ( %-18.14e, %-18.14e )\n",
                                    k_val[0].r, k_val[0].i);
 
-    printf ("   1 : k_val[1] = ( %16.12e, %16.12e )\n",
+    printf ("   1 : k_val[1] = ( %-18.14e, %-18.14e )\n",
                                    k_val[1].r, k_val[1].i);
 
     if ( ( intercept_cnt == 2 ) 
          &&
          ( k_val[0].r == k_val[1].r )
          &&
-         ( k_val[0].r == k_val[1].r ) ) {
+         ( k_val[0].i == k_val[1].i ) ) {
 
         intercept_cnt = 1;
         printf ("     : only one unique root.\n");
 
     }
-
-    /* note from 
-     * ruffianeo: you can still go for
-     *     inline bool isZero(float f) { return !(0.0F == f || -0.0F == f); }
-     * ruffianeo: while - you are doing C - so it is not bool it is int
-     */
 
     /* So did we get a real root ? */
     if ( intercept_cnt > 0 ) {
@@ -205,6 +204,12 @@ int main ( int argc, char **argv)
                 } else {
                     k_root = k_val[1].r;
                 }
+            } else {
+                /* no root to the front of the viewport 
+                 * thus we set the intercept count down
+                 * to zero. */
+                printf("WARN : no intercept to the front.\n");
+                intercept_cnt = 0;
             }
         } else {
             /* we have only a single real root */
@@ -213,25 +218,30 @@ int main ( int argc, char **argv)
             } else {
                 k_root = k_val[1].r;
             }
+            /* is that real value to the front of the
+             * viewport ?  If not then set the intercept
+             * down to zero. */
+            if ( k_root < 0.0 ) {
+               printf("WARN : no intercept to the front.\n");
+               intercept_cnt = 0;
+            }
         }
-        /* now compute the point hit_point
+
+        /* If we still have an intercept after all that
+         * choosey logic above then we can compute the
+         * point in 3-space for the actual intercept :
          *
          *     hit_point = obs_point + k_root * ray_direct
          */
 
-        cplex_vec_scale( tmp+3, &ray_direct, k_root );
-        cplex_vec_add( &hit_point, &obs_point, tmp+3);
+        if ( intercept_cnt > 0 ) {
+            cplex_vec_scale( tmp+3, &ray_direct, k_root );
+            cplex_vec_add( &hit_point, &obs_point, tmp+3);
 
-        /*
-         * cplex_vec_set( &hit_point,
-         *             obs_point.x.r + k_root * ray_direct.x.r, 0.0,
-         *             obs_point.y.r + k_root * ray_direct.y.r, 0.0,
-         *             obs_point.z.r + k_root * ray_direct.z.r, 0.0 );
-         */
-
-        printf("INFO : hit_point = ");
-        cplex_vec_print( &hit_point );
-        printf("\n");
+            printf("INFO : hit_point = ");
+            cplex_vec_print( &hit_point );
+            printf("\n");
+        }
 
     }
 
