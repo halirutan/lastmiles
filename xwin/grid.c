@@ -139,9 +139,8 @@ int main(int argc, char*argv[])
     /* cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0); */
 
 
-    /* 5 Nov 2019 let us now test for negative values due to an
-     * intercept behind the observation viewport */
-    cplex_vec_set( &obs_origin, 4.0, 0.0, 1.2, 0.0, 0.0, 0.0);
+    /* 4 Dec 2019 put the observation plane exactly as diagrammed */
+    cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* Observation direction is along negative i_hat basis vector */
     cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
