@@ -595,7 +595,7 @@ int main(int argc, char*argv[])
                 XDrawImageString( dsp, win2, gc2, 20, 240,
                                                        buf, strlen(buf));
 
-                /* Off set the floating point values such that the
+                /* Offset the floating point values such that the
                  * center point shall be ( 0.0, 0.0 ) */
                 win_x = win_x * 2.0 - 1.0;
                 win_y = win_y * 2.0 - 1.0;
@@ -635,7 +635,7 @@ int main(int argc, char*argv[])
                 XDrawImageString( dsp, win3, gc3, 30, 50,
                                   buf, strlen(buf));
 
-                /* computer the observation point */
+                /* compute the observation point */
                 cplex_vec_scale( tmp, &x_prime_vec, x_prime );
                 cplex_vec_scale( tmp+1, &y_prime_vec, y_prime );
                 cplex_vec_add( tmp+2, tmp, tmp+1);
@@ -789,7 +789,10 @@ int main(int argc, char*argv[])
             t0.tv_sec = t1.tv_sec;
             t0.tv_nsec = t1.tv_nsec;
             /* If a 200ms right double click anywhere then quit */
-            if ( t_delta < 200000000 ) break;
+            if ( t_delta < 200000000 ) {
+                printf("\n\n");
+                break;
+            }
 
 
         } else if ( button == Button4 ) {
@@ -815,6 +818,7 @@ int main(int argc, char*argv[])
 
     XCloseDisplay(dsp);
 
+    printf("\n");
     return EXIT_SUCCESS;
 }
 
