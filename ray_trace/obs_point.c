@@ -27,8 +27,11 @@ int main ( int argc, char **argv)
     vec_type tmp[5];
     int k, intercept_cnt = 0;
 
-    /* per our diagrams we are just solving for k in the complex
-     * cooeficient quadratic */
+    /* https://github.com/blastwave/lastmiles/blob/master/ray_trace/
+     *                                  math_notes/notes_rt_math_006.png
+     *
+     * per our diagrams we are just solving for k in the complex
+     * coefficient quadratic */
     cplex_type k_val[2];
 
     /* given that we only care about a real root that is forward
@@ -36,10 +39,12 @@ int main ( int argc, char **argv)
      * value for the root k */
     double k_root;
 
-    /* if we actually do get an intercept then we need to determine
-     * the closest forward looking point which is out actual H.
+    /* If we actually do get an intercept then we need to determine
+     * the closest forward looking point which is our actual point
+     * of intercept H.
      * We can call that the hit_point just to be consistent with
-     * the diagrams thus far */
+     * the diagrams thus far where we use H and hit_point to mean
+     * the actual intercept. */
     vec_type hit_point;
 
     /* We must first define where our observation plane is in R3
@@ -49,10 +54,10 @@ int main ( int argc, char **argv)
 
     /* The observation plane has its own coordinate system and
      * thus we have x_prime_hat_vec and y_prime_hat_vec as ortogonal
-     * and normalized vectors */
+     * and normalized vectors. See notes_rt_math_004_m.png */
     vec_type x_prime_hat_vec, y_prime_hat_vec;
 
-    /* To locate a given point on the observation plane we will
+    /* To locate a given point L_0 on the observation plane we will
      * need scalar distances away from the observation plane
      * center along the directions x_prime_hat_vec and 
      * y_prime_hat_vec */
@@ -60,21 +65,20 @@ int main ( int argc, char **argv)
 
     /* All of the above merely allows us to compute a starting
      * point for our ray to trace along the direction of the
-     * vector obs_normal. */
+     * vector obs_normal. In the diagrams this may be called L_0
+     * on the observation plane. */
     vec_type obs_point;
 
     /* Test case will be an observation plane at ( 12, 0, 0 ) */
-    /* cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0); */
-    cplex_vec_set( &obs_origin, -2.039539708420069, 0.0, 0.0, 0.0, 0.0, 0.0);
+    cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* Observation direction is along negative i_hat basis vector */
     cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* we arbitrarily choose the x_prime_hat_vec and y_prime_hat_vec */
     /* x_prime_hat_vec is < 0, 1, 0 > */
-    cplex_vec_set( &x_prime_hat_vec, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
-
     /* y_prime_hat_vec is < 0, 0, 1 > */
+    cplex_vec_set( &x_prime_hat_vec, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
     cplex_vec_set( &y_prime_hat_vec, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
     /* A test point to begin with on the observation plane.
@@ -83,12 +87,13 @@ int main ( int argc, char **argv)
     x_prime = 1.7;
     y_prime = -2.0;
 
-    printf("INFO : initial x' and y' : ( %-18.14e, %-18.14e )\n",
+    printf("INFO : initial x' and y' : ( %-18.14e, %-18.14e )\n\n",
                                                     x_prime, y_prime );
 
     /* All of the above allows us to compute a starting point on
      * the observation plane in R3 and in the coordinate system
-     * of the observation object.
+     * of the observation object.  This is also called L_0 in the
+     * various diagrams.
      *
      * obs_point = x_prime * x_prime_hat_vec
      *           + y_prime * y_prime_hat_vec
@@ -105,14 +110,14 @@ int main ( int argc, char **argv)
 
     printf("INFO : obs_point = ");
     cplex_vec_print( &obs_point );
-    printf("\n");
+    printf("\n\n");
 
     /* At this moment we have the observation point and the direction
      * of the plane within obs_normal. What we need is to pass all
      * this to an intercept function that will determine a
      * k index value on the ray trace line.
      *
-     * See page 6 of the note on github at :
+     * See page 6 of the notes on github at :
      *     https://github.com/blastwave/lastmiles/ray_trace/math_notes
      *
      * So clearly we need :
@@ -131,8 +136,7 @@ int main ( int argc, char **argv)
      *
      *         ray_direct = obs_normal where this must be a
      *                           normalized vector
-     *
-     * */
+     */
     vec_type sign_data, object_location, semi_major_axi, ray_direct;
 
     /* Within the set of signs Sx, Sy, and Sz we do not care about
@@ -149,24 +153,27 @@ int main ( int argc, char **argv)
     cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0);
 
 
-    /*****************************************************
-     *   WARNING : the ray direction must be normalized  *
-     *****************************************************/
-    cplex_vec_copy( &ray_direct, &obs_normal );
+    /* Note that the ray direction must be normalized */
+    cplex_vec_normalize( &ray_direct, &obs_normal );
 
 
+    /* Now we call our intercept function to do most of the work */
     intercept_cnt = intercept ( k_val, &sign_data,
                                 &object_location, &semi_major_axi,
                                 &obs_point, &obs_normal );
+
 
     printf ("INFO : we have %i real k values.\n", intercept_cnt);
 
     printf ("   0 : k_val[0] = ( %-18.14e, %-18.14e )\n",
                                    k_val[0].r, k_val[0].i);
 
-    printf ("   1 : k_val[1] = ( %-18.14e, %-18.14e )\n",
+    printf ("   1 : k_val[1] = ( %-18.14e, %-18.14e )\n\n",
                                    k_val[1].r, k_val[1].i);
 
+
+    /* if the two roots are equal then we really only have a single
+     * solution */
     if ( ( intercept_cnt == 2 ) 
          &&
          ( k_val[0].r == k_val[1].r )
@@ -174,7 +181,7 @@ int main ( int argc, char **argv)
          ( k_val[0].i == k_val[1].i ) ) {
 
         intercept_cnt = 1;
-        printf ("     : only one unique root.\n");
+        printf ("     : only one unique root.\n\n");
 
     }
 

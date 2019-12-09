@@ -28,6 +28,8 @@ SRCS = obs_point.c intercept.c \
 	../complex_vector/cplex_vec_add.c \
 	../complex_vector/cplex_vec_copy.c \
 	../complex_vector/cplex_vec_dot.c \
+	../complex_vector/cplex_vec_mag.c \
+	../complex_vector/cplex_vec_normalize.c \
 	../complex_vector/cplex_vec_set.c \
 	../complex_vector/cplex_vec_print.c \
 	../complex_vector/cplex_vec_scale.c
@@ -47,6 +49,8 @@ OBJS = obs_point.o intercept.o \
 	../complex_vector/cplex_vec_add.o \
 	../complex_vector/cplex_vec_copy.o \
 	../complex_vector/cplex_vec_dot.o \
+	../complex_vector/cplex_vec_mag.o \
+	../complex_vector/cplex_vec_normalize.o \
 	../complex_vector/cplex_vec_set.o \
 	../complex_vector/cplex_vec_print.o \
 	../complex_vector/cplex_vec_scale.o
