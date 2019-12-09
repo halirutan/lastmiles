@@ -173,12 +173,17 @@ int main ( int argc, char **argv)
     if ( intercept_cnt > 0 ) {
         intercept_point_flag = intercept_point( &hit_point, intercept_cnt, &k_val[0],
                                    &obs_point, &ray_direct);
-    }
 
-    if ( intercept_point_flag == 0 ) {
+        if ( intercept_point_flag == 0 ) {
             printf("INFO : hit_point = ");
             cplex_vec_print( &hit_point );
             printf("\n");
+        } else {
+            printf("INFO : no intercept point\n");
+        }
+
+    } else {
+        printf("INFO : no real solutions\n");
     }
 
     return ( EXIT_SUCCESS );
