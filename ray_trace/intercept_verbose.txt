@@ -1,4 +1,8 @@
 
+NOTE : this is just a text file representation of the actual source
+        code wherein we had a ton of printf() tossed in 
+
+
 /*********************************************************************
  * The Open Group Base Specifications Issue 6
  * IEEE Std 1003.1, 2004 Edition

@@ -21,6 +21,14 @@
 
 #include "v.h"
 
+/* compute the solutions to the complex coefficient quadratic
+ * described in our notes on page 6.
+ *
+ * We shall get the solutions to a complex quadratic polynomial.
+ * see https://en.wikipedia.org/wiki/Complex_quadratic_polynomial
+ *
+ * return an integer count of the real solutions.
+ */
 int intercept( cplex_type res[2],
                 vec_type *sign,
                 vec_type *loc,
@@ -28,10 +36,6 @@ int intercept( cplex_type res[2],
                 vec_type *obs_p,
                 vec_type *obs_v )
 {
-
-    /* compute the intersection points between our line and the
-     * analytic surface described and return an integer count
-     * of the real intersections. */
 
     int soln_count;
     vec_type tmp[9];
@@ -122,8 +126,6 @@ int intercept( cplex_type res[2],
 
     cplex_sub( &C, c_tmp+11, c_tmp+16);
 
-    /* We shall get the solutions to a complex quadratic polynomial.
-     * see https://en.wikipedia.org/wiki/Complex_quadratic_polynomial */
     soln_count = cplex_quadratic( quad_res, &A, &B, &C );
 
     res[0].r = quad_res[0].r;
