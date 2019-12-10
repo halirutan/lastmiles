@@ -122,3 +122,11 @@ INFO : hit_point = < ( 2.997109209701e-07, 0.000000000000e+00 ),
 (gdb) quit
 vesta$
 
+Sooner or later we have to consider the Raleigh criterion 
+
+https://opentextbc.ca/physicstestbook2/chapter/limits-of-resolution-the-rayleigh-criterion/
+
+The real issue here is that we can not blindly compute the behavior
+of light as if it merely goes in straight lines. Depending on various
+physical factors light behaves strangely near the wavelength limits.
+
