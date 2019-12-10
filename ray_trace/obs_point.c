@@ -21,12 +21,6 @@
 
 #include "v.h"
 
-int intercept_point( vec_type *pt,
-                     int intercept_cnt,
-                     cplex_type *k_val,
-                     vec_type *obs_point,
-                     vec_type *ray_direction);
-
 int main ( int argc, char **argv)
 {
 
@@ -89,9 +83,16 @@ int main ( int argc, char **argv)
 
     /* A test point to begin with on the observation plane.
      * However we have tested with slight offset values such as
-     * ( 2 ^ -32 ) == 0.00000000023283064365386962890625 */
-    x_prime = 1.7;     x_prime = 2.0 - 0.00000000023283064365386962890625L;
-    y_prime = -2.0;    y_prime = 0.0;
+     */
+    x_prime = 1.7;
+    y_prime = -2.0;
+
+    /* try an offset of 2^(-48)
+     * 3.5527136788005009293556213378906250e-15 */
+    double tiny_delta = pow( 2.0, -48.0);
+
+    x_prime = 2.0 - tiny_delta;
+    y_prime = 0.0;
 
     printf("INFO : initial x' and y' : ( %-18.14e, %-18.14e )\n\n",
                                                     x_prime, y_prime );

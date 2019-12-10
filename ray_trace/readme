@@ -21,3 +21,104 @@ INFO : hit_point = < ( 7.629394531250e-05, 0.000000000000e+00 ),
 lenovo$ 
 
 
+Almost pushing the limits with 2^( -48 ) offset : 
+
+vesta$ echo '52k 1 2 48 ^ / pq' | dc
+.0000000000000035527136788005009293556213378906250000
+
+vesta$ 
+vesta$ alias gg='TERM=dumb /usr/local/bin/gdb -q'
+vesta$ gg ./obs_point
+Reading symbols from ./obs_point...
+(gdb) break 90
+Breakpoint 1 at 0x201439: file obs_point.c, line 90.
+(gdb) run
+Starting program: /usr/home/dclarke/pgm/lastmiles/ray_trace/obs_point 
+
+Breakpoint 1, main (argc=1, argv=0x7fffffffe860) at obs_point.c:90
+90          x_prime = 2.0L - 0.0000000000000035527136788005009293556213378906250L;
+(gdb) print x_prime
+$1 = 1.7
+(gdb) step
+91          y_prime = 0.0;
+(gdb) print x_prime
+$2 = 1.9999999999999964
+(gdb) print &x_prime
+$3 = (double *) 0x7fffffffe5c0
+(gdb) x/8xb 0x7fffffffe5c0
+0x7fffffffe5c0: 0xf0    0xff    0xff    0xff    0xff    0xff    0xff    0x3f
+(gdb) cont
+Continuing.
+INFO : initial x' and y' : ( 2.00000000000000e+00, 0.00000000000000e+00 )
+
+INFO : obs_point = < ( 1.200000000000e+01, 0.000000000000e+00 ),
+  ( 2.000000000000e+00, 0.000000000000e+00 ),
+  ( 0.000000000000e+00, 0.000000000000e+00 ) >
+
+-------- intercept_point begins -------------
+   0 : k_val[0] = ( 1.20000002997109e+01, 0.00000000000000e+00 )
+   1 : k_val[1] = ( 1.19999997002891e+01, 0.00000000000000e+00 )
+
+INFO : we have 2 real k values.
+INFO : hit_point = < ( 2.997109209701e-07, 0.000000000000e+00 ),
+  ( 2.000000000000e+00, 0.000000000000e+00 ),
+  ( 0.000000000000e+00, 0.000000000000e+00 ) >
+[Inferior 1 (process 55279) exited normally]
+(gdb) quit
+vesta$ 
+
+
+A closer look at the double floating point data : 
+
+vesta$ gg obs_point
+Reading symbols from obs_point...
+(gdb) break 90
+Breakpoint 1 at 0x201447: file obs_point.c, line 92.
+(gdb) run
+Starting program: /usr/home/dclarke/pgm/lastmiles/ray_trace/obs_point
+
+Breakpoint 1, main (argc=1, argv=0x7fffffffe860) at obs_point.c:92
+92          double tiny_delta = pow( 2.0, -48.0);
+(gdb) print tiny_delta
+$1 = 1.0368219551457938e-317
+(gdb) break 91
+Note: breakpoint 1 also set at pc 0x201447.
+Breakpoint 2 at 0x201447: file obs_point.c, line 92.
+(gdb) step
+94          x_prime = 2.0 - tiny_delta;
+(gdb) print tiny_delta
+$2 = 3.5527136788005009e-15
+(gdb) print &tiny_delta
+$3 = (double *) 0x7fffffffe580
+(gdb) x/8xb 0x7fffffffe580
+0x7fffffffe580: 0x00    0x00    0x00    0x00    0x00    0x00    0xf0    0x3c
+(gdb) step
+95          y_prime = 0.0;
+(gdb)
+98                                                          x_prime, y_prime );
+(gdb) print x_prime
+$4 = 1.9999999999999964
+(gdb) print &x_prime
+$5 = (double *) 0x7fffffffe5c0
+(gdb) x/8xb 0x7fffffffe5c0
+0x7fffffffe5c0: 0xf0    0xff    0xff    0xff    0xff    0xff    0xff    0x3f
+(gdb) cont
+Continuing.
+INFO : initial x' and y' : ( 2.00000000000000e+00, 0.00000000000000e+00 )
+
+INFO : obs_point = < ( 1.200000000000e+01, 0.000000000000e+00 ),
+  ( 2.000000000000e+00, 0.000000000000e+00 ),
+  ( 0.000000000000e+00, 0.000000000000e+00 ) >
+
+-------- intercept_point begins -------------
+   0 : k_val[0] = ( 1.20000002997109e+01, 0.00000000000000e+00 )
+   1 : k_val[1] = ( 1.19999997002891e+01, 0.00000000000000e+00 )
+
+INFO : we have 2 real k values.
+INFO : hit_point = < ( 2.997109209701e-07, 0.000000000000e+00 ),
+  ( 2.000000000000e+00, 0.000000000000e+00 ),
+  ( 0.000000000000e+00, 0.000000000000e+00 ) >
+[Inferior 1 (process 55338) exited normally]
+(gdb) quit
+vesta$
+

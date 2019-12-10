@@ -11,7 +11,9 @@ CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE \
 
 LIBS = -lm
 
-SRCS = obs_point.c intercept.c \
+SRCS = obs_point.c \
+	../complex_vector/intercept.c \
+	../complex_vector/intercept_point.c \
 	../complex_vector/check_status.c \
 	../complex_vector/cplex_add.c \
 	../complex_vector/cplex_check.c \
@@ -26,11 +28,15 @@ SRCS = obs_point.c intercept.c \
 	../complex_vector/cplex_vec_add.c \
 	../complex_vector/cplex_vec_copy.c \
 	../complex_vector/cplex_vec_dot.c \
+	../complex_vector/cplex_vec_mag.c \
+	../complex_vector/cplex_vec_normalize.c \
 	../complex_vector/cplex_vec_set.c \
 	../complex_vector/cplex_vec_print.c \
 	../complex_vector/cplex_vec_scale.c
 
-OBJS = obs_point.o intercept.o \
+OBJS = obs_point.o \
+	../complex_vector/intercept.o \
+	../complex_vector/intercept_point.o \
 	../complex_vector/check_status.o \
 	../complex_vector/cplex_add.o \
 	../complex_vector/cplex_check.o \
@@ -45,6 +51,8 @@ OBJS = obs_point.o intercept.o \
 	../complex_vector/cplex_vec_add.o \
 	../complex_vector/cplex_vec_copy.o \
 	../complex_vector/cplex_vec_dot.o \
+	../complex_vector/cplex_vec_mag.o \
+	../complex_vector/cplex_vec_normalize.o \
 	../complex_vector/cplex_vec_set.o \
 	../complex_vector/cplex_vec_print.o \
 	../complex_vector/cplex_vec_scale.o
