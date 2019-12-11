@@ -134,6 +134,16 @@ int intercept( cplex_type res[2],
     res[1].r = quad_res[1].r;
     res[1].i = quad_res[1].i;
 
+    printf ("\n---------- in intercept we see roots ----------\n");
+    printf ("   0 : res[0] = ( %-38.34e, %-38.34e )\n",
+                                               res[0].r, res[0].i);
+
+    printf ("   1 : res[1] = ( %-38.34e, %-38.34e )\n",
+                                               res[1].r, res[1].i);
+    printf ("-----------------------------------------------\n");
+
+
+
     return ( soln_count );
 
 }

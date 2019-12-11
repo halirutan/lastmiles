@@ -82,7 +82,6 @@ int main ( int argc, char **argv)
     cplex_vec_set( &y_prime_hat_vec, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
     /* A test point to begin with on the observation plane.
-     * However we have tested with slight offset values such as
      */
     x_prime = 1.7;
     y_prime = -2.0;
@@ -91,10 +90,11 @@ int main ( int argc, char **argv)
      * 3.5527136788005009293556213378906250e-15 */
     double tiny_delta = pow( 2.0, -48.0);
 
-    x_prime = 2.0 - tiny_delta;
+    x_prime = 2.0 + tiny_delta;
     y_prime = 0.0;
 
-    printf("INFO : initial x' and y' : ( %-18.14e, %-18.14e )\n\n",
+    /* TODO : be sure to fix up the format for x_prime */
+    printf("INFO : initial x' and y' : ( %-38.34e, %-18.14e )\n\n",
                                                     x_prime, y_prime );
 
     /* All of the above allows us to compute a starting point on
