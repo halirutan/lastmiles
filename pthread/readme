@@ -1,0 +1,115 @@
+
+
+The idea here is to dispatch a set of POSIX threads ( pthread ) which
+receive some simple information from the calling main process and then
+they just sleep based on what they were told to do. Then each pthread
+will return some random data back to the main routine. Everything does
+a bit of output and looking at the output pretty much reveals that we
+have asynchronous stuff happening and then an neatly organized "join"
+of those threads too.
+
+The thread code is trivial : 
+
+void *sleeper(void *recv_parm)
+{
+    thread_parm_t *p = (thread_parm_t *)recv_parm;
+
+    printf("TRD  : %d sleeping %d seconds\n", p->tnum, p->sleep_time);
+    sleep(p->sleep_time);
+    printf("TRD  : %d awake\n", p->tnum);
+
+    /* return some random data */
+    p->ret_val = drand48();
+
+    return (NULL);
+}
+
+---------------------------------------------------------------------
+
+on Solaris :
+$CC -mt $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -I. -o p0 p0.c -lpthread -lrt
+
+on FreeBSD with LLVM Clang
+$CC -mthread-model posix $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -I. -o p0 p0.c -lpthread -lrt 
+
+on debian amd64 with gcc9 and most other places
+$CC $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -I. -o p0 p0.c -lpthread -lrt
+
+
+
+beta$ ./p0
+
+-------------- begin dispatch -----------------------
+INFO : pthread_create  0 called for  3 secs.
+TRD  : 0 sleeping 3 seconds
+INFO : pthread_create  1 called for  2 secs.
+TRD  : 1 sleeping 2 seconds
+INFO : pthread_create  2 called for 10 secs.
+TRD  : 2 sleeping 10 seconds
+INFO : pthread_create  3 called for 10 secs.
+TRD  : 3 sleeping 10 seconds
+INFO : pthread_create  4 called for 10 secs.
+TRD  : 4 sleeping 10 seconds
+INFO : pthread_create  5 called for  1 secs.
+TRD  : 5 sleeping 1 seconds
+INFO : pthread_create  6 called for  7 secs.
+TRD  : 6 sleeping 7 seconds
+INFO : pthread_create  7 called for  6 secs.
+TRD  : 7 sleeping 6 seconds
+INFO : pthread_create  8 called for  2 secs.
+TRD  : 8 sleeping 2 seconds
+INFO : pthread_create  9 called for  3 secs.
+TRD  : 9 sleeping 3 seconds
+INFO : pthread_create 10 called for  5 secs.
+TRD  : 10 sleeping 5 seconds
+INFO : pthread_create 11 called for  8 secs.
+TRD  : 11 sleeping 8 seconds
+INFO : pthread_create 12 called for  4 secs.
+TRD  : 12 sleeping 4 seconds
+INFO : pthread_create 13 called for  3 secs.
+TRD  : 13 sleeping 3 seconds
+INFO : pthread_create 14 called for  5 secs.
+TRD  : 14 sleeping 5 seconds
+INFO : pthread_create 15 called for  5 secs.
+
+-------------- end dispatch -------------------------
+TRD  : 15 sleeping 5 seconds
+TRD  : 5 awake
+TRD  : 1 awake
+TRD  : 8 awake
+TRD  : 0 awake
+main() pthread_join  0 returned 0.581559532861 data.
+main() pthread_join  1 returned 0.561970673151 data.
+TRD  : 9 awake
+TRD  : 13 awake
+TRD  : 12 awake
+TRD  : 10 awake
+TRD  : 14 awake
+TRD  : 15 awake
+TRD  : 7 awake
+TRD  : 6 awake
+TRD  : 11 awake
+TRD  : 2 awake
+TRD  : 3 awake
+TRD  : 4 awake
+main() pthread_join  2 returned 0.406220193865 data.
+main() pthread_join  3 returned 0.458877832334 data.
+main() pthread_join  4 returned 0.941437079092 data.
+main() pthread_join  5 returned 0.213485081652 data.
+main() pthread_join  6 returned 0.388703757335 data.
+main() pthread_join  7 returned 0.118526660233 data.
+main() pthread_join  8 returned 0.683467670641 data.
+main() pthread_join  9 returned 0.113764386691 data.
+main() pthread_join 10 returned 0.169421819952 data.
+main() pthread_join 11 returned 0.367119510345 data.
+main() pthread_join 12 returned 0.28342880289  data.
+main() pthread_join 13 returned 0.597676727736 data.
+main() pthread_join 14 returned 0.5318647776   data.
+main() pthread_join 15 returned 0.0326464677331 data.
+
+-------------- end join -----------------------------
+All 16 threads have terminated
+beta$ 
+
+
+
