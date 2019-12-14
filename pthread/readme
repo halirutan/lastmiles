@@ -27,7 +27,12 @@ void *sleeper(void *recv_parm)
 ---------------------------------------------------------------------
 
 on Solaris :
-$CC -mt $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -I. -o p0 p0.c -lpthread -lrt
+$CC $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -mt -c -o sysmem.o sysmem.c
+$CC $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -mt -c -o ru.o ru.c
+$CC $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -mt -c -o sysinfo.o sysinfo.c
+$CC $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -mt -c -o p0.o p0.c
+$CC $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -mt -o p0 p0.o sysinfo.o sysmem.o ru.o -lpthread -lrt
+
 
 on FreeBSD with LLVM Clang
 $CC -mthread-model posix $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -I. -o p0 p0.c -lpthread -lrt 

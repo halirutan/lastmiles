@@ -16,6 +16,8 @@
 
 #include "p0.h"
 
+int sysinfo(void);
+int ru(void);
 void *sleeper(void *);    /* thread routine */
 
 pthread_t tid[NUM_THREADS]; /* array of thread IDs */
@@ -30,7 +32,8 @@ int main(int argc, char **argv)
     /*
      * Set en_US.UTF-8 locale which is what we use in the MySQL db tables.
      */
-    setlocale( LC_ALL, "en_US.UTF-8" );
+    setlocale( LC_ALL, "C" );
+    sysinfo();
 
     /* Get the REALTIME_CLOCK time in a timespec struct */
     if ( clock_gettime( CLOCK_REALTIME, &now_time ) == -1 ) {
@@ -83,6 +86,8 @@ int main(int argc, char **argv)
         free(parm[i]);
         parm[i] = NULL;
     }
+
+    ru();
 
     return ( EXIT_SUCCESS );
 
