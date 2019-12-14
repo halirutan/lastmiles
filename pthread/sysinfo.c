@@ -52,10 +52,14 @@ int sysinfo(void) {
         printf ( "       avail memory = %" PRIu64 "\n", sysmem );
         printf ( "                    = %" PRIu64 " kB\n", sysmem/1024 );
         printf ( "                    = %" PRIu64 " MB\n", sysmem/1048576 );
-        if ( sysmem > ( 1024 * 1048576 ) ) {
-            printf ( "                    = %" PRIu64 " GB\n",
-                    sysmem/( 1024 * 1048576 ) );
-        }
+        /*
+         *  this doesn't really work for memory size near GB boundaries
+         *
+         *  if ( sysmem > ( 1024 * 1048576 ) ) {
+         *      printf ( "                    = %" PRIu64 " GB\n",
+         *              sysmem/( 1024 * 1048576 ) );
+         *  }
+        */
         printf ( "-------------------------------" );
         printf ( "------------------------------" );
     }
