@@ -27,6 +27,11 @@ int main(int argc, char **argv)
     struct timespec now_time;
     thread_parm_t *parm[NUM_THREADS];
 
+    /*
+     * Set en_US.UTF-8 locale which is what we use in the MySQL db tables.
+     */
+    setlocale( LC_ALL, "en_US.UTF-8" );
+
     /* Get the REALTIME_CLOCK time in a timespec struct */
     if ( clock_gettime( CLOCK_REALTIME, &now_time ) == -1 ) {
         /* We could not get the clock. Bail out. */
