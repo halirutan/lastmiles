@@ -17,12 +17,10 @@
 #include "p0.h"
 
 void *sleeper(void *);    /* thread routine */
-extern void print_sysinfo();
 
 pthread_t tid[NUM_THREADS]; /* array of thread IDs */
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 
     int    i;
@@ -42,6 +40,20 @@ main(int argc, char **argv)
     printf("\n-------------- begin dispatch -----------------------\n");
     for ( i = 0; i < NUM_THREADS; i++) {
         parm[i] = calloc( (size_t) 1 , (size_t) sizeof(thread_parm_t) );
+
+        if ( parm[i] == NULL ) {
+            /* really? possible ENOMEM? */
+            if ( errno == ENOMEM ) {
+                fprintf(stderr,"FAIL : calloc returns ENOMEM at %s:%d\n",
+                        __FILE__, __LINE__ );
+            } else {
+                fprintf(stderr,"FAIL : calloc fails at %s:%d\n",
+                        __FILE__, __LINE__ );
+            }
+            perror("FAIL ");
+            return ( EXIT_FAILURE );
+        }
+
         parm[i]->tnum = i;
         parm[i]->sleep_time = 1 + (int)( drand48() * 10.0 );
 
