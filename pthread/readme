@@ -48,79 +48,90 @@ $CC $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -c -o sysinfo.o sysinfo.c
 $CC $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -c -o p0.o p0.c
 $CC $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -o p0 p0.o sysinfo.o sysmem.o ru.o -lpthread -lrt
 
-beta$ ./p0
 
--------------- begin dispatch -----------------------
-INFO : pthread_create  0 called for  3 secs.
-TRD  : 0 sleeping 3 seconds
-INFO : pthread_create  1 called for  2 secs.
-TRD  : 1 sleeping 2 seconds
-INFO : pthread_create  2 called for 10 secs.
-TRD  : 2 sleeping 10 seconds
-INFO : pthread_create  3 called for 10 secs.
-TRD  : 3 sleeping 10 seconds
-INFO : pthread_create  4 called for 10 secs.
-TRD  : 4 sleeping 10 seconds
-INFO : pthread_create  5 called for  1 secs.
-TRD  : 5 sleeping 1 seconds
-INFO : pthread_create  6 called for  7 secs.
-TRD  : 6 sleeping 7 seconds
-INFO : pthread_create  7 called for  6 secs.
-TRD  : 7 sleeping 6 seconds
-INFO : pthread_create  8 called for  2 secs.
-TRD  : 8 sleeping 2 seconds
-INFO : pthread_create  9 called for  3 secs.
-TRD  : 9 sleeping 3 seconds
-INFO : pthread_create 10 called for  5 secs.
-TRD  : 10 sleeping 5 seconds
-INFO : pthread_create 11 called for  8 secs.
-TRD  : 11 sleeping 8 seconds
-INFO : pthread_create 12 called for  4 secs.
-TRD  : 12 sleeping 4 seconds
-INFO : pthread_create 13 called for  3 secs.
-TRD  : 13 sleeping 3 seconds
-INFO : pthread_create 14 called for  5 secs.
-TRD  : 14 sleeping 5 seconds
-INFO : pthread_create 15 called for  5 secs.
+From the Linux manpages for getrusage :
 
--------------- end dispatch -------------------------
-TRD  : 15 sleeping 5 seconds
-TRD  : 5 awake
-TRD  : 1 awake
-TRD  : 8 awake
-TRD  : 0 awake
-main() pthread_join  0 returned 0.581559532861 data.
-main() pthread_join  1 returned 0.561970673151 data.
-TRD  : 9 awake
-TRD  : 13 awake
-TRD  : 12 awake
-TRD  : 10 awake
-TRD  : 14 awake
-TRD  : 15 awake
-TRD  : 7 awake
-TRD  : 6 awake
-TRD  : 11 awake
-TRD  : 2 awake
-TRD  : 3 awake
-TRD  : 4 awake
-main() pthread_join  2 returned 0.406220193865 data.
-main() pthread_join  3 returned 0.458877832334 data.
-main() pthread_join  4 returned 0.941437079092 data.
-main() pthread_join  5 returned 0.213485081652 data.
-main() pthread_join  6 returned 0.388703757335 data.
-main() pthread_join  7 returned 0.118526660233 data.
-main() pthread_join  8 returned 0.683467670641 data.
-main() pthread_join  9 returned 0.113764386691 data.
-main() pthread_join 10 returned 0.169421819952 data.
-main() pthread_join 11 returned 0.367119510345 data.
-main() pthread_join 12 returned 0.28342880289  data.
-main() pthread_join 13 returned 0.597676727736 data.
-main() pthread_join 14 returned 0.5318647776   data.
-main() pthread_join 15 returned 0.0326464677331 data.
+       Not  all  fields are completed;  unmaintained  fields  are
+       set to zero by the kernel.  (The unmaintained fields are provided
+       for compatibility with other systems, and because they may
+       one day be supported on Linux.)  The fields are interpreted as
+       follows:
 
--------------- end join -----------------------------
-All 16 threads have terminated
-beta$ 
+       ru_utime
+              This  is the total amount of time  spent  executing
+              in user mode, expressed in a timeval structure 
+              (seconds plus mibcroseconds).
 
+       ru_stime
+              This is the total amount of time spent executing in
+kernel mode, expressed in a timeval  structure  (seconds  plus
+              microseconds).
+
+       ru_maxrss (since Linux 2.6.32)
+              This  is the maximum resident  set  size  used  (in
+kilobytes).   For  RUSAGE_CHILDREN, this is the resident set size
+of
+              the largest child, not  the  maximum  resident  set
+size of the process tree.
+
+       ru_ixrss (unmaintained)
+              This field is currently unused on Linux.
+
+       ru_idrss (unmaintained)
+              This field is currently unused on Linux.
+
+       ru_isrss (unmaintained)
+              This field is currently unused on Linux.
+
+       ru_minflt
+              The number of page faults serviced without any  I/O
+activity; here I/O activity is avoided by "reclaiming" a  page
+              frame from the list of pages awaiting reallocation.
+
+       ru_majflt
+              The number of page faults  serviced  that  required
+I/O activity.
+
+       ru_nswap (unmaintained)
+              This field is currently unused on Linux.
+
+       ru_inblock (since Linux 2.6.22)
+              The number of times the filesystem had  to  perform
+input.
+
+       ru_oublock (since Linux 2.6.22)
+              The number of times the filesystem had  to  perform
+output.
+
+       ru_msgsnd (unmaintained)
+              This field is currently unused on Linux.
+
+       ru_msgrcv (unmaintained)
+              This field is currently unused on Linux.
+
+       ru_nsignals (unmaintained)
+              This field is currently unused on Linux.
+
+       ru_nvcsw (since Linux 2.6)
+              The number of times a context switch  resulted  due
+to a process voluntarily giving up the processor before its time
+              slice was completed (usually to await  availability
+of a resource).
+
+       ru_nivcsw (since Linux 2.6)
+              The number of times a context switch  resulted  due
+to a higher priority process becoming runnable  or  because  the
+              current process exceeded its time slice.
+
+
+Be advised that some of the linux stuff is non-standard and  non-
+portable however :
+
+CONFORMING TO
+       POSIX.1-2001,   POSIX.1-2008,   SVr4,   4.3BSD.    POSIX.1
+specifies getrusage(), but specifies only the fields ru_utime and
+       ru_stime.
+
+       RUSAGE_THREAD is Linux-specific.
 
 
