@@ -62,7 +62,7 @@ int main(int argc, char*argv[])
     Font fixed_font, type_font;
 
     /* a very few colours */
-    XColor red, green, blue, yellow, color_cell, truecolor;
+    XColor red, green, blue, yellow, cyan, color_cell, truecolor;
 
     Status retcode0;  /* not really needed for trivial stuff */
     int retcode1;     /* curious what some funcs return */
@@ -140,7 +140,8 @@ int main(int argc, char*argv[])
 
 
     /* 4 Dec 2019 put the observation plane exactly as diagrammed */
-    cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    /* cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0); */
+    cplex_vec_set( &obs_origin, 5.0 - pow( 2, -6), 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* Observation direction is along negative i_hat basis vector */
     cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -300,6 +301,12 @@ int main(int argc, char*argv[])
                          screen_colormap,
                          "yellow", &yellow, &yellow) == 0) {
         fprintf(stderr, "XAllocNamedColor - yellow bork bork bork!\n");
+        exit(EXIT_FAILURE);
+    }
+    if (XAllocNamedColor(dsp,
+                         screen_colormap,
+                         "cyan", &cyan, &cyan) == 0) {
+        fprintf(stderr, "XAllocNamedColor - cyan bork bork bork!\n");
         exit(EXIT_FAILURE);
     }
 
@@ -716,7 +723,7 @@ int main(int argc, char*argv[])
                                     && ( k_val[1].r > 0.0 ) ) {
                             /* we hit close enough to the edge of something */
                             /* TODO calculate a reasonable epsilon value */
-                            XSetForeground(dsp, gc, green.pixel);
+                            XSetForeground(dsp, gc, cyan.pixel);
                             XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
                             XSetForeground(dsp, gc, yellow.pixel);
                             sprintf(buf,"icept0== %8.6g     ", k_val[0].r );

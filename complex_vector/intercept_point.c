@@ -46,6 +46,7 @@ int intercept_point( vec_type *pt, int intercept_cnt, cplex_type *k_val,
      * the actual intercept. */
     vec_type hit_point;
 
+    /************************************************************
     printf ("-------- intercept_point begins -------------\n");
 
     printf ("   0 : k_val[0] = ( %-18.14e, %-18.14e )\n",
@@ -55,6 +56,7 @@ int intercept_point( vec_type *pt, int intercept_cnt, cplex_type *k_val,
                                    k_val[1].r, k_val[1].i);
 
     printf ("INFO : we have %i real k values.\n", intercept_cnt);
+    *************************************************************/
 
     /* if the two real roots are equal then we really only have a single
      * real solution. Note that we only really care about real roots at
