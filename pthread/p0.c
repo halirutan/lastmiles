@@ -51,6 +51,13 @@ int main(int argc, char **argv)
 
         if ( parm[i] == NULL ) {
             /* really? possible ENOMEM? Does this happen anymore? */
+            /* We all saw this crap before ! says NajmiKL : 
+             * NajmiKL: or do the Eclipse error message -
+             *         "This should never happened"   
+             */
+            fprintf(stderr,"FAIL : Eclipse error message says \"");
+            fprintf(stderr,"This should never happen.\"\n");
+
             if ( errno == ENOMEM ) {
                 fprintf(stderr,"FAIL : calloc returns ENOMEM at %s:%d\n",
                         __FILE__, __LINE__ );
@@ -70,11 +77,11 @@ int main(int argc, char **argv)
                 /* lets ask those threads to just be nice and 
                  * we call them in with a join */
                 pthread_join(tid[j], NULL);
-                fprintf(stderr,"FAIL : pthread_join(%i) done.\n", j);
+                fprintf(stderr,"BAIL : pthread_join(%i) done.\n", j);
                 free(parm[j]);
                 parm[j] = NULL;
             }
-            fprintf(stderr,"FAIL : cleanup done.\n", j);
+            fprintf(stderr,"BAIL : cleanup done.\n", j);
 
             return ( EXIT_FAILURE );
 
@@ -115,9 +122,19 @@ void *sleeper(void *recv_parm)
 {
     thread_parm_t *p = (thread_parm_t *)recv_parm;
 
+    /*
     printf("TRD  : %d sleeping %d seconds\n", p->tnum, p->sleep_time);
     sleep(p->sleep_time);
     printf("TRD  : %d awake\n", p->tnum);
+    */
+
+    printf("TRD  : %d filling the big_array.\n", p->tnum);
+    for ( p->loop0 = 0; p->loop0 < BIG_ARRAY_DIM0; p->loop0++ ) {
+        for ( p->loop1 = 0; p->loop1 < BIG_ARRAY_DIM1; p->loop1++ ) {
+            p->big_array[p->loop0][p->loop1] = (uint64_t)(p->loop0 * p->loop1);
+        }
+    }
+    printf("TRD  : %d big_array full.\n", p->tnum);
 
     /* return some random data */
     p->ret_val = drand48();
