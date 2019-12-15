@@ -28,9 +28,7 @@ int ru(void);
 int sysinfo(void) {
 
     struct utsname uname_data;
-    int who = RUSAGE_SELF;
     int inex;
-    struct rusage r_usage;
 
     uint64_t sysmem = system_memory();
     uint64_t pagesize = (uint64_t)sysconf(_SC_PAGESIZE);
@@ -66,6 +64,8 @@ int sysinfo(void) {
     printf ("\n");
 
     ru();
+
+    return ( EXIT_SUCCESS );
 
 }
 

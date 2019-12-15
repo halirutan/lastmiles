@@ -25,7 +25,7 @@ pthread_t tid[NUM_THREADS]; /* array of thread IDs */
 int main(int argc, char **argv)
 {
 
-    int    i;
+    int    i, j, k;
     struct timespec now_time;
     thread_parm_t *parm[NUM_THREADS];
 
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
         parm[i] = calloc( (size_t) 1 , (size_t) sizeof(thread_parm_t) );
 
         if ( parm[i] == NULL ) {
-            /* really? possible ENOMEM? */
+            /* really? possible ENOMEM? Does this happen anymore? */
             if ( errno == ENOMEM ) {
                 fprintf(stderr,"FAIL : calloc returns ENOMEM at %s:%d\n",
                         __FILE__, __LINE__ );
@@ -59,7 +59,25 @@ int main(int argc, char **argv)
                         __FILE__, __LINE__ );
             }
             perror("FAIL ");
+            /* gee .. before we bail out did we allocate any of the
+             * previous thread parameter memory regions? If so then
+             * clean up before bailing out. In fact we may have 
+             * already dispatched out threads. */
+
+            if (i == 0 ) return ( EXIT_FAILURE );
+
+            for ( j = 0; j < i; j++ ) {
+                /* lets ask those threads to just be nice and 
+                 * we call them in with a join */
+                pthread_join(tid[j], NULL);
+                fprintf(stderr,"FAIL : pthread_join(%i) done.\n", j);
+                free(parm[j]);
+                parm[j] = NULL;
+            }
+            fprintf(stderr,"FAIL : cleanup done.\n", j);
+
             return ( EXIT_FAILURE );
+
         }
 
         parm[i]->tnum = i;

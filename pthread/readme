@@ -35,7 +35,12 @@ $CC $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -mt -o p0 p0.o sysinfo.o 
 
 
 on FreeBSD with LLVM Clang
-$CC -mthread-model posix $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -I. -o p0 p0.c -lpthread -lrt 
+$CC -mthread-model posix $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -c -o sysmem.o sysmem.c
+$CC -mthread-model posix $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -c -o ru.o ru.c
+$CC -mthread-model posix $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -c -o sysinfo.o sysinfo.c
+$CC -mthread-model posix $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -c -o p0.o p0.c
+$CC -mthread-model posix $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -I. -c -o p0.o p0.c
+$CC -mthread-model posix $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -I. -o p0 p0.o sysinfo.o sysmem.o ru.o -lpthread -lrt
 
 on debian amd64 with gcc9 and most other places
 $CC $CFLAGS $CPPFLAGS -D_XOPEN_SOURCE=600 -D_REENTRANT -I. -o p0 p0.c -lpthread -lrt

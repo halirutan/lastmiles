@@ -47,10 +47,10 @@ int ru(void)
            };
     */
 
-    printf("inf : start maximum resident set size pages     maxrss = %ld\n",r_usage.ru_maxrss);
-    printf("inf : start integral shared memory size          ixrss = %ld\n",r_usage.ru_ixrss);
-    printf("inf : start integral unshared data size          idrss = %ld\n",r_usage.ru_idrss);
-    printf("inf : start integral unshared stack size         isrss = %ld\n",r_usage.ru_isrss);
+    printf("inf : start maximum resident set size pages     maxrss = %ld kB\n",r_usage.ru_maxrss);
+    printf("inf : start integral shared memory size          ixrss = %ld kB\n",r_usage.ru_ixrss);
+    printf("inf : start integral unshared data size          idrss = %ld kB\n",r_usage.ru_idrss);
+    printf("inf : start integral unshared stack size         isrss = %ld kB\n",r_usage.ru_isrss);
     printf("inf : start page reclaims (soft page faults) ru_minflt = %ld\n",r_usage.ru_isrss);
     printf("inf : start page faults (hard page faults)   ru_majflt = %ld\n",r_usage.ru_majflt);
     printf("inf : start swaps (may be pages swapped)      ru_nswap = %ld\n",r_usage.ru_nswap);
