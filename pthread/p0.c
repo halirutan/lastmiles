@@ -50,14 +50,6 @@ int main(int argc, char **argv)
         parm[i] = calloc( (size_t) 1 , (size_t) sizeof(thread_parm_t) );
 
         if ( parm[i] == NULL ) {
-            /* really? possible ENOMEM? Does this happen anymore? */
-            /* We all saw this crap before ! says NajmiKL : 
-             * NajmiKL: or do the Eclipse error message -
-             *         "This should never happened"   
-             */
-            fprintf(stderr,"FAIL : Eclipse error message says \"");
-            fprintf(stderr,"This should never happen.\"\n");
-
             if ( errno == ENOMEM ) {
                 fprintf(stderr,"FAIL : calloc returns ENOMEM at %s:%d\n",
                         __FILE__, __LINE__ );
@@ -82,6 +74,7 @@ int main(int argc, char **argv)
                 parm[j] = NULL;
             }
             fprintf(stderr,"BAIL : cleanup done.\n", j);
+            ru();
 
             return ( EXIT_FAILURE );
 

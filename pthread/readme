@@ -24,6 +24,42 @@ void *sleeper(void *recv_parm)
     return (NULL);
 }
 
+Note that memory pressure is a very real thing and we can manage
+some of that on Linux with : 
+
+titan$ cat /proc/meminfo | grep -i 'commit'
+CommitLimit:     6077292 kB
+Committed_AS:      81192 kB
+titan$ sysctl vm.overcommit_memory
+vm.overcommit_memory = 0
+titan$ sysctl vm.overcommit_ratio
+vm.overcommit_ratio = 50
+titan$ sysctl vm.overcommit_kbytes
+vm.overcommit_kbytes = 0
+titan$ wc -l /etc/sysctl.conf
+68 /etc/sysctl.conf
+titan$ sysctl -p  ^C
+titan$ 
+titan$ sysctl -w vm.overcommit_memory=1  ^C
+titan$ 
+
+see https://www.kernel.org/doc/html/v5.4/vm/overcommit-accounting.html
+
+
+titan# 
+titan# sysctl vm.overcommit_memory
+vm.overcommit_memory = 0
+titan# sysctl -w vm.overcommit_memory=1 
+vm.overcommit_memory = 1
+titan# sysctl vm.overcommit_memory
+vm.overcommit_memory = 1
+titan# cat /proc/meminfo | grep -i 'commit'
+CommitLimit:     6077292 kB
+Committed_AS:      79572 kB
+titan# 
+
+
+
 ---------------------------------------------------------------------
 
 on Solaris :
