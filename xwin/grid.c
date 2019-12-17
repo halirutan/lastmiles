@@ -269,12 +269,16 @@ int main(int argc, char*argv[])
     gc = create_gc(dsp, win);
 
     /* create a smaller darker window to the right */
-    win2 = create_borderless_topwin(dsp, 400, 300, 720, 60, 0x000020);
+    unsigned long gc2_bg = 0x0f0f00;
+    win2 = create_borderless_topwin(dsp, 400, 330, 700, 40, gc2_bg );
     gc2 = create_gc(dsp, win2);
+    XSetBackground(dsp, gc2, gc2_bg);
 
     /* create another small window below that */
-    win3 = create_borderless_topwin(dsp, 400, 300, 720, 380, 0x080808 );
+    unsigned long gc3_bg = 0x000f0f;
+    win3 = create_borderless_topwin(dsp, 400, 330, 700, 370, gc3_bg );
     gc3 = create_gc(dsp, win2);
+    XSetBackground(dsp, gc3, gc3_bg);
 
     XSync(dsp, False);
 
@@ -317,17 +321,20 @@ int main(int argc, char*argv[])
     XDrawPoint(dsp, win, gc, width - 5, 5);
     XDrawPoint(dsp, win, gc, width - 5, height - 5);
 
-    /* draw a red box inside the second window */
-    XSetForeground(dsp, gc2, red.pixel);
+    /* draw a blue box inside the second window */
+    XSetForeground(dsp, gc2, blue.pixel);
     retcode1 = XSetLineAttributes(dsp, gc2, 1, LineSolid, CapButt, JoinMiter);
     fprintf(stdout,"gc2 XSetLineAttributes returns %i\n", retcode1 );
-    XDrawRectangle(dsp, win2, gc2, 5, 5, 390, 290);
+    XDrawRectangle(dsp, win2, gc2, 5, 5, 390, 320);
+    XSetForeground(dsp, gc2, cyan.pixel);
+    XDrawRectangle(dsp, win2, gc2, 10, 10, 170, 170);
+    XSetForeground(dsp, gc2, red.pixel);
 
-    /* draw a yellow box inside the third window */
-    XSetForeground(dsp, gc3, yellow.pixel);
+    /* draw a blue box inside the third window */
+    XSetForeground(dsp, gc3, blue.pixel);
     retcode1 = XSetLineAttributes(dsp, gc3, 1, LineSolid, CapButt, JoinMiter);
     fprintf(stdout,"gc3 XSetLineAttributes returns %i\n", retcode1 );
-    XDrawRectangle(dsp, win3, gc3, 5, 5, 390, 290);
+    XDrawRectangle(dsp, win3, gc3, 5, 5, 390, 320);
 
     /* initial line characteristics on the gc are set in the XCreateGC
      * calls that we do.
@@ -498,10 +505,10 @@ int main(int argc, char*argv[])
     sprintf(buf,"[0000] tdelta = %16lld nsec", t_delta);
     XDrawImageString( dsp, win3, gc3, 20, 20, buf, strlen(buf));
 
-    /* draw a red box inside the third window for ray trace data */
-    XSetForeground(dsp, gc3, red.pixel);
+    /* draw a blue box inside the third window for ray trace data */
+    XSetForeground(dsp, gc3, blue.pixel);
     retcode1 = XSetLineAttributes(dsp, gc3, 1, LineSolid, CapButt, JoinMiter);
-    XDrawRectangle(dsp, win3, gc3, 10, 30, 380, 260);
+    XDrawRectangle(dsp, win3, gc3, 10, 30, 380, 290);
     XSetForeground(dsp, gc3, green.pixel);
 
     /* plot some points on the grid that we created */
@@ -559,9 +566,15 @@ int main(int argc, char*argv[])
             break;
         }
 
-        sprintf(buf,"raw  [ %4i , %4i ]  ", mouse_x, mouse_y);
-        XSetForeground(dsp, gc2, red.pixel);
-        XDrawImageString( dsp, win2, gc2, 20, 180, buf, strlen(buf));
+        /* nice to know but not needed anymore. 
+         * This was a display of the coordinats of the raw 
+         * mouse event coordinates reference to gc of the main 
+         * plot window upper left corner 
+         * 
+         *   sprintf(buf,"raw  [ %4i , %4i ]  ", mouse_x, mouse_y);
+         *   XSetForeground(dsp, gc2, red.pixel);
+         *   XDrawImageString( dsp, win2, gc2, 20, 180, buf, strlen(buf));
+         */
 
         /* adjustment of one or two pixels */
         mouse_x = mouse_x - 1;
@@ -591,15 +604,15 @@ int main(int argc, char*argv[])
                              eff_height - mouse_y + offset_y );
 
                 XSetForeground(dsp, gc2, green.pixel);
-                XDrawImageString( dsp, win2, gc2, 20, 200,
+                XDrawImageString( dsp, win2, gc2, 10, 200,
                                                        buf, strlen(buf));
 
                 sprintf(buf,"fp64( %8.6g , %8.6g )", win_x, win_y );
-                XDrawImageString( dsp, win2, gc2, 20, 220,
+                XDrawImageString( dsp, win2, gc2, 10, 220,
                                                        buf, strlen(buf));
 
                 sprintf(buf,"int [ %4i , %4i ]", mouse_x, mouse_y );
-                XDrawImageString( dsp, win2, gc2, 20, 240,
+                XDrawImageString( dsp, win2, gc2, 10, 240,
                                                        buf, strlen(buf));
 
                 /* Offset the floating point values such that the
@@ -609,7 +622,7 @@ int main(int argc, char*argv[])
 
                 XSetForeground(dsp, gc2, red.pixel);
                 sprintf(buf,"fp64( %8.6g , %8.6g )", win_x, win_y );
-                XDrawImageString( dsp, win2, gc2, 20, 260,
+                XDrawImageString( dsp, win2, gc2, 10, 260,
                                                        buf, strlen(buf));
 
                 /* At this moment we have normalized values for a

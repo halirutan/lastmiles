@@ -87,14 +87,10 @@ int main ( int argc, char **argv)
     y_prime = -2.0;
 
     /* try an offset of 2^(-48)
+     *    double tiny_delta = pow( 2.0, -48.0);
      * 3.5527136788005009293556213378906250e-15 */
-    double tiny_delta = pow( 2.0, -48.0);
 
-    x_prime = 2.0 + tiny_delta;
-    y_prime = 0.0;
-
-    /* TODO : be sure to fix up the format for x_prime */
-    printf("INFO : initial x' and y' : ( %-38.34e, %-18.14e )\n\n",
+    printf("INFO : initial x' and y' : ( %-18.14e, %-18.14e )\n\n",
                                                     x_prime, y_prime );
 
     /* All of the above allows us to compute a starting point on
