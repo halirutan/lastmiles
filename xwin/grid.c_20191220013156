@@ -47,8 +47,8 @@ int intercept( cplex_type res[2],
                 vec_type *obs_v );
 
 /* local defs */
-#define WIN_WIDTH 1044
-#define WIN_HEIGHT 1044
+#define WIN_WIDTH 660
+#define WIN_HEIGHT 660
 #define OFFSET 10
 
 int main(int argc, char*argv[])
@@ -214,10 +214,6 @@ int main(int argc, char*argv[])
      * from within the observation viewport. */
     double win_x, win_y;
 
-    /* Also we finally have use for the little box grid that we
-     * lay out and thus we will need the box coordinates */
-    int box_x, box_y;
-
     width = WIN_WIDTH;
     height = WIN_HEIGHT;
     fprintf(stdout,"INFO : ");
@@ -261,8 +257,8 @@ int main(int argc, char*argv[])
     }
 
     /* hard coded screen offset */
-    offset_x = 20;
-    offset_y = 20;
+    offset_x = 40;
+    offset_y = 40;
 
     printf("INFO : offset x=%i y=%i\n", offset_x, offset_y);
 
@@ -274,13 +270,13 @@ int main(int argc, char*argv[])
 
     /* create a smaller darker window to the right */
     unsigned long gc2_bg = 0x0f0f00;
-    win2 = create_borderless_topwin(dsp, 400, 330, 1070, 740, gc2_bg );
+    win2 = create_borderless_topwin(dsp, 400, 330, 700, 40, gc2_bg );
     gc2 = create_gc(dsp, win2);
     XSetBackground(dsp, gc2, gc2_bg);
 
     /* create another small window below that */
     unsigned long gc3_bg = 0x000f0f;
-    win3 = create_borderless_topwin(dsp, 440, 330, 1470, 740, gc3_bg );
+    win3 = create_borderless_topwin(dsp, 400, 330, 700, 370, gc3_bg );
     gc3 = create_gc(dsp, win2);
     XSetBackground(dsp, gc3, gc3_bg);
 
@@ -338,7 +334,7 @@ int main(int argc, char*argv[])
     XSetForeground(dsp, gc3, blue.pixel);
     retcode1 = XSetLineAttributes(dsp, gc3, 1, LineSolid, CapButt, JoinMiter);
     fprintf(stdout,"gc3 XSetLineAttributes returns %i\n", retcode1 );
-    XDrawRectangle(dsp, win3, gc3, 5, 5, 430, 320);
+    XDrawRectangle(dsp, win3, gc3, 5, 5, 390, 320);
 
     /* initial line characteristics on the gc are set in the XCreateGC
      * calls that we do.
@@ -507,7 +503,13 @@ int main(int argc, char*argv[])
     clock_gettime( CLOCK_MONOTONIC, &t1 );
     t_delta = timediff( t0, t1 );
     sprintf(buf,"[0000] tdelta = %16lld nsec", t_delta);
-    XDrawImageString( dsp, win3, gc3, 10, 20, buf, strlen(buf));
+    XDrawImageString( dsp, win3, gc3, 20, 20, buf, strlen(buf));
+
+    /* draw a blue box inside the third window for ray trace data */
+    XSetForeground(dsp, gc3, blue.pixel);
+    retcode1 = XSetLineAttributes(dsp, gc3, 1, LineSolid, CapButt, JoinMiter);
+    XDrawRectangle(dsp, win3, gc3, 10, 30, 380, 290);
+    XSetForeground(dsp, gc3, green.pixel);
 
     /* plot some points on the grid that we created */
     XSetForeground(dsp, gc, yellow.pixel);
@@ -582,7 +584,7 @@ int main(int argc, char*argv[])
 
             printf("leftclick");
 
-            if (    ( mouse_x >=  offset_x ) && ( mouse_y >= offset_y )
+            if (    ( mouse_x >=  offset_x )  && ( mouse_y >= offset_y )
                  && ( mouse_x < ( eff_width + offset_x ) )
                  && ( mouse_y < ( eff_height + offset_y ) ) ) {
 
@@ -594,7 +596,7 @@ int main(int argc, char*argv[])
                 win_x = ( 1.0 * ( mouse_x - offset_x ) ) / eff_width;
 
                 win_y = ( 1.0 * ( eff_height - mouse_y + offset_y ) )
-                                                           / eff_height;
+                                                            / eff_height;
 
                 /* lets try to invert the y axis */
                 sprintf(buf,"adj [ %4i , %4i ]  ",
@@ -603,19 +605,15 @@ int main(int argc, char*argv[])
 
                 XSetForeground(dsp, gc2, green.pixel);
                 XDrawImageString( dsp, win2, gc2, 10, 200,
-                                                      buf, strlen(buf));
+                                                       buf, strlen(buf));
 
-                sprintf(buf,"fp64( %-10.8e , %-10.8e )", win_x, win_y );
+                sprintf(buf,"fp64( %8.6g , %8.6g )", win_x, win_y );
                 XDrawImageString( dsp, win2, gc2, 10, 220,
-                                                      buf, strlen(buf));
+                                                       buf, strlen(buf));
 
-                /* a more useful value is the box[] coordinates for 
-                 * each of the 16x16 grid we previously laid out */
-                box_x = ( mouse_x - offset_x ) / 64;
-                box_y = ( eff_height - mouse_y + offset_y ) / 64;
-                sprintf(buf,"box [ %03i , %03i ]", box_x, box_y );
+                sprintf(buf,"int [ %4i , %4i ]", mouse_x, mouse_y );
                 XDrawImageString( dsp, win2, gc2, 10, 240,
-                                                      buf, strlen(buf));
+                                                       buf, strlen(buf));
 
                 /* Offset the floating point values such that the
                  * center point shall be ( 0.0, 0.0 ) */
@@ -623,7 +621,7 @@ int main(int argc, char*argv[])
                 win_y = win_y * 2.0 - 1.0;
 
                 XSetForeground(dsp, gc2, red.pixel);
-                sprintf(buf,"fp64( %-10.8e , %-10.8e )  ", win_x, win_y );
+                sprintf(buf,"fp64( %8.6g , %8.6g )", win_x, win_y );
                 XDrawImageString( dsp, win2, gc2, 10, 260,
                                                        buf, strlen(buf));
 
@@ -651,10 +649,10 @@ int main(int argc, char*argv[])
 
                 XSetForeground(dsp, gc3, yellow.pixel);
 
-                sprintf(buf,"x', y' = ( %-10.8e , %-10.8e )  ",
+                sprintf(buf," x' ,  y' = ( %8.6g , %8.6g )",
                               x_prime, y_prime );
 
-                XDrawImageString( dsp, win3, gc3, 10, 50,
+                XDrawImageString( dsp, win3, gc3, 30, 50,
                                   buf, strlen(buf));
 
                 /* compute the observation point */
@@ -664,10 +662,10 @@ int main(int argc, char*argv[])
                 cplex_vec_add( tmp, tmp+2, &obs_origin );
                 cplex_vec_copy( &obs_point, tmp );
 
-                sprintf(buf,"L = < %-8.6e, %-8.6e, %-8.6e >   ",
+                sprintf(buf,"L = < %8.6g , %8.6g, %8.6g >",
                         obs_point.x.r, obs_point.y.r, obs_point.z.r );
 
-                XDrawImageString( dsp, win3, gc3, 10, 70,
+                XDrawImageString( dsp, win3, gc3, 30, 70,
                                   buf, strlen(buf));
 
                 /* time the computation of the intercepts */
@@ -764,7 +762,7 @@ int main(int argc, char*argv[])
                         }
                     }
 
-                    XDrawImageString( dsp, win3, gc3, 10, 150,
+                    XDrawImageString( dsp, win3, gc3, 30, 150,
                                       buf, strlen(buf));
 
                 }
@@ -772,20 +770,20 @@ int main(int argc, char*argv[])
                 t_delta = timediff( soln_t0, soln_t1 );
                 sprintf(buf,"[soln] = %16lld nsec", t_delta);
 
-                XDrawImageString( dsp, win3, gc3, 10, 180,
+                XDrawImageString( dsp, win3, gc3, 30, 180,
                                   buf, strlen(buf));
 
 
                 sprintf(buf,"root 0 = ( %8.6g + %8.6g i )       ",
                         k_val[0].r, k_val[0].i );
 
-                XDrawImageString( dsp, win3, gc3, 10, 90,
+                XDrawImageString( dsp, win3, gc3, 30, 90,
                                   buf, strlen(buf));
 
                 sprintf(buf,"root 1 = ( %8.6g + %8.6g i )       ",
                         k_val[1].r, k_val[1].i );
 
-                XDrawImageString( dsp, win3, gc3, 10, 110,
+                XDrawImageString( dsp, win3, gc3, 30, 110,
                                   buf, strlen(buf));
 
 
@@ -805,7 +803,7 @@ int main(int argc, char*argv[])
                                             right_count, t_delta);
 
             /* k = 20 + ( right_count%5 ) * 20; */
-            XDrawImageString( dsp, win3, gc3, 10, 20,
+            XDrawImageString( dsp, win3, gc3, 20, 20,
                                buf, strlen(buf));
 
             t0.tv_sec = t1.tv_sec;
