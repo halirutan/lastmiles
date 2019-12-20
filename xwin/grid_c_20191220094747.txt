@@ -91,7 +91,7 @@ int main(int argc, char*argv[])
 
     /* The vbox idea on the table is to create an array of
      * pointers to some sort of a magic struct wherein we
-     * can gather up the data for a view box region.
+     * can gather up the data for a view box region. 
      *
      * At this time we have no idea what that struct looks
      * like or how we are going to dispatch out to POSIX
@@ -123,13 +123,11 @@ int main(int argc, char*argv[])
      */
 
     int intercept_cnt = 0;
-    int intercept_point_flag;
     /* per our diagrams we are just solving for k in the complex
      * cooeficient quadratic */
     cplex_type k_val[2];
 
     vec_type obs_origin, obs_normal_dir, obs_normal, obs_point;
-    vec_type hit_point;
 
     double obs_x_width, obs_y_height;
 
@@ -138,21 +136,17 @@ int main(int argc, char*argv[])
     vec_type tmp[3];
 
     /* Test case will be an observation plane at ( 12, 0, 0 ) */
-    cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    /* cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0); */
 
     /* Observation direction is along negative i_hat basis vector */
-    cplex_vec_set( &obs_normal_dir, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    /* cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0); */
 
-    /* Try a rotation where the observation plane and viewport
+    /* Try a rotation where the observation plane and viewport 
      * are somewhere between the x and y axi but still sitting
-     * in the xy-plane
-     *
-     *    cplex_vec_set( &obs_origin, 8.0, 0.0, 8.0, 0.0, 0.0, 0.0 );
-     *
-     * look towards the origin as per usual
-     *
-     *    cplex_vec_set( &obs_normal_dir, -1.0, 0.0, -1.0, 0.0, 0.0, 0.0 );
-     */
+     * in the xy-plane */
+    cplex_vec_set( &obs_origin, 8.0, 0.0, 8.0, 0.0, 0.0, 0.0 );
+    /* look towards the origin as per usual */
+    cplex_vec_set( &obs_normal_dir, -1.0, 0.0, -1.0, 0.0, 0.0, 0.0 );
     cplex_vec_normalize( &obs_normal, &obs_normal_dir );
 
     /* viewport is 8 x 8 */
@@ -183,7 +177,8 @@ int main(int argc, char*argv[])
      */
 
     /* x_prime_vec is < 0, 1, 0 > */
-    cplex_vec_set( &x_prime_vec_dir, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+    /* cplex_vec_set( &x_prime_vec, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0); */
+    cplex_vec_set( &x_prime_vec_dir, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0 );
     cplex_vec_normalize( &x_prime_vec, &x_prime_vec_dir );
 
     /* y_prime_vec is < 0, 0, 1 > */
@@ -397,7 +392,7 @@ int main(int argc, char*argv[])
     XSetForeground(dsp, gc2, WhitePixel(dsp, screen_num));
     XSetFont(dsp, gc2, type_font);
 
-    /* horizontal minor tic marks at every 16th of the viewport
+    /* horizontal minor tic marks at every 16th of the viewport 
      * drawing area
      * printf("\n-------------------------------------------------\n");
      * printf("\n\nINFO : horizontal minor tic marks at every 16th\n");
@@ -438,8 +433,8 @@ int main(int argc, char*argv[])
          *
          * fprintf(stdout,"horizontal minor tic mark %s\n",buf);
          * k = 61 + 20 * p;
-         *
-         * note the gc2 default color above
+         * 
+         * note the gc2 default color above 
          *
          * XDrawImageString(dsp,win2,gc2,10,k,buf,strlen(buf));
          * p += 1;
@@ -450,7 +445,7 @@ int main(int argc, char*argv[])
 
     XSetForeground(dsp, gc2, green.pixel);
     /* vertical minor tic marks at every 16th of the interior viewport
-     * drawing area
+     * drawing area 
      *
      * p = 0;
      * */
@@ -492,7 +487,7 @@ int main(int argc, char*argv[])
         XDrawLine(dsp, win, gc, 13, j, width-13, j);
     }
 
-    /* a center white pixel is NOT needed anymore
+    /* a center white pixel is NOT needed anymore 
      *
      * XSetForeground(dsp, gc, XWhitePixel(dsp, screen_num));
      * XDrawPoint(dsp, win, gc,
@@ -593,11 +588,11 @@ int main(int argc, char*argv[])
             break;
         }
 
-        /* nice to know but not needed anymore.
-         * This was a display of the coordinats of the raw
-         * mouse event coordinates reference to gc of the main
-         * plot window upper left corner
-         *
+        /* nice to know but not needed anymore. 
+         * This was a display of the coordinats of the raw 
+         * mouse event coordinates reference to gc of the main 
+         * plot window upper left corner 
+         * 
          *   sprintf(buf,"raw  [ %4i , %4i ]  ", mouse_x, mouse_y);
          *   XSetForeground(dsp, gc2, red.pixel);
          *   XDrawImageString( dsp, win2, gc2, 20, 180, buf, strlen(buf));
@@ -609,7 +604,7 @@ int main(int argc, char*argv[])
 
         if ( button == Button1 ){
 
-            /* printf("leftclick"); */
+            printf("leftclick");
 
             if (    ( mouse_x >=  offset_x ) && ( mouse_y >= offset_y )
                  && ( mouse_x < ( eff_width + offset_x ) )
@@ -638,7 +633,7 @@ int main(int argc, char*argv[])
                 XDrawImageString( dsp, win2, gc2, 10, 220,
                                                       buf, strlen(buf));
 
-                /* a more useful value is the box[] coordinates for
+                /* a more useful value is the box[] coordinates for 
                  * each of the 16x16 grid we previously laid out */
                 box_x = ( mouse_x - offset_x ) / 64;
                 box_y = ( eff_height - mouse_y + offset_y ) / 64;
@@ -700,12 +695,6 @@ int main(int argc, char*argv[])
                                   buf, strlen(buf));
                 XSetForeground(dsp, gc3, cyan.pixel);
 
-                /* assume we hit nothing and set up a buffer full of
-                 * blanks for the intercept output point in gc3 */
-                sprintf(buf,
-                 "i = no intercept point                            ");
-
-
                 /* time the computation of the intercepts */
                 clock_gettime( CLOCK_MONOTONIC, &soln_t0 );
 
@@ -713,41 +702,103 @@ int main(int argc, char*argv[])
                                 &object_location, &semi_major_axi,
                                 &obs_point, &obs_normal );
 
-                if ( intercept_cnt > 0 ) {
-
-                    /* note that this function returns a zero value
-                     * if all goes well and we get an intercept point
-                     * in R3 space. */
-                    intercept_point_flag = intercept_point( &hit_point,
-                                                            intercept_cnt,
-                                                            &k_val[0],
-                                                            &obs_point,
-                                                            &obs_normal);
-
-                    if ( intercept_point_flag == 0 ) {
-                        /* we have an intercept point H */
-                        XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
-
-                        sprintf(buf,
-                                "i = ( %-8.6e, %-8.6e, %-8.6e )     ",
-                                hit_point.x.r,
-                                hit_point.y.r,
-                                hit_point.z.r );
-
-                    }
-
-                }
                 clock_gettime( CLOCK_MONOTONIC, &soln_t1 );
 
-                XSetForeground(dsp, gc3, green.pixel);
-                XDrawImageString( dsp, win3, gc3, 10, 150,
-                                          buf, strlen(buf));
+                /* figure out if we have a real root. */
+                if ( ( k_val[0].i == 0.0 ) || ( k_val[1].i == 0.0 ) ) {
+                    if ( ( k_val[0].i == 0.0 ) && ( k_val[1].i == 0.0 ) ) {
+                        /* two real roots.  pick the value that is not
+                         * negative and also closest to the viewport */
+                        if ( ( k_val[0].r < 0.0 ) && ( k_val[1].r >= 0.0 ) ) {
+                            /* we have a root in k_val[1].r */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"icept1 = %8.6g     ", k_val[1].r );
+                        } else if ( 
+                                    ( k_val[0].r >= 0.0 )
+                                    &&
+                                    ( k_val[1].r < 0.0 ) ) {
+
+                            /* we have a root in k_val[0].r */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"icept0 = %8.6g     ", k_val[0].r );
+
+                        } else if ( 
+                                    ( fabs( k_val[0].r ) < 0.001 )
+                                    &&
+                                    ( k_val[1].r > 0.0 ) ) {
+
+                            /* viewport intersects the object */
+                            XSetForeground(dsp, gc, red.pixel);
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            XSetForeground(dsp, gc, yellow.pixel);
+                            sprintf(buf,"icept1v= %8.6g     ", k_val[1].r );
+
+                        } else if (
+                                    ( fabs( k_val[1].r ) < 0.001 )
+                                    &&
+                                    ( k_val[0].r > 0.0 ) ) {
+
+                            /* this is also the viewport intersects the
+                             * object */
+                            XSetForeground(dsp, gc, red.pixel);
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            XSetForeground(dsp, gc, yellow.pixel);
+                            sprintf(buf,"icept0^= %8.6g     ", k_val[0].r );
+
+                        } else if ( k_val[0].r < k_val[1].r ) {
+
+                            /* so root 0 is real and closer */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"icept0c= %8.6g     ", k_val[0].r );
+
+                        } else if ( k_val[1].r < k_val[0].r ) {
+
+                            /* root 1 is real and closer */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"icept1c= %8.6g     ", k_val[1].r );
+
+                        } else if (
+                                    ( ( k_val[1].r - k_val[0].r ) < 0.001 )
+                                    && ( k_val[0].r > 0.0 )
+                                    && ( k_val[1].r > 0.0 ) ) {
+                            /* we hit close enough to the edge of something */
+                            /* TODO calculate a reasonable epsilon value */
+                            XSetForeground(dsp, gc, cyan.pixel);
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            XSetForeground(dsp, gc, yellow.pixel);
+                            sprintf(buf,"icept0== %8.6g     ", k_val[0].r );
+
+                        }
+                    } else {
+
+                        /* bizarre condition wherein we have only a
+                         * single real root */
+
+                        if ( k_val[0].r >= 0.0 ) {
+
+                            /* root 0 is the only real value */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"ICEPT0 = %8.6g     ", k_val[0].r );
+
+                        } else if ( k_val[1].r >= 0.0 ) {
+
+                            /* root 1 is all that is left to us */
+                            XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
+                            sprintf(buf,"ICEPT1 = %8.6g     ", k_val[1].r );
+
+                        }
+                    }
+
+                    XDrawImageString( dsp, win3, gc3, 10, 150,
+                                      buf, strlen(buf));
+
+                }
 
                 t_delta = timediff( soln_t0, soln_t1 );
                 sprintf(buf,"[soln] = %16lld nsec", t_delta);
+                XSetForeground(dsp, gc3, green.pixel);
                 XDrawImageString( dsp, win3, gc3, 10, 240,
                                   buf, strlen(buf));
-
                 XSetForeground(dsp, gc3, cyan.pixel);
 
 
@@ -762,6 +813,7 @@ int main(int argc, char*argv[])
 
                 XDrawImageString( dsp, win3, gc3, 10, 130,
                                   buf, strlen(buf));
+
 
             }
 
@@ -815,8 +867,6 @@ int main(int argc, char*argv[])
     XCloseDisplay(dsp);
 
     printf("\n");
-
-    free(buf);
     return EXIT_SUCCESS;
 }
 

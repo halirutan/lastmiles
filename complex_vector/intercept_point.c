@@ -68,7 +68,7 @@ int intercept_point( vec_type *pt, int intercept_cnt, cplex_type *k_val,
          ( k_val[0].i == k_val[1].i ) ) {
 
         intercept_cnt = 1;
-        printf ("     : only one unique root.\n\n");
+        /* printf ("     : only one unique root.\n\n"); */
 
     }
 
