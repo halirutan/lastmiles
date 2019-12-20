@@ -21,6 +21,7 @@ int cplex_vec_normalize( vec_type *res, vec_type *op1 )
 {
 
     double magnitude = cplex_vec_mag( op1 );
+    /* TODO : come up with a better way to trap for a null vector */
     if ( magnitude < RT_EPSILON ) {
         return ( -1 );
     }

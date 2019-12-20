@@ -106,7 +106,6 @@ int main(int argc, char*argv[])
     /* small general purpose char buffer */
     char *buf = calloc((size_t)128,sizeof(unsigned char));
 
-
     /* The whole objective here is to map a point on the display
      * to the observation plane for ray tracing.
      *
@@ -136,12 +135,7 @@ int main(int argc, char*argv[])
     vec_type tmp[3];
 
     /* Test case will be an observation plane at ( 12, 0, 0 ) */
-    /* cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0); */
-
-
-    /* 4 Dec 2019 put the observation plane exactly as diagrammed */
-    /* cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0); */
-    cplex_vec_set( &obs_origin, 5.0 - pow( 2, -6), 0.0, 0.0, 0.0, 0.0, 0.0);
+    cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* Observation direction is along negative i_hat basis vector */
     cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -205,10 +199,10 @@ int main(int argc, char*argv[])
     /* Again the diagrams we used had a=5, b=2 and c=6 */
     cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0);
 
-    /* we may need to change the sight line direction in the future
-     * thus we will make a copy of the viewport plane normal vector */
-    cplex_vec_copy( &ray_direct, &obs_normal );
-
+    /* We may need to change the sight line direction in the future
+     * thus we will make a copy of the viewport plane normal vector
+     * and ensure that ray direction is normalized */
+    cplex_vec_normalize( &ray_direct, &obs_normal );
 
     /* These are the initial and normalized mouse fp64 values
      * from within the observation viewport. */
