@@ -18,7 +18,8 @@
 
 int sysinfo(void);
 int ru(void);
-void *sleeper(void *);    /* thread routine */
+
+void *big_array_fill(void *); /* thread routine */
 
 pthread_t tid[NUM_THREADS]; /* array of thread IDs */
 
@@ -29,9 +30,6 @@ int main(int argc, char **argv)
     struct timespec now_time;
     thread_parm_t *parm[NUM_THREADS];
 
-    /*
-     * Set en_US.UTF-8 locale which is what we use in the MySQL db tables.
-     */
     setlocale( LC_ALL, "C" );
     sysinfo();
 
@@ -83,7 +81,7 @@ int main(int argc, char **argv)
         parm[i]->tnum = i;
         parm[i]->sleep_time = 1 + (int)( drand48() * 10.0 );
 
-        pthread_create( &tid[i], NULL, sleeper, (void *)parm[i] );
+        pthread_create( &tid[i], NULL, big_array_fill, (void *)parm[i] );
 
         printf("INFO : pthread_create %2i called for %2i secs.\n",
                                                i, parm[i]->sleep_time );
@@ -111,15 +109,9 @@ int main(int argc, char **argv)
 
 }
 
-void *sleeper(void *recv_parm)
+void *big_array_fill(void *recv_parm)
 {
     thread_parm_t *p = (thread_parm_t *)recv_parm;
-
-    /*
-    printf("TRD  : %d sleeping %d seconds\n", p->tnum, p->sleep_time);
-    sleep(p->sleep_time);
-    printf("TRD  : %d awake\n", p->tnum);
-    */
 
     printf("TRD  : %d filling the big_array.\n", p->tnum);
     for ( p->loop0 = 0; p->loop0 < BIG_ARRAY_DIM0; p->loop0++ ) {
