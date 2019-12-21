@@ -11,9 +11,6 @@
  *
  *********************************************************************/
 #define _XOPEN_SOURCE 600
-
-#include <X11/Xlib.h>
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -24,6 +21,13 @@
 #include <unistd.h>
 #include <math.h>
 #include <errno.h>
+
+#include <X11/Xlib.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <X11/extensions/XShm.h>
+
+#include <pthread.h>
 
 /* we shall need the complex math functions */
 #include "v.h"
@@ -263,6 +267,15 @@ int main(int argc, char*argv[])
 
     depth = XDefaultDepth(dsp,screen_num);
     printf("default depth is %i\n", depth);
+
+    /* check if we have the MIT-SHM facility available */
+    printf("MIT-SHM Shared Memory Extension is ");
+    if ( XShmQueryExtension(dsp) ) {
+        printf("available.\n");
+    } else {
+        printf("not available.\n");
+    }
+
 
     fixed_font = XLoadFont(dsp, "fixed");
 
