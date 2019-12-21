@@ -788,13 +788,13 @@ int main(int argc, char*argv[])
              * XColor.pixel = (((unsigned long)XColor.red) << 16)
              *               + (((unsigned long)XColor.green) << 8) 
              *               + (unsigned long)XColor.blue;
-             */
+             * 
 
             for ( some_radius = 0; some_radius < vbox_w; some_radius++ ) {
                 for ( p=0; p<360; p++ ) {
     
-                    /* quick hack convert from tens of degrees to
-                     * radians should be (p)( ( 2 x pi )/360 ) */
+                     * quick hack convert from tens of degrees to
+                     * radians should be (p)( ( 2 x pi )/360 ) * 
     
                     some_angle = pi2 * ( 1.0 * p ) / 360.0;
                     some_x = some_radius * cos(some_angle);
@@ -810,6 +810,7 @@ int main(int argc, char*argv[])
                 }
             }
             XSetForeground(dsp, gc, yellow.pixel);
+            */
 
         } else if ( button == Button3 ) {
 

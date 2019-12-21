@@ -9,11 +9,15 @@ CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE \
 
 LIBS = -lX11 -lrt -lm
 
-IDIR=../complex_vector
+CMPLEX_DIR=../complex_vector
+IDIR=/usr/local/include
+LDIR=/usr/local/lib
 
 SRCS = grid.c numpad.c x_error_handler.c create_gc.c \
-	create_borderless_topwin.c ../time_and_date/timediff.c \
-	../rtrace/intercept.c \
+	create_borderless_topwin.c \
+	../time_and_date/timediff.c \
+	../complex_vector/intercept.c \
+	../complex_vector/intercept_point.c \
 	../complex_vector/check_status.c \
 	../complex_vector/cplex_add.c \
 	../complex_vector/cplex_check.c \
@@ -30,12 +34,17 @@ SRCS = grid.c numpad.c x_error_handler.c create_gc.c \
 	../complex_vector/cplex_vec_dot.c \
 	../complex_vector/cplex_vec_set.c \
 	../complex_vector/cplex_vec_print.c \
-	../complex_vector/cplex_vec_scale.c
+	../complex_vector/cplex_vec_scale.c \
+	../complex_vector/cplex_vec_mag.c \
+	../complex_vector/cplex_vec_normalize.c \
+	../pthread/sysmem.c ../pthread/sysinfo.c
 
 
 OBJS = x_error_handler.o create_gc.o \
-	create_borderless_topwin.o ../time_and_date/timediff.o \
-	../rtrace/intercept.o \
+	create_borderless_topwin.o \
+	../time_and_date/timediff.o \
+	../complex_vector/intercept.o \
+	../complex_vector/intercept_point.o \
 	../complex_vector/check_status.o \
 	../complex_vector/cplex_add.o \
 	../complex_vector/cplex_check.o \
@@ -52,16 +61,20 @@ OBJS = x_error_handler.o create_gc.o \
 	../complex_vector/cplex_vec_dot.o \
 	../complex_vector/cplex_vec_set.o \
 	../complex_vector/cplex_vec_print.o \
-	../complex_vector/cplex_vec_scale.o
+	../complex_vector/cplex_vec_scale.o \
+	../complex_vector/cplex_vec_mag.o \
+	../complex_vector/cplex_vec_normalize.o \
+	../pthread/sysmem.o ../pthread/sysinfo.o
 
 %.o: %.c
-	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
+	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS) -I$(CMPLEX_DIR) -I$(IDIR)
 
 grid: grid.o $(OBJS)
-	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) -I$(IDIR) $(LIBS)
+	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) -L$(LDIR) $(LIBS)
 
 numpad: numpad.o $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
 clean:
 	rm -f $(OBJS) grid.o grid numpad numpad.o
+
