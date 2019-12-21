@@ -20,6 +20,7 @@
 #include <string.h>
 #include <sched.h>
 #include <time.h>
+#include <locale.h>
 #include <unistd.h>
 #include <math.h>
 #include <errno.h>
@@ -37,14 +38,7 @@ int X_error_handler(Display *dsp, XErrorEvent *errevt);
 
 uint64_t timediff( struct timespec st, struct timespec en );
 
-/* A quick and dirty prototype of the basic ideas where we shall just
- * return the solutions to the complex cooefficient quadratic */
-int intercept( cplex_type res[2],
-                vec_type *sign,
-                vec_type *loc,
-                vec_type *axi,
-                vec_type *obs_p,
-                vec_type *obs_v );
+int sysinfo(void);
 
 /* local defs */
 #define WIN_WIDTH 1044
@@ -62,7 +56,9 @@ int main(int argc, char*argv[])
     Font fixed_font, type_font;
 
     /* a very few colours */
-    XColor red, green, blue, yellow, cyan, cornflowerblue, color_cell;
+    XColor red, green, blue, yellow, cyan, magenta;
+    XColor cornflowerblue, royal_blue, very_dark_grey;
+    XColor whatever; /* just a hack */
 
     Status retcode0;  /* not really needed for trivial stuff */
     int retcode1;     /* curious what some funcs return */
@@ -80,7 +76,7 @@ int main(int argc, char*argv[])
     roll_dn = 0;
 
     uint64_t t_delta; /* left mouse button click timing */
-    struct timespec t0, t1;
+    struct timespec t0, t1, now_time;
     struct timespec soln_t0, soln_t1;
 
     /* some primordial vars */
@@ -88,6 +84,23 @@ int main(int argc, char*argv[])
     int conn_num, screen_num, depth;
     int j, k, p, q, offset_x, offset_y, lx, ly, ux, uy, px, py;
     int eff_width, eff_height, vbox_w, vbox_h;
+
+    /* TODO : some hack test stuff */
+    double pi2, some_angle, some_radius, some_x, some_y;
+    pi2 = 2.0 * 3.14159265358979323846264338327950288;
+
+    setlocale( LC_ALL, "C" );
+
+    /* Get the REALTIME_CLOCK time in a timespec struct */
+    if ( clock_gettime( CLOCK_REALTIME, &now_time ) == -1 ) {
+        /* We could not get the clock. Bail out. */
+        fprintf(stderr,"ERROR : could not attain CLOCK_REALTIME\n");
+        return(EXIT_FAILURE);
+    } else {
+        /* call srand48() with the sub-second time data */
+        srand48( (long) now_time.tv_nsec );
+    }
+    sysinfo();
 
     /* The vbox idea on the table is to create an array of
      * pointers to some sort of a magic struct wherein we
@@ -320,12 +333,21 @@ int main(int argc, char*argv[])
         fprintf(stderr, "XAllocNamedColor - yellow bork bork bork!\n");
         exit(EXIT_FAILURE);
     }
+
     if (XAllocNamedColor(dsp,
                          screen_colormap,
                          "cyan", &cyan, &cyan) == 0) {
         fprintf(stderr, "XAllocNamedColor - cyan bork bork bork!\n");
         exit(EXIT_FAILURE);
     }
+
+    if (XAllocNamedColor(dsp,
+                         screen_colormap,
+                         "magenta", &magenta, &magenta) == 0) {
+        fprintf(stderr, "XAllocNamedColor - magenta bork bork!\n");
+        exit(EXIT_FAILURE);
+    }
+
     /* cornflowerblue is #6495ED */
     if (XAllocNamedColor(dsp,
                          screen_colormap,
@@ -335,7 +357,33 @@ int main(int argc, char*argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* yellow pixel at each corner 5 pixels indented */
+    /* request Royal Blue which should be #4169E1 however we
+     * will get whatever teh hardware can map closest to the
+     * request */
+    royal_blue.flags= DoRed | DoGreen | DoBlue;
+    royal_blue.red = 0x4100;
+    royal_blue.green = 0x6900;
+    royal_blue.blue = 0xe100;
+    if ( XAllocColor(dsp, screen_colormap, &royal_blue) == 0 ) {
+        fprintf(stderr, "XAllocColor - royal_blue fails.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    /* We need an inner grid which in our main plot window
+     * which should be a subtle very very dark grey.
+     * Here we manually define the rgb components using 16bit
+     * values and then create the new color */
+    very_dark_grey.flags= DoRed | DoGreen | DoBlue;
+    very_dark_grey.red = 0x1f00;
+    very_dark_grey.green = 0x1f00;
+    very_dark_grey.blue = 0x1f00;
+    if ( XAllocColor(dsp, screen_colormap, &very_dark_grey) == 0 ) {
+        fprintf(stderr, "XAllocColor - very_dark_grey fails.\n");
+        exit(EXIT_FAILURE);
+    }
+
+
+    /* main plot windwo yellow pixel at each corner 5 pixels indent */
     XSetForeground(dsp, gc, yellow.pixel);
     XDrawPoint(dsp, win, gc, 5, 5);
     XDrawPoint(dsp, win, gc, 5, height - 5);
@@ -345,7 +393,7 @@ int main(int argc, char*argv[])
     /* draw a blue box inside the second window */
     XSetForeground(dsp, gc2, blue.pixel);
     retcode1 = XSetLineAttributes(dsp, gc2, 1, LineSolid, CapButt, JoinMiter);
-    fprintf(stdout,"gc2 XSetLineAttributes returns %i\n", retcode1 );
+    /* fprintf(stdout,"gc2 XSetLineAttributes returns %i\n", retcode1 ); */
     XDrawRectangle(dsp, win2, gc2, 5, 5, 390, 320);
     XSetForeground(dsp, gc2, cyan.pixel);
     XDrawRectangle(dsp, win2, gc2, 10, 10, 170, 170);
@@ -354,7 +402,7 @@ int main(int argc, char*argv[])
     /* draw a blue box inside the third window */
     XSetForeground(dsp, gc3, blue.pixel);
     retcode1 = XSetLineAttributes(dsp, gc3, 1, LineSolid, CapButt, JoinMiter);
-    fprintf(stdout,"gc3 XSetLineAttributes returns %i\n", retcode1 );
+    /* fprintf(stdout,"gc3 XSetLineAttributes returns %i\n", retcode1 ); */
     XDrawRectangle(dsp, win3, gc3, 5, 5, 430, 320);
 
     /* initial line characteristics on the gc are set in the XCreateGC
@@ -396,6 +444,7 @@ int main(int argc, char*argv[])
     XSetForeground(dsp, gc, WhitePixel(dsp, screen_num));
     XSetForeground(dsp, gc2, WhitePixel(dsp, screen_num));
     XSetFont(dsp, gc2, type_font);
+    XSetFont(dsp, gc3, type_font);
 
     /* horizontal minor tic marks at every 16th of the viewport
      * drawing area
@@ -431,56 +480,20 @@ int main(int argc, char*argv[])
     for ( j=offset_x + vbox_w; j<lx; j+=vbox_w ){
         XDrawLine(dsp, win, gc, j, 8, j, 12);
         XDrawLine(dsp, win, gc, j, height - 8, j, height - 12);
-
-        /*********** at one point we needed to see where we were ****
-         * sprintf(buf,"[%02i] j = %4i   minus offset = %4i",
-         *                                    p, j, j - offset_x);
-         *
-         * fprintf(stdout,"horizontal minor tic mark %s\n",buf);
-         * k = 61 + 20 * p;
-         *
-         * note the gc2 default color above
-         *
-         * XDrawImageString(dsp,win2,gc2,10,k,buf,strlen(buf));
-         * p += 1;
-         */
-
     }
     XFlush(dsp);
 
     XSetForeground(dsp, gc2, green.pixel);
     /* vertical minor tic marks at every 16th of the interior viewport
-     * drawing area
-     *
-     * p = 0;
-     * */
+     * drawing area */
     for ( j = offset_y + vbox_h; j < ly; j += vbox_h ){
         XDrawLine(dsp, win, gc, 8, j, 12, j);
         XDrawLine(dsp, win, gc, width - 8, j, width - 12, j);
-        /*
-         *  sprintf(buf,"[%02i] j = %4i   minus offset = %4i",
-         *                                          p, j, j - offset_y);
-         *
-         * fprintf(stdout,"vertical minor tic mark %s\n",buf);
-         * k = 60 + 20 * p;
-         * XDrawImageString(dsp,win2,gc2,40,k,buf,strlen(buf));
-         * p += 1;
-         */
-
     }
     XFlush(dsp);
 
-    /* We need an inner grid which is a very very dark grey.
-     * Here we manually define the rgb components using 16bit
-     * values and then create the new color */
-    color_cell.flags= DoRed | DoGreen | DoBlue;
-    color_cell.red = 0x1f00;
-    color_cell.green = 0x1f00;
-    color_cell.blue = 0x1f00;
-    XAllocColor(dsp, screen_colormap, &color_cell);
-
-    /* now we use the color we created */
-    XSetForeground(dsp,gc,color_cell.pixel);
+    /* now we use the very dark grey color we created */
+    XSetForeground(dsp,gc,very_dark_grey.pixel);
 
     /* draw the vertical lines */
     for ( j= offset_x + vbox_w; j<lx; j+=vbox_w ){
@@ -492,17 +505,11 @@ int main(int argc, char*argv[])
         XDrawLine(dsp, win, gc, 13, j, width-13, j);
     }
 
-    /* a center white pixel is NOT needed anymore
-     *
-     * XSetForeground(dsp, gc, XWhitePixel(dsp, screen_num));
-     * XDrawPoint(dsp, win, gc,
-     *         offset_x + (eff_width/2), offset_y + (eff_height/2) );
-     */
-
-    /* outer edge green lines and green text as default */
-    XSetForeground(dsp, gc, green.pixel);
-    XSetForeground(dsp, gc2, green.pixel);
+    /* gc3 green text as default */
     XSetForeground(dsp, gc3, green.pixel);
+
+    /* royal blue border around the main viewport */
+    XSetForeground(dsp, gc, royal_blue.pixel);
     XDrawLine(dsp, win, gc, 10, 10, width - 10, 10);
     XDrawLine(dsp, win, gc, width - 10, 10, width - 10, height - 10);
     XDrawLine(dsp, win, gc, width - 10, height - 10, 10, height - 10);
@@ -517,9 +524,6 @@ int main(int argc, char*argv[])
                            GrabModeAsync, None, None, CurrentTime);
 
     XSelectInput(dsp, win, ButtonPressMask);
-
-    /* Display timing data in the lower right window */
-    XSetFont(dsp, gc3, type_font);
 
     /* some initial time data before anyone clicks anything */
     clock_gettime( CLOCK_MONOTONIC, &t0 );
@@ -557,7 +561,7 @@ int main(int argc, char*argv[])
                         left_count += 1;
                         break;
 
-                    case Button2: /* middle mouse button */
+                    case Button2: /* middle mouse scroll button */
                         mouse_x=event.xbutton.x;
                         mouse_y=event.xbutton.y;
                         button=Button2;
@@ -767,7 +771,35 @@ int main(int argc, char*argv[])
 
         } else if ( button == Button2 ) {
 
+            /* TODO hack */
+            /*
             printf("midclick");
+
+            some_radius = drand48() * vbox_w;
+
+            whatever.flags= DoRed | DoGreen | DoBlue;
+            whatever.green = 0x0000;
+            whatever.blue = 0x0000;
+
+            whatever.red = 0xff00 * drand48();
+
+            if ( XAllocColor(dsp, screen_colormap, &whatever) == 0 ) {
+                fprintf(stderr, "XAllocColor - gee .. wahtever fail.\n");
+                exit(EXIT_FAILURE);
+            }
+            XSetForeground(dsp, gc, whatever.pixel);
+
+            for ( p=0; p<360; p++ ) {
+
+                 * quick hack convert from tens of degrees to
+                 * radians should be (p)( ( 2 x pi )/360 ) * 
+
+                some_angle = pi2 * ( 1.0 * p ) / 360.0;
+                some_x = some_radius * cos(some_angle);
+                some_y = some_radius * sin(some_angle);
+                XDrawPoint(dsp, win, gc, mouse_x + some_x, mouse_y + some_y);
+            }
+            */
 
         } else if ( button == Button3 ) {
 
@@ -808,7 +840,7 @@ int main(int argc, char*argv[])
 
         }
 
-        printf(" at %d %d \n", mouse_x, mouse_y);
+        /* printf(" at %d %d \n", mouse_x, mouse_y); */
 
     }
 

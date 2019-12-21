@@ -23,7 +23,6 @@
 #include <unistd.h>
 
 uint64_t system_memory();
-int ru(void);
 
 int sysinfo(void) {
 
@@ -62,8 +61,6 @@ int sysinfo(void) {
         printf ( "------------------------------" );
     }
     printf ("\n");
-
-    ru();
 
     return ( EXIT_SUCCESS );
 
