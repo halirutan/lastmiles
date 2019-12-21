@@ -382,8 +382,20 @@ int main(int argc, char*argv[])
         exit(EXIT_FAILURE);
     }
 
+    /* this is a hack color data value that we will abuse later
+     * inside the mouse Xevent loop */
+    whatever.flags= DoRed | DoGreen | DoBlue;
+    /* some dummy values */
+    whatever.green = 0x0000;
+    whatever.blue  = 0x0000;
+    whatever.red   = 0xff00;
 
-    /* main plot windwo yellow pixel at each corner 5 pixels indent */
+    if ( XAllocColor(dsp, screen_colormap, &whatever) == 0 ) {
+        fprintf(stderr, "XAllocColor - gee .. whatever fail.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    /* main plot window yellow pixel at each corner 5 pixels indent */
     XSetForeground(dsp, gc, yellow.pixel);
     XDrawPoint(dsp, win, gc, 5, 5);
     XDrawPoint(dsp, win, gc, 5, height - 5);
@@ -771,35 +783,33 @@ int main(int argc, char*argv[])
 
         } else if ( button == Button2 ) {
 
-            /* TODO hack */
-            /*
-            printf("midclick");
+            /* TODO hack * 
+             *  lets blame cas_9 for this : 
+             * XColor.pixel = (((unsigned long)XColor.red) << 16)
+             *               + (((unsigned long)XColor.green) << 8) 
+             *               + (unsigned long)XColor.blue;
+             */
 
-            some_radius = drand48() * vbox_w;
-
-            whatever.flags= DoRed | DoGreen | DoBlue;
-            whatever.green = 0x0000;
-            whatever.blue = 0x0000;
-
-            whatever.red = 0xff00 * drand48();
-
-            if ( XAllocColor(dsp, screen_colormap, &whatever) == 0 ) {
-                fprintf(stderr, "XAllocColor - gee .. wahtever fail.\n");
-                exit(EXIT_FAILURE);
+            for ( some_radius = 0; some_radius < vbox_w; some_radius++ ) {
+                for ( p=0; p<360; p++ ) {
+    
+                    /* quick hack convert from tens of degrees to
+                     * radians should be (p)( ( 2 x pi )/360 ) */
+    
+                    some_angle = pi2 * ( 1.0 * p ) / 360.0;
+                    some_x = some_radius * cos(some_angle);
+                    some_y = some_radius * sin(some_angle);
+    
+                    whatever.pixel = ( ( (unsigned long)p & 0xff ) << 16 )
+                                     + ( ( (unsigned long)some_radius ) << 8 );
+    
+                    XSetForeground(dsp, gc, whatever.pixel);
+    
+                    XDrawPoint(dsp, win, gc, mouse_x + some_x, mouse_y + some_y);
+    
+                }
             }
-            XSetForeground(dsp, gc, whatever.pixel);
-
-            for ( p=0; p<360; p++ ) {
-
-                 * quick hack convert from tens of degrees to
-                 * radians should be (p)( ( 2 x pi )/360 ) * 
-
-                some_angle = pi2 * ( 1.0 * p ) / 360.0;
-                some_x = some_radius * cos(some_angle);
-                some_y = some_radius * sin(some_angle);
-                XDrawPoint(dsp, win, gc, mouse_x + some_x, mouse_y + some_y);
-            }
-            */
+            XSetForeground(dsp, gc, yellow.pixel);
 
         } else if ( button == Button3 ) {
 
