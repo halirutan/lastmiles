@@ -17,6 +17,7 @@ SRCS = grid.c numpad.c x_error_handler.c create_gc.c \
 	../time_and_date/timediff.c \
 	../complex_vector/intercept.c \
 	../complex_vector/intercept_point.c \
+	../complex_vector/gradient.c \
 	../complex_vector/check_status.c \
 	../complex_vector/cplex_add.c \
 	../complex_vector/cplex_check.c \
@@ -44,6 +45,7 @@ OBJS = x_error_handler.o create_gc.o \
 	../time_and_date/timediff.o \
 	../complex_vector/intercept.o \
 	../complex_vector/intercept_point.o \
+	../complex_vector/gradient.o \
 	../complex_vector/check_status.o \
 	../complex_vector/cplex_add.o \
 	../complex_vector/cplex_check.o \

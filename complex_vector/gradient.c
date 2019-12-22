@@ -31,24 +31,30 @@ int gradient( vec_type *res,
               vec_type *intercept )
 {
 
-    vec_type tmp[9];
-    cplex_type c_tmp[18];
+    vec_type tmp[3];
+    cplex_type c_tmp[3];
 
+    /*
     printf ("\n\nINFO : in gradient intercept = \n");
     cplex_vec_print( intercept );
     printf ("\n");
+    */
 
     cplex_vec_scale( tmp, loc, -2.0 );
 
+    /*
     printf ("\n\nINFO : in gradient tmp = -2loc = \n");
     cplex_vec_print( tmp );
     printf ("\n");
+    */
 
     cplex_vec_add( tmp+1, intercept, tmp );
     
+    /*
     printf ("\n\nINFO : in gradient tmp[1] = \n");
     cplex_vec_print( tmp+1 );
     printf ("\n\n");
+    */
 
     c_tmp[0].r = tmp[1].x.r * sign->x.r;
     c_tmp[0].i = tmp[1].x.i;
@@ -58,12 +64,14 @@ int gradient( vec_type *res,
     c_tmp[2].i = tmp[1].z.i;
 
 
+    /*
     printf ("INFO :in gradient res = \n< ( %-16.10e, %-16.10e ),\n",
                                                c_tmp[0].r, c_tmp[0].i);
 
     printf ("  ( %-16.10e, %-16.10e ),\n", c_tmp[1].r, c_tmp[1].i);
 
     printf ("  ( %-16.10e, %-16.10e ) >\n\n", c_tmp[2].r, c_tmp[2].i);
+    */
 
 
     cplex_vec_set( tmp+2, c_tmp[0].r, c_tmp[0].i,

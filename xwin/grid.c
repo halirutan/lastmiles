@@ -144,7 +144,7 @@ int main(int argc, char*argv[])
     cplex_type k_val[2];
 
     vec_type obs_origin, obs_normal_dir, obs_normal, obs_point;
-    vec_type hit_point;
+    vec_type hit_point, grad;
 
     double obs_x_width, obs_y_height;
 
@@ -748,21 +748,38 @@ int main(int argc, char*argv[])
 
                         sprintf(buf,
                                 "i = ( %-8.6e, %-8.6e, %-8.6e )     ",
-                                hit_point.x.r,
-                                hit_point.y.r,
-                                hit_point.z.r );
+                                       hit_point.x.r,
+                                       hit_point.y.r,
+                                       hit_point.z.r );
+
+                        XSetForeground(dsp, gc3, green.pixel);
+                        XDrawImageString( dsp, win3, gc3, 10, 150,
+                                          buf, strlen(buf));
+
+                        /* compute the gradient normal vector */
+                        gradient( &grad, &sign_data, &object_location,
+                                         &semi_major_axi, &hit_point );
+
+                        sprintf(buf,"^"); /* vector hat hack */
+                        XSetForeground(dsp, gc3, cyan.pixel);
+                        XDrawImageString( dsp, win3, gc3, 9, 162, buf,
+                                                         strlen(buf));
+
+                        sprintf(buf,
+                                "N = < %-8.6e, %-8.6e, %-8.6e )     ",
+                                       grad.x.r, grad.y.r, grad.z.r );
+
+                        XDrawImageString( dsp, win3, gc3, 10, 170,
+                                          buf, strlen(buf));
 
                     }
 
                 }
                 clock_gettime( CLOCK_MONOTONIC, &soln_t1 );
 
-                XSetForeground(dsp, gc3, green.pixel);
-                XDrawImageString( dsp, win3, gc3, 10, 150,
-                                          buf, strlen(buf));
-
                 t_delta = timediff( soln_t0, soln_t1 );
                 sprintf(buf,"[soln] = %16lld nsec", t_delta);
+                XSetForeground(dsp, gc3, green.pixel);
                 XDrawImageString( dsp, win3, gc3, 10, 240,
                                   buf, strlen(buf));
 

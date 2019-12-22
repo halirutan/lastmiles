@@ -21,12 +21,6 @@
 
 #include "v.h"
 
-int gradient( vec_type *res,
-              vec_type *sign,
-              vec_type *loc,
-              vec_type *axi,
-              vec_type *intercept );
-
 int main ( int argc, char **argv)
 {
 
@@ -92,8 +86,6 @@ int main ( int argc, char **argv)
      */
     x_prime = 1.7;
     y_prime = -2.0;
-    x_prime = 0.0;
-    y_prime = 0.0;
 
     /* try an offset of 2^(-48)
      *    double tiny_delta = pow( 2.0, -48.0);
