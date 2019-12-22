@@ -728,9 +728,11 @@ int main(int argc, char*argv[])
                 /* time the computation of the intercepts */
                 clock_gettime( CLOCK_MONOTONIC, &soln_t0 );
 
+                fprintf(stderr,"\n---------------------------------\n");
                 intercept_cnt = intercept ( k_val, &sign_data,
                                 &object_location, &semi_major_axi,
                                 &obs_point, &obs_normal );
+                fprintf(stderr,"\nintercept_cnt = %i\n", intercept_cnt );
 
                 if ( intercept_cnt > 0 ) {
 
@@ -743,6 +745,8 @@ int main(int argc, char*argv[])
                                                             &obs_point,
                                                             &obs_normal);
 
+                    fprintf(stderr,"\nintercept_point_flag = %i\n", intercept_point_flag );
+
                     if ( intercept_point_flag == 0 ) {
                         /* we have an intercept point H */
                         XDrawPoint(dsp, win, gc, mouse_x, mouse_y);
@@ -752,6 +756,7 @@ int main(int argc, char*argv[])
                                        hit_point.x.r,
                                        hit_point.y.r,
                                        hit_point.z.r );
+                        fprintf(stderr,"\n%s\n",buf);
 
                         XSetForeground(dsp, gc3, green.pixel);
                         XDrawImageString( dsp, win3, gc3, 10, 150,
@@ -769,6 +774,7 @@ int main(int argc, char*argv[])
                         sprintf(buf,
                                 "N = < %-8.6e, %-8.6e, %-8.6e )     ",
                                        grad.x.r, grad.y.r, grad.z.r );
+                        fprintf(stderr,"\n%s\n",buf);
 
                         XDrawImageString( dsp, win3, gc3, 10, 170,
                                           buf, strlen(buf));
@@ -776,6 +782,7 @@ int main(int argc, char*argv[])
                     } else {
                         /* we have no intercept and no surface normal
                          * so clear those areas on gc3 */
+                        fprintf(stderr,"\n we have no intercept and no surface normal\n");
                         XSetForeground(dsp, gc3, red.pixel);
                         sprintf(buf, "i = no intercept point                            ");
                         XDrawImageString( dsp, win3, gc3, 10, 150, buf, strlen(buf));

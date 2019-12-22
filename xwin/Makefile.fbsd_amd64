@@ -12,7 +12,7 @@ CMPLEX_DIR=../complex_vector
 IDIR=/usr/local/include
 LDIR=/usr/local/lib
 
-SRCS = grid.c numpad.c x_error_handler.c create_gc.c \
+SRCS = grid.c x_error_handler.c create_gc.c \
 	create_borderless_topwin.c \
 	../time_and_date/timediff.c \
 	../complex_vector/intercept.c \
@@ -72,9 +72,6 @@ OBJS = x_error_handler.o create_gc.o \
 
 grid: grid.o $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) -L$(LDIR) $(LIBS)
-
-numpad: numpad.o $(OBJS)
-	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
 clean:
 	rm -f $(OBJS) grid.o grid numpad numpad.o
