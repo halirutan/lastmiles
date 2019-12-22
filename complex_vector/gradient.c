@@ -34,12 +34,13 @@ int gradient( vec_type *res,
     vec_type tmp[3];
     cplex_type c_tmp[3];
 
-    /* what data did we receive ? */
+    /* what data did we receive ?
 
     fprintf(stderr, "grad :  sign = %g, %g, %g\n", sign->x.r, sign->y.r, sign->z.r);
     fprintf(stderr, "grad :   loc = %g, %g, %g\n", loc->x.r, loc->y.r, loc->z.r);
     fprintf(stderr, "grad :   axi = %g, %g, %g\n", axi->x.r, axi->y.r, axi->z.r);
     fprintf(stderr, "grad : icept = %g, %g, %g\n", intercept->x.r, intercept->y.r, intercept->z.r);
+    */
 
     /*
     printf ("\n\nINFO : in gradient intercept = \n");
@@ -87,7 +88,9 @@ int gradient( vec_type *res,
 
     cplex_vec_normalize( res, tmp+2 );
 
+    /*
     fprintf(stderr, "grad :   res = %g, %g, %g\n\n", res->x.r, res->y.r, res->z.r);
+    */
 
     return ( EXIT_SUCCESS );
 

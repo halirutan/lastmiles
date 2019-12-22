@@ -222,7 +222,7 @@ int main(int argc, char*argv[])
      * the complex component and merely want the real. The same
      * may be said for object_location, semi_major_axi and the
      * direction of our ray ray_direct */
-    cplex_vec_set( &sign_data, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    cplex_vec_set( &sign_data, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0);
 
     /* by default we were using an object at the origin but we can
      * shift around for testing purposes. */
@@ -454,7 +454,7 @@ int main(int argc, char*argv[])
     retcode1 = XSetLineAttributes(dsp, gc, 1,
                                   LineSolid, CapButt, JoinMiter);
 
-    fprintf(stdout,"XSetLineAttributes returns %i\n", retcode1 );
+    /* fprintf(stdout,"XSetLineAttributes returns %i\n", retcode1 ); */
 
     XSetForeground(dsp, gc, WhitePixel(dsp, screen_num));
     XSetForeground(dsp, gc2, WhitePixel(dsp, screen_num));
@@ -722,13 +722,6 @@ int main(int argc, char*argv[])
                                   buf, strlen(buf));
                 XSetForeground(dsp, gc3, cyan.pixel);
 
-                /* assume we hit nothing and set up a buffer full of
-                 * blanks for the intercept output point in gc3 
-                sprintf(buf,
-                 "i = no intercept point                            ");
-                 */
-
-
                 /* time the computation of the intercepts */
                 clock_gettime( CLOCK_MONOTONIC, &soln_t0 );
 
@@ -767,6 +760,13 @@ int main(int argc, char*argv[])
                         XDrawImageString( dsp, win3, gc3, 10, 150,
                                           buf, strlen(buf));
 
+                        /* what data are we working with before the call? *
+                        fprintf(stderr, "grid :  sign = %g, %g, %g\n", sign_data.x.r, sign_data.y.r, sign_data.z.r);
+                        fprintf(stderr, "grid :   loc = %g, %g, %g\n", object_location.x.r, object_location.y.r, object_location.z.r);
+                        fprintf(stderr, "grid :   axi = %g, %g, %g\n", semi_major_axi.x.r, semi_major_axi.y.r, semi_major_axi.z.r);
+                        fprintf(stderr, "grid :   hit = %g, %g, %g\n", hit_point.x.r, hit_point.y.r, hit_point.z.r);
+                        */
+
                         /* compute the gradient normal vector */
                         gradient( &grad, &sign_data, &object_location,
                                          &semi_major_axi, &hit_point );
@@ -784,18 +784,18 @@ int main(int argc, char*argv[])
                         XDrawImageString( dsp, win3, gc3, 10, 170,
                                           buf, strlen(buf));
 
-                    } else {
-                        /* we have no intercept and no surface normal
-                         * so clear those areas on gc3 */
-                        fprintf(stderr,"\n we have no intercept and no surface normal\n");
-                        XSetForeground(dsp, gc3, red.pixel);
-                        sprintf(buf, "i = no intercept point                            ");
-                        XDrawImageString( dsp, win3, gc3, 10, 150, buf, strlen(buf));
-                        sprintf(buf,"^"); /* vector hat hack */
-                        XDrawImageString( dsp, win3, gc3, 9, 162, buf, strlen(buf));
-                        sprintf(buf, "N = no possible gradient normal vector            ");
-                        XDrawImageString( dsp, win3, gc3, 10, 170, buf, strlen(buf));
                     }
+                } else {
+                    /* we have no intercept and no surface normal
+                     * so clear those areas on gc3 */
+                    fprintf(stderr,"\n we have no intercept and no surface normal\n");
+                    XSetForeground(dsp, gc3, red.pixel);
+                    sprintf(buf, "i = no intercept point                            ");
+                    XDrawImageString( dsp, win3, gc3, 10, 150, buf, strlen(buf));
+                    sprintf(buf,"^"); /* vector hat hack */
+                    XDrawImageString( dsp, win3, gc3, 9, 162, buf, strlen(buf));
+                    sprintf(buf, "N = no possible gradient normal vector            ");
+                    XDrawImageString( dsp, win3, gc3, 10, 170, buf, strlen(buf));
                 }
                 clock_gettime( CLOCK_MONOTONIC, &soln_t1 );
 
