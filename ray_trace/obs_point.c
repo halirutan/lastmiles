@@ -26,7 +26,8 @@ int main ( int argc, char **argv)
 
     vec_type tmp[5];
     vec_type grad;
-    int k, intercept_cnt = 0;
+    int k, intercept_cnt = -1;
+    int intercept_point_flag = -1;
 
     /* https://github.com/blastwave/lastmiles/blob/master/ray_trace/
      *                                  math_notes/notes_rt_math_006.png
@@ -166,9 +167,8 @@ int main ( int argc, char **argv)
                                 &object_location, &semi_major_axi,
                                 &obs_point, &obs_normal );
 
-    int intercept_point_flag;
-
     if ( intercept_cnt > 0 ) {
+
         intercept_point_flag = intercept_point( &hit_point, intercept_cnt, &k_val[0],
                                    &obs_point, &ray_direct);
 
@@ -177,7 +177,6 @@ int main ( int argc, char **argv)
             cplex_vec_print( &hit_point );
             printf("\n");
 
-            /* TODO sort this out */
             gradient( &grad,
                       &sign_data, &object_location,
                       &semi_major_axi, &hit_point );

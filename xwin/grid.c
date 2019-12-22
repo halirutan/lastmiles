@@ -137,8 +137,9 @@ int main(int argc, char*argv[])
      *     obs_y_height = 8.0
      */
 
-    int intercept_cnt = 0;
-    int intercept_point_flag;
+    int intercept_cnt = -1;
+    int intercept_point_flag = -1;
+
     /* per our diagrams we are just solving for k in the complex
      * cooeficient quadratic */
     cplex_type k_val[2];
@@ -697,8 +698,10 @@ int main(int argc, char*argv[])
                 y_prime = obs_y_height * win_y / 2.0;
 
                 XSetForeground(dsp, gc3, cyan.pixel);
+                fprintf(stderr,"\n---------------------------------\n");
                 sprintf(buf,"x', y' = ( %-10.8e , %-10.8e )  ",
                               x_prime, y_prime );
+                fprintf(stderr,"\n%s\n",buf);
 
                 XDrawImageString( dsp, win3, gc3, 10, 70,
                                   buf, strlen(buf));
@@ -713,6 +716,7 @@ int main(int argc, char*argv[])
                 XSetForeground(dsp, gc3, cornflowerblue.pixel);
                 sprintf(buf,"L = < %-8.6e, %-8.6e, %-8.6e >   ",
                         obs_point.x.r, obs_point.y.r, obs_point.z.r );
+                fprintf(stderr,"\n%s\n",buf);
 
                 XDrawImageString( dsp, win3, gc3, 10, 90,
                                   buf, strlen(buf));
@@ -728,7 +732,7 @@ int main(int argc, char*argv[])
                 /* time the computation of the intercepts */
                 clock_gettime( CLOCK_MONOTONIC, &soln_t0 );
 
-                fprintf(stderr,"\n---------------------------------\n");
+                intercept_cnt = -1;
                 intercept_cnt = intercept ( k_val, &sign_data,
                                 &object_location, &semi_major_axi,
                                 &obs_point, &obs_normal );
@@ -739,6 +743,7 @@ int main(int argc, char*argv[])
                     /* note that this function returns a zero value
                      * if all goes well and we get an intercept point
                      * in R3 space. */
+                    intercept_point_flag = -1;
                     intercept_point_flag = intercept_point( &hit_point,
                                                             intercept_cnt,
                                                             &k_val[0],
