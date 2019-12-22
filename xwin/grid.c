@@ -719,9 +719,10 @@ int main(int argc, char*argv[])
                 XSetForeground(dsp, gc3, cyan.pixel);
 
                 /* assume we hit nothing and set up a buffer full of
-                 * blanks for the intercept output point in gc3 */
+                 * blanks for the intercept output point in gc3 
                 sprintf(buf,
                  "i = no intercept point                            ");
+                 */
 
 
                 /* time the computation of the intercepts */
@@ -772,8 +773,17 @@ int main(int argc, char*argv[])
                         XDrawImageString( dsp, win3, gc3, 10, 170,
                                           buf, strlen(buf));
 
+                    } else {
+                        /* we have no intercept and no surface normal
+                         * so clear those areas on gc3 */
+                        XSetForeground(dsp, gc3, red.pixel);
+                        sprintf(buf, "i = no intercept point                            ");
+                        XDrawImageString( dsp, win3, gc3, 10, 150, buf, strlen(buf));
+                        sprintf(buf,"^"); /* vector hat hack */
+                        XDrawImageString( dsp, win3, gc3, 9, 162, buf, strlen(buf));
+                        sprintf(buf, "N = no possible gradient normal vector            ");
+                        XDrawImageString( dsp, win3, gc3, 10, 170, buf, strlen(buf));
                     }
-
                 }
                 clock_gettime( CLOCK_MONOTONIC, &soln_t1 );
 
