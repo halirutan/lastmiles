@@ -186,7 +186,14 @@ int main ( int argc, char **argv)
             printf("\n");
 
             /* TODO sort this out */
-            gradient( &grad, &sign_data, &object_location, &semi_major_axi, &hit_point );
+            gradient( &grad,
+                      &sign_data, &object_location,
+                      &semi_major_axi, &hit_point );
+
+            printf("\n------------------------------------------\n");
+            printf("INFO : gradient = ");
+            cplex_vec_print( &grad );
+            printf("\n\n");
 
         } else {
             printf("INFO : no intercept point\n");
