@@ -21,10 +21,17 @@
 
 #include "v.h"
 
+int gradient( vec_type *res,
+              vec_type *sign,
+              vec_type *loc,
+              vec_type *axi,
+              vec_type *intercept );
+
 int main ( int argc, char **argv)
 {
 
     vec_type tmp[5];
+    vec_type grad;
     int k, intercept_cnt = 0;
 
     /* https://github.com/blastwave/lastmiles/blob/master/ray_trace/
@@ -85,6 +92,8 @@ int main ( int argc, char **argv)
      */
     x_prime = 1.7;
     y_prime = -2.0;
+    x_prime = 0.0;
+    y_prime = 0.0;
 
     /* try an offset of 2^(-48)
      *    double tiny_delta = pow( 2.0, -48.0);
@@ -175,6 +184,10 @@ int main ( int argc, char **argv)
             printf("INFO : hit_point = ");
             cplex_vec_print( &hit_point );
             printf("\n");
+
+            /* TODO sort this out */
+            gradient( &grad, &sign_data, &object_location, &semi_major_axi, &hit_point );
+
         } else {
             printf("INFO : no intercept point\n");
         }
