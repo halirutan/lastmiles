@@ -73,6 +73,6 @@ int cplex_vec_cross( vec_type *res, vec_type *op1, vec_type *op2 )
     res->z.r = op_sub.r;
     res->z.i = op_sub.i;
 
-    return ( 0 );
+    return ( EXIT_SUCCESS );
 }
 

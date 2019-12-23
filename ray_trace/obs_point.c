@@ -25,6 +25,7 @@ int main ( int argc, char **argv)
 {
 
     vec_type tmp[5];
+    cplex_type c_tmp[2];
     vec_type grad;
     int k, intercept_cnt = -1;
     int intercept_point_flag = -1;
@@ -88,6 +89,9 @@ int main ( int argc, char **argv)
     x_prime = 1.7;
     y_prime = -2.0;
 
+    x_prime = 2.0;
+    y_prime = 0.0;
+
     /* try an offset of 2^(-48)
      *    double tiny_delta = pow( 2.0, -48.0);
      * 3.5527136788005009293556213378906250e-15 */
@@ -113,7 +117,7 @@ int main ( int argc, char **argv)
 
     cplex_vec_copy( &obs_point, tmp );
 
-    printf("INFO : obs_point = ");
+    printf("INFO : L obs_point = ");
     cplex_vec_print( &obs_point );
     printf("\n\n");
 
@@ -157,23 +161,31 @@ int main ( int argc, char **argv)
     /* Again the diagrams we used had a=5, b=2 and c=6 */
     cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0);
 
-
     /* Note that the ray direction must be normalized */
     cplex_vec_normalize( &ray_direct, &obs_normal );
 
+    printf("INFO : ray_direct = ");
+    cplex_vec_print( &ray_direct );
+    printf("\n\n");
 
     /* Now we call our intercept function to do most of the work */
+    /* TODO fix up the intercept func to return 1 root count if in
+     * fact there is only a single real root and not just two 
+     * precisely identical real roots. */
     intercept_cnt = intercept ( k_val, &sign_data,
                                 &object_location, &semi_major_axi,
                                 &obs_point, &obs_normal );
 
     if ( intercept_cnt > 0 ) {
 
-        intercept_point_flag = intercept_point( &hit_point, intercept_cnt, &k_val[0],
-                                   &obs_point, &ray_direct);
+        intercept_point_flag = intercept_point( &hit_point,
+                                                intercept_cnt,
+                                                &k_val[0],
+                                                &obs_point,
+                                                &ray_direct);
 
         if ( intercept_point_flag == 0 ) {
-            printf("INFO : hit_point = ");
+            printf("INFO : H hit_point = ");
             cplex_vec_print( &hit_point );
             printf("\n");
 
@@ -182,8 +194,24 @@ int main ( int argc, char **argv)
                       &semi_major_axi, &hit_point );
 
             printf("\n------------------------------------------\n");
-            printf("INFO : gradient = ");
+            printf("INFO : N gradient = ");
             cplex_vec_print( &grad );
+            printf("\n\n");
+
+            /* we should attempt to compute the T tangent vector in
+             * the plane of incidence if and only if N is not parallel
+             * to the incident ray_direct */
+
+            /* just for shits and sniggles lets do both the dot and
+             * the cross products and see what we get. */
+
+            cplex_vec_dot( c_tmp, &ray_direct, &grad );
+            printf("INFO : ray_direct dot grad = ( %16.12e, %16.12e )",
+                                                  c_tmp->r, c_tmp->i );
+
+            cplex_vec_cross( tmp+3, &ray_direct, &grad );
+            printf("\n\nINFO : ray_direct X grad = ");
+            cplex_vec_print( tmp+3 );
             printf("\n\n");
 
         } else {
