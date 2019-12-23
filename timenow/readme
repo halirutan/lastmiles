@@ -1,4 +1,24 @@
 
+Old school Solaris on Fujitsu SPARC V9
+
+beta$ unset LDFLAGS    
+beta$ unset LD_OPTIONS
+beta$ unset LD_RUN_PATH 
+beta$ env | sort | grep 'LD'
+BUILD=/usr/local/build
+LD=/usr/ccs/bin/sparcv9/ld
+OLDPWD=/export/home/dclarke/pgm/lastmiles
+beta$ 
+beta$ LD_OPTIONS=\-64 ; export LD_OPTIONS 
+beta$ 
+beta$ /opt/developerstudio12.6/bin/c99 -Xc \
+> -m64 -xarch=sparc -g -errfmt=error -errshort=full -xstrconst -xildoff \
+> -xmemalign=8s -xnolibmil -xcode=pic32 -xregs=no%appl -xlibmieee -mc -ftrap=%none -xbuiltin=%none -xunroll=1 -xs \
+> -xdebugformat=dwarf -errtags=yes -errwarn=%none -erroff=%none \
+> -D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE -D_XOPEN_SOURCE=600 -o tn tn.c -lrt 
+beta$ 
+
+
 
 The code may be compiled for a baseline amd opteron k8 with every processor option disabled thus : 
 

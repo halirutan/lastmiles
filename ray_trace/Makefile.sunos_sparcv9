@@ -16,6 +16,7 @@ LIBS = -lm
 SRCS = obs_point.c \
 	../complex_vector/intercept.c \
 	../complex_vector/intercept_point.c \
+	../complex_vector/gradient.c \
 	../complex_vector/check_status.c \
 	../complex_vector/cplex_add.c \
 	../complex_vector/cplex_check.c \
@@ -34,11 +35,13 @@ SRCS = obs_point.c \
 	../complex_vector/cplex_vec_normalize.c \
 	../complex_vector/cplex_vec_set.c \
 	../complex_vector/cplex_vec_print.c \
-	../complex_vector/cplex_vec_scale.c
+	../complex_vector/cplex_vec_scale.c \
+	../complex_vector/cplex_vec_cross.c
 
 OBJS = obs_point.o \
 	../complex_vector/intercept.o \
 	../complex_vector/intercept_point.o \
+	../complex_vector/gradient.o \
 	../complex_vector/check_status.o \
 	../complex_vector/cplex_add.o \
 	../complex_vector/cplex_check.o \
@@ -57,7 +60,8 @@ OBJS = obs_point.o \
 	../complex_vector/cplex_vec_normalize.o \
 	../complex_vector/cplex_vec_set.o \
 	../complex_vector/cplex_vec_print.o \
-	../complex_vector/cplex_vec_scale.o
+	../complex_vector/cplex_vec_scale.o \
+	../complex_vector/cplex_vec_cross.o
 
 %.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
