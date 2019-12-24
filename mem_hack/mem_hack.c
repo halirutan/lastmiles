@@ -1,4 +1,5 @@
 
+#define _XOPEN_SOURCE 600
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -18,10 +19,10 @@ int main(int argc, char *argv[])
             if ( foo == NULL ) {
                 /* really? possible ENOMEM? */
                 if ( errno == ENOMEM ) {
-                    fprintf(stderr,"FAIL : calloc returns ENOMEM at %s:%d\n",
+                    fprintf(stderr,"FAIL : malloc returns ENOMEM at %s:%d\n",
                             __FILE__, __LINE__ );
                 } else {
-                    fprintf(stderr,"FAIL : calloc fails at %s:%d\n",
+                    fprintf(stderr,"FAIL : malloc fails at %s:%d\n",
                             __FILE__, __LINE__ );
                 }
                 perror("FAIL ");
@@ -60,10 +61,10 @@ int main(int argc, char *argv[])
             if ( foo == NULL ) {
                 /* really? possible ENOMEM? */
                 if ( errno == ENOMEM ) {
-                    fprintf(stderr,"FAIL : calloc returns ENOMEM at %s:%d\n",
+                    fprintf(stderr,"FAIL : malloc returns ENOMEM at %s:%d\n",
                             __FILE__, __LINE__ );
                 } else {
-                    fprintf(stderr,"FAIL : calloc fails at %s:%d\n",
+                    fprintf(stderr,"FAIL : malloc fails at %s:%d\n",
                             __FILE__, __LINE__ );
                 }
                 perror("FAIL ");
@@ -72,6 +73,7 @@ int main(int argc, char *argv[])
         }
     
         for ( j= 0 ; j<num_of ; j++ ) {
+            /* this should never ever happen on loop 0 */
             if ( *(foo+j) != 0 ) fprintf ( stderr, "DBUG : %i pass foo[%04i] = %llu at 0x%p\n", k, j, *(foo+j), foo+j );
             if ( *(bar+j) != 0 ) fprintf ( stderr, "DBUG : %i pass bar at %i\n", k, j );
         }

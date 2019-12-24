@@ -1,0 +1,27 @@
+
+IDIR = /opt/bw/include
+LDIR = /opt/bw/lib
+
+CC=/usr/bin/cc
+
+CFLAGS= -I$(IDIR) -std=iso9899:1999 -fno-builtin -g -march=armv7-a \
+	-mtune=cortex-a17 -mfpu=vfpv4-d16 -mstructure-size-boundary=32 \
+	-marm -mtls-dialect=gnu2 -pedantic -Wl,-rpath=/opt/bw/lib \
+	-mno-sched-prolog -mlittle-endian
+
+CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE \
+		 -D_X_OPEN_SOURCE=600
+
+LIBS = -lrt
+
+SRCS = ../time_and_date/timediff.c tdelta.c
+OBJS = ../time_and_date/timediff.o tdelta.o
+
+%.o: %.c
+	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
+
+tdelta: $(OBJS)
+	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
+
+clean:
+	rm -f $(OBJS) tdelta

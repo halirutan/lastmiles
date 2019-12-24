@@ -176,6 +176,8 @@ int main ( int argc, char **argv)
                                 &object_location, &semi_major_axi,
                                 &obs_point, &obs_normal );
 
+    printf("intercept_cnt = %i\n", intercept_cnt );
+
     if ( intercept_cnt > 0 ) {
 
         intercept_point_flag = intercept_point( &hit_point,
@@ -183,6 +185,8 @@ int main ( int argc, char **argv)
                                                 &k_val[0],
                                                 &obs_point,
                                                 &ray_direct);
+
+        printf("intercept_point_flag = %i\n", intercept_point_flag );
 
         if ( intercept_point_flag == 0 ) {
             printf("INFO : H hit_point = ");
