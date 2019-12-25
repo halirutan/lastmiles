@@ -121,11 +121,17 @@ int cplex_quadratic( cplex_type res[2],
     res[1].i = full_res[2].i;
 
 
-    /* check how many real roots we have */
+    /* check how many unique real roots we have */
     if ( ( fabs( res[0].i ) > 0.0 ) && ( fabs( res[1].i ) > 0.0 ) ) {
         real_root_count = 0;
     } else if ( ( fabs( res[0].i ) == 0.0 ) && ( fabs( res[1].i ) == 0.0 ) ) {
         real_root_count = 2;
+        /* well we had better check these are unique
+         * TODO consider an epsilon delta here */
+        if ( ( res[0].r == res[1].r ) && ( res[0].i == res[1].i ) ) {
+            real_root_count = 1;
+            /* throw away the second root ? */
+        }
     } else {
         real_root_count = 1;
     }

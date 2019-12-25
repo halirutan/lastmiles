@@ -26,7 +26,7 @@ int main ( int argc, char **argv)
 
     vec_type tmp[5];
     cplex_type c_tmp[2];
-    vec_type grad;
+    vec_type grad, reflect;
     int k, intercept_cnt = -1;
     int intercept_point_flag = -1;
 
@@ -89,7 +89,7 @@ int main ( int argc, char **argv)
     x_prime = 1.7;
     y_prime = -2.0;
 
-    x_prime = 2.0;
+    x_prime = 0.0;
     y_prime = 0.0;
 
     /* try an offset of 2^(-48)
@@ -206,17 +206,74 @@ int main ( int argc, char **argv)
              * the plane of incidence if and only if N is not parallel
              * to the incident ray_direct */
 
-            /* just for shits and sniggles lets do both the dot and
-             * the cross products and see what we get. */
-
-            cplex_vec_dot( c_tmp, &ray_direct, &grad );
-            printf("INFO : ray_direct dot grad = ( %16.12e, %16.12e )",
-                                                  c_tmp->r, c_tmp->i );
-
             cplex_vec_cross( tmp+3, &ray_direct, &grad );
             printf("\n\nINFO : ray_direct X grad = ");
             cplex_vec_print( tmp+3 );
             printf("\n\n");
+            if ( cplex_vec_mag( tmp+3 ) < RT_EPSILON ) {
+                printf("WARN : we have a null vector result from R x N\n");
+                /* At this point there will be no solution using Cramer's
+                 * method as the denominator matrix will be determinant
+                 * of zero. However geometrically we may say that the
+                 * reflected vector is the same as the normal N. */
+                 cplex_vec_copy( &reflect, &grad );
+                 printf("INFO : Rr = < %16.12e, %16.12e, %16.12e >\n",
+                              reflect.x.r, reflect.y.r, reflect.z.r);
+            } else {
+                /* Cramer's Method land and may as well embrace it */
+                printf("      : Cramer\'s Method needed from here\n");
+
+/*
+
+we did all this before ...
+
+     *
+     *  Solve for A,B,C where
+     *  ( 0.5 - i ) * A  - 2 * B - 3 * C = ( 1 + 0.5i ),
+     *  4 * A + 5 * B + 6 * C = ( 2 + 0.75i ),
+     *  7 * A + ( -2 + 4i ) * B + 9 * C = ( 3 -0.25i ).
+
+    printf("\n\nCramers rule test with existing matrix and\n");
+    rh_col.x.r = 1.0; rh_col.x.i = 0.5;
+    rh_col.y.r = 2.0; rh_col.y.i = 0.75;
+    rh_col.z.r = 3.0; rh_col.z.i = -0.25;
+    printf("rh_col = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+        rh_col.x.r, rh_col.x.i,
+        rh_col.y.r, rh_col.y.i,
+        rh_col.z.r, rh_col.z.i);
+
+    status = cplex_cramer( &res_vec, &v[0], &v[1], &v[2], &rh_col );
+    if ( status != 0 ) {
+        printf("dbug : There is no valid solution.\n");
+    } else {
+        printf("     : result col = < ( %16.12e, %16.12e ),\n",
+                    res_vec.x.r, res_vec.x.i );
+        printf("                      ( %16.12e, %16.12e ),\n",
+                    res_vec.y.r, res_vec.y.i );
+        printf("                      ( %16.12e, %16.12e ) >\n\n",
+                    res_vec.z.r, res_vec.z.i);
+    }
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
 
         } else {
             printf("INFO : no intercept point\n");

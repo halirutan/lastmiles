@@ -60,21 +60,25 @@ int intercept_point( vec_type *pt, int intercept_cnt, cplex_type *k_val,
 
     /* if the two real roots are equal then we really only have a single
      * real solution. Note that we only really care about real roots at
-     * this time. */
-    if ( ( intercept_cnt == 2 ) 
-         &&
-         ( k_val[0].r == k_val[1].r )
-         &&
-         ( k_val[0].i == k_val[1].i ) ) {
-
-        intercept_cnt = 1;
-        /* printf ("     : only one unique root.\n\n"); */
-
-    }
+     * this time.
+     *
+     * 24 Dec 2019 this is now checked upstream in the complex
+     *             quadractic solution
+     * 
+     * if ( ( intercept_cnt == 2 ) 
+     *      &&
+     *      ( k_val[0].r == k_val[1].r )
+     *      &&
+     *      ( k_val[0].i == k_val[1].i ) ) {
+     *
+     *     intercept_cnt = 1;
+     *
+     * }
+     */
 
     /* So did we get a real root ? */
     if ( intercept_cnt > 0 ) {
-        /* Did we get two of them ? */
+        /* Did we get two of them ? Usually we do. */
         if ( intercept_cnt == 2 ) {
             /* Is one of them non-negative? */
             if ( ( k_val[0].r >= 0.0 )
@@ -116,7 +120,7 @@ int intercept_point( vec_type *pt, int intercept_cnt, cplex_type *k_val,
              * viewport ?  If not then set the intercept
              * down to zero. */
             if ( k_root < 0.0 ) {
-               printf("WARN : no intercept to the front.\n");
+               fprintf(stderr,"WARN : no front intercept\n");
                intercept_cnt = 0;
             }
         }
