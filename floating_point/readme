@@ -1200,3 +1200,74 @@ esther$ gcc -E -dM -
 #define __ATOMIC_RELEASE 3
 
 
+
+-------------- negative zero experiment ---------------
+
+vesta$ $CC $CFLAGS $CPPFLAGS -o neg_zero neg_zero.c 
+vesta$ 
+vesta$ cat -n neg_zero.c 
+     1
+     2  #define _XOPEN_SOURCE 600
+     3
+     4  #include <stdio.h>
+     5  #include <stdlib.h>
+     6
+     7  int main(int argc, char **argv)
+     8  {
+     9
+    10      double foo = -0.0;
+    11      double bar = 0.0;
+    12
+    13      if ( foo == bar )
+    14          printf("sure\n");
+    15      else
+    16          printf("nope\n");
+    17
+    18      return ( EXIT_SUCCESS );
+    19
+    20  }
+    21
+vesta$ 
+vesta$ ./neg_zero
+sure
+vesta$ 
+vesta$ alias 
+gg='TERM=dumb /usr/local/bin/gdb -q '
+h='fc -l'
+m=/usr/bin/more
+vesta$ 
+vesta$ 
+vesta$ 
+vesta$ gg neg_zero
+Reading symbols from neg_zero...
+(gdb) break neg_zero.c:13
+Breakpoint 1 at 0x20130b: file neg_zero.c, line 13.
+(gdb) run
+Starting program: /usr/home/dclarke/pgm/lastmiles/floating_point/neg_zero 
+
+Breakpoint 1, main (argc=1, argv=0x7fffffffe920) at neg_zero.c:13
+13          if ( foo == bar )
+(gdb) print foo
+$1 = -0
+(gdb) print bar
+$2 = 0
+(gdb) print &foo
+$3 = (double *) 0x7fffffffe898
+(gdb) print &bar
+$4 = (double *) 0x7fffffffe890
+(gdb) x/8xb 0x7fffffffe890
+0x7fffffffe890: 0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x00
+(gdb) x/8xb 0x7fffffffe898
+0x7fffffffe898: 0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x80
+(gdb) step
+14              printf("sure\n");
+(gdb) cont
+Continuing.
+sure
+[Inferior 1 (process 5970) exited normally]
+(gdb) quit
+vesta$ 
+
+see page 72-73 of The Handbook ofFloating Point Arithmetic, 2nd Ed.
+
+

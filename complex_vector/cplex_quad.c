@@ -121,13 +121,16 @@ int cplex_quadratic( cplex_type res[2],
     res[1].i = full_res[2].i;
 
 
-    /* check how many unique real roots we have */
+    /* check how many unique real roots we have.
+     *
+     * Note that pg 72-73 of The Handbook of Floatinf Point Arithmetic
+     * clearly states that the IEEE754-2008 specification claims we
+     * will always get a ( -0.0 == 0.0 ) as true. */
     if ( ( fabs( res[0].i ) > 0.0 ) && ( fabs( res[1].i ) > 0.0 ) ) {
         real_root_count = 0;
     } else if ( ( fabs( res[0].i ) == 0.0 ) && ( fabs( res[1].i ) == 0.0 ) ) {
         real_root_count = 2;
-        /* well we had better check these are unique
-         * TODO consider an epsilon delta here */
+        /* well we had better check these are unique */
         if ( ( res[0].r == res[1].r ) && ( res[0].i == res[1].i ) ) {
             real_root_count = 1;
             /* throw away the second root ? */
@@ -135,13 +138,6 @@ int cplex_quadratic( cplex_type res[2],
     } else {
         real_root_count = 1;
     }
-
-    /* As seen in chat on 20191111014002 we saw 
-     * potapeno: assert is a debugging tool for me, and imo one
-     *           of the least well utilized
-     *
-     *    assert ( real_root_count != 1 );
-     */
 
     return ( real_root_count );
 
