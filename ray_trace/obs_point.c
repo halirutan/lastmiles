@@ -89,7 +89,10 @@ int main ( int argc, char **argv)
     x_prime = 1.7;
     y_prime = -2.0;
 
-    x_prime = 0.0;
+    /* double tiny_delta = pow( 2.0, -32.0);
+     * printf("\nINFO : tiny_delta offset is %-36.32e\n\n", tiny_delta ); */
+
+    x_prime = 2.0;
     y_prime = 0.0;
 
     /* try an offset of 2^(-48)
@@ -186,7 +189,9 @@ int main ( int argc, char **argv)
                                                 &obs_point,
                                                 &ray_direct);
 
-        printf("intercept_point_flag = %i\n", intercept_point_flag );
+        if ( intercept_point_flag == 0 ) {
+             printf("\nDBUG : We have a good intercept point\n");
+        }
 
         if ( intercept_point_flag == 0 ) {
             printf("INFO : H hit_point = ");

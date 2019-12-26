@@ -28,11 +28,11 @@ int cplex_quadratic( cplex_type res[2],
 
     /****************************************************************
      * Let's assume we have three operands provided such that
-     * the quadratic equation represented is : 
+     * the quadratic equation represented is :
      *
      *     op1 * k^2 + op2 * k + op3 = 0
      *
-     * Therefore : 
+     * Therefore :
      *
      *                -1 * op2 + sqrt( op2^2 - 4 * op1 * op3 )
      *     res[0]  = ------------------------------------------
@@ -49,7 +49,7 @@ int cplex_quadratic( cplex_type res[2],
      *     res[0] = ( -1 * op2 + roots[0] ) / 2 * op1
      *     res[1] = ( -1 * op2 + roots[1] ) / 2 * op1
      *
-     * Also true is : 
+     * Also true is :
      *
      *     res[2] = ( -1 * op2 - roots[0] ) / 2 * op1
      *     res[3] = ( -1 * op2 - roots[1] ) / 2 * op1
@@ -107,11 +107,11 @@ int cplex_quadratic( cplex_type res[2],
     check_status( cplex_sub( &tmp0, &tmp1, (roots+1) ) );
     check_status( cplex_div( &full_res[3], &tmp0, &denom ) );
 
-    /* we have already checked all this with deMoivre's theorem 
-     *     for (j=0; j<4; j++ ) {
-     *         printf("     : full_res[%i] = ( %16.12e, %16.12e )\n",
-     *                               j, full_res[j].r, full_res[j].i);
-     *     }
+    /* we have already checked all this with deMoivre's theorem *
+     * for (j=0; j<4; j++ ) {
+     *     printf("     : full_res[%i] = ( %16.12e, %16.12e )\n",
+     *                           j, full_res[j].r, full_res[j].i);
+     *  }
      */
 
     res[0].r = full_res[0].r;
@@ -120,24 +120,48 @@ int cplex_quadratic( cplex_type res[2],
     res[1].r = full_res[2].r;
     res[1].i = full_res[2].i;
 
-
     /* check how many unique real roots we have.
      *
-     * Note that pg 72-73 of The Handbook of Floatinf Point Arithmetic
+     * Note that pg 72-73 of The Handbook of Floating Point Arithmetic
      * clearly states that the IEEE754-2008 specification claims we
-     * will always get a ( -0.0 == 0.0 ) as true. */
-    if ( ( fabs( res[0].i ) > 0.0 ) && ( fabs( res[1].i ) > 0.0 ) ) {
-        real_root_count = 0;
-    } else if ( ( fabs( res[0].i ) == 0.0 ) && ( fabs( res[1].i ) == 0.0 ) ) {
+     * will always get a ( -0.0 == 0.0 ) as true.
+     *
+     * https://www.springer.com/fr/book/9783319765259
+     *
+     */
+
+    if ( ( res[0].i == 0.0 ) && ( res[1].i == 0.0 ) ) {
+        /* Thanks to the IEEE754-2008 zero equality rules we know
+         * that we have two real roots. */
         real_root_count = 2;
-        /* well we had better check these are unique */
-        if ( ( res[0].r == res[1].r ) && ( res[0].i == res[1].i ) ) {
+        if ( res[0].r == res[1].r ) {
             real_root_count = 1;
-            /* throw away the second root ? */
         }
     } else {
-        real_root_count = 1;
+        if ( ( res[0].i == 0.0 ) || ( res[1].i == 0.0 ) ) {
+            real_root_count = 1;
+        } else {
+            real_root_count = 0;
+        }
     }
+
+    /* we had this stuff using the fabs call a lot and we do not
+     * need it anymore
+     *
+     *
+     *  if ( ( fabs( res[0].i ) > 0.0 ) && ( fabs( res[1].i ) > 0.0 ) ) {
+     *      real_root_count = 0;
+     *  } else if ( ( fabs( res[0].i ) == 0.0 ) && ( fabs( res[1].i ) == 0.0 ) ) {
+     *      real_root_count = 2;
+     *      * well we had better check these are unique *
+     *      if ( ( res[0].r == res[1].r ) && ( res[0].i == res[1].i ) ) {
+     *          real_root_count = 1;
+     *          * throw away the second root ? *
+     *      }
+     *  } else {
+     *      real_root_count = 1;
+     *  }
+     */
 
     return ( real_root_count );
 
