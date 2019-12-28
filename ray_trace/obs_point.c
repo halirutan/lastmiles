@@ -24,11 +24,13 @@
 int main ( int argc, char **argv)
 {
 
-    vec_type tmp[6];
-    cplex_type c_tmp[2];
+    vec_type tmp[9];
+    cplex_type c_tmp[3];
     vec_type grad, reflect;
+    double vec_T_mag, theta_i;
     int k, intercept_cnt = -1;
     int intercept_point_flag = -1;
+
 
     /* https://github.com/blastwave/lastmiles/blob/master/ray_trace/
      *                                  math_notes/notes_rt_math_006.png
@@ -102,19 +104,21 @@ int main ( int argc, char **argv)
 
     /* A test point to begin with on the observation plane.
      *
-    x_prime = 1.7;
-    y_prime = -2.0;
+     *   x_prime = 1.7;
+     *   y_prime = -2.0;
      *
-
+     *
+     * x_prime = pow( 2.0, -24.0);
      * double tiny_delta = pow( 2.0, -32.0);
-     * printf("\nINFO : tiny_delta offset is %-36.32e\n\n", tiny_delta ); */
-
+     * printf("\nINFO : tiny_delta offset is %-36.32e\n\n",
+     *                                            tiny_delta );
+     */
 
 
     /* USE A TEST RAY */
-    x_prime = pow( 2.0, -16.0);
-    y_prime = 0.0;
-    printf("\nNOTE : **** \"damn near center\" of test sphere\n\n");
+    x_prime = ( 1.0 / sqrt(2.0) ) - pow( 2.0, -8.0);
+    y_prime = ( 1.0 / sqrt(2.0) );
+    printf("\nNOTE : **** inside \"1/sqrt(2) diagonal\" of test sphere\n\n");
 
 
 
@@ -220,6 +224,10 @@ int main ( int argc, char **argv)
                                 &obs_point, &obs_normal );
 
     printf("intercept_cnt = %i\n", intercept_cnt );
+    printf("\nINFO : k_val[0] = ( %16.12e, %16.12e )\n",
+                           k_val[0].r, k_val[0].i );
+    printf("     : k_val[1] = ( %16.12e, %16.12e )\n",
+                           k_val[1].r, k_val[1].i );
 
     if ( intercept_cnt > 0 ) {
 
@@ -247,7 +255,6 @@ int main ( int argc, char **argv)
             printf("INFO : N gradient = ");
             printf("< %16.12e, %16.12e, %16.12e >\n",
                               grad.x.r, grad.y.r, grad.z.r );
-            printf("\n\n");
 
             /* we should attempt to compute the T tangent vector in
              * the plane of incidence if and only if N is not parallel
@@ -255,8 +262,32 @@ int main ( int argc, char **argv)
              * due to right-hand rule of the supposedly physical 
              * universe. So T == -Ri X N here. */
             cplex_vec_scale( tmp+3, &ray_direct, -1.0 );
-            printf("\n\nINFO : -Ri = < %16.12e, %16.12e, %16.12e >\n",
+            printf("\nINFO : -Ri = < %16.12e, %16.12e, %16.12e >\n",
                                tmp[3].x.r, tmp[3].y.r, tmp[3].z.r );
+
+            /* what is the angle of incidence ? */
+            cplex_vec_dot( c_tmp, &grad, tmp+3);
+            if ( !(c_tmp->i == 0.0) ) {
+                /* this should never happen */
+                fprintf(stderr,"FAIL : bizarre complex dot product");
+                fprintf(stderr," dot( N, -Ri )\n");
+                fprintf(stderr,"     :  = ( %16.12e, %16.12e )\n",
+                                                   c_tmp->r, c_tmp->i );
+                fprintf(stderr,"BAIL : we are done.\n\n");
+                return ( EXIT_FAILURE );
+            } else {
+                printf("     : dot( N, -Ri ) = %16.12e\n", c_tmp->r );
+            }
+            theta_i = acos(c_tmp->r);
+            printf("     : theta_i = %16.12e\n", theta_i );
+            printf("     :         = %16.12e degrees\n", theta_i * 180.0/M_PI );
+            if ( fabs(theta_i) < RT_ANGLE_EPSILON ) {
+                if ( theta_i == 0.0 ) {
+                    fprintf(stderr,"WARN : theta_i is zero!\n");
+                } else {
+                    fprintf(stderr,"WARN : theta_i too small.\n");
+                }
+            }
 
             cplex_vec_cross( tmp+4, tmp+3, &grad );
             cplex_vec_normalize( &ray_direct, &obs_normal );
@@ -264,17 +295,29 @@ int main ( int argc, char **argv)
             printf("< %16.12e, %16.12e, %16.12e >\n",
                                tmp[4].x.r, tmp[4].y.r, tmp[4].z.r );
 
-            if ( cplex_vec_mag( tmp+4 ) < RT_EPSILON ) {
-                printf("WARN : null vector result from -Ri x N\n");
+            vec_T_mag = cplex_vec_mag( tmp+4 );
+            if ( ( vec_T_mag < RT_EPSILON )
+                    ||
+                 ( fabs(theta_i) < RT_ANGLE_EPSILON ) ) {
+
+                if ( vec_T_mag == 0.0 ) {
+                    printf("WARN : null vector result from -Ri x N\n");
+                } else {
+                    printf("WARN : tiny vector result from -Ri x N\n");
+                }
+
                 /* At this point there will be no solution using Cramer's
                  * method as the denominator matrix will be determinant
                  * of zero. However geometrically we may say that the
                  * reflected vector is the same as the normal N. */
                  cplex_vec_copy( &reflect, &grad );
-                 printf("INFO : Rr = < %16.12e, %16.12e, %16.12e >\n",
-                              reflect.x.r, reflect.y.r, reflect.z.r);
+                 printf("INFO : Rr = < %16.12e, %16.12e, %16.12e > ??\n",
+                                 reflect.x.r, reflect.y.r, reflect.z.r);
+                 printf("     : this is just the surface gradient N\n");
+
             } else {
-                /* Cramer's Method land and may as well embrace it */
+
+                /* Cramer's Method and may as well embrace it */
                 cplex_vec_normalize( tmp+5, tmp+4 );
                 printf("     : this is the plane of incidence tangent\n");
                 printf("     : T = ");
@@ -312,23 +355,21 @@ we did all this before ...
         printf("                      ( %16.12e, %16.12e ) >\n\n",
                     res_vec.z.r, res_vec.z.i);
     }
+
+
+    we need a left hand 3x3 matrix of rows T, N, -Ri
+
+    T is in tmp[5]
+    N is in grad
+    -Ri is in  tmp[3]
+
+    on right hand column we need 0,  Cos ( theta_i )  and cos ( 2 x theta_i )
+
+    theta_i = acos ( dot( -Ri, N ) ) 
+
+    so really we need rt hand column 0, dot( -Ri, N ), 2 * dot( -Ri, N )
+
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

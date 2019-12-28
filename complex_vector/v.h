@@ -25,6 +25,11 @@
  * smaller than 10^-12 is essentially zero. */
 #define RT_EPSILON 1.0e-12
 
+/* It may be senseless to consider angles that are near
+ * a millionth of a degree or about 2.980232238770e-08 rad
+ * and we may as well limit at twice that angle. */
+#define RT_ANGLE_EPSILON 5.96046447754e-08
+
 typedef struct cplex {
     double r, i;
 } cplex_type;
