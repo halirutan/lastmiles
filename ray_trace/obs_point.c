@@ -24,7 +24,7 @@
 int main ( int argc, char **argv)
 {
 
-    vec_type tmp[5];
+    vec_type tmp[6];
     cplex_type c_tmp[2];
     vec_type grad, reflect;
     int k, intercept_cnt = -1;
@@ -75,8 +75,15 @@ int main ( int argc, char **argv)
     /* Test case will be an observation plane at ( 12, 0, 0 ) */
     cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
+    printf("\nINFO : viewport O obs_origin = ");
+    printf("< %16.12e, %16.12e, %16.12e >\n",
+                      obs_origin.x.r, obs_origin.y.r, obs_origin.z.r );
+
     /* Observation direction is along negative i_hat basis vector */
     cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    printf("\nINFO : viewport direction obs_normal = ");
+    printf("< %16.12e, %16.12e, %16.12e >\n",
+                      obs_normal.x.r, obs_normal.y.r, obs_normal.z.r );
 
     /* we arbitrarily choose the x_prime_hat_vec and y_prime_hat_vec */
     /* x_prime_hat_vec is < 0, 1, 0 > */
@@ -84,16 +91,33 @@ int main ( int argc, char **argv)
     cplex_vec_set( &x_prime_hat_vec, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
     cplex_vec_set( &y_prime_hat_vec, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
+    printf("     : viewport x_prime basis vector = ");
+    printf("< %16.12e, %16.12e, %16.12e >\n",
+       x_prime_hat_vec.x.r, x_prime_hat_vec.y.r, x_prime_hat_vec.z.r );
+
+    printf("     : viewport y_prime basis vector = ");
+    printf("< %16.12e, %16.12e, %16.12e >\n",
+       y_prime_hat_vec.x.r, y_prime_hat_vec.y.r, y_prime_hat_vec.z.r );
+
+
     /* A test point to begin with on the observation plane.
-     */
+     *
     x_prime = 1.7;
     y_prime = -2.0;
+     *
 
-    /* double tiny_delta = pow( 2.0, -32.0);
+     * double tiny_delta = pow( 2.0, -32.0);
      * printf("\nINFO : tiny_delta offset is %-36.32e\n\n", tiny_delta ); */
 
-    x_prime = 2.0;
+
+
+    /* USE A TEST RAY */
+    x_prime = pow( 2.0, -16.0);
     y_prime = 0.0;
+    printf("\nNOTE : **** \"damn near center\" of test sphere\n\n");
+
+
+
 
     /* try an offset of 2^(-48)
      *    double tiny_delta = pow( 2.0, -48.0);
@@ -120,8 +144,9 @@ int main ( int argc, char **argv)
 
     cplex_vec_copy( &obs_point, tmp );
 
-    printf("INFO : L obs_point = ");
-    cplex_vec_print( &obs_point );
+    printf("\nINFO : L obs_point = ");
+    printf("< %16.12e, %16.12e, %16.12e >\n",
+                      obs_point.x.r, obs_point.y.r, obs_point.z.r );
     printf("\n\n");
 
     /* At this moment we have the observation point and the direction
@@ -162,13 +187,28 @@ int main ( int argc, char **argv)
     cplex_vec_set( &object_location, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* Again the diagrams we used had a=5, b=2 and c=6 */
-    cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0);
+    /* cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0); */
+
+
+
+
+
+    /* USE A TEST SPHERE */
+    cplex_vec_set( &semi_major_axi, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0);
+
+
+    printf("DBUG : Note we are using a test sphere radius = 1\n\n");
+
+
+
+
 
     /* Note that the ray direction must be normalized */
     cplex_vec_normalize( &ray_direct, &obs_normal );
 
     printf("INFO : ray_direct = ");
-    cplex_vec_print( &ray_direct );
+    printf("< %16.12e, %16.12e, %16.12e >\n",
+                      ray_direct.x.r, ray_direct.y.r, ray_direct.z.r );
     printf("\n\n");
 
     /* Now we call our intercept function to do most of the work */
@@ -195,7 +235,8 @@ int main ( int argc, char **argv)
 
         if ( intercept_point_flag == 0 ) {
             printf("INFO : H hit_point = ");
-            cplex_vec_print( &hit_point );
+            printf("< %16.12e, %16.12e, %16.12e >\n",
+                      hit_point.x.r, hit_point.y.r, hit_point.z.r );
             printf("\n");
 
             gradient( &grad,
@@ -204,19 +245,27 @@ int main ( int argc, char **argv)
 
             printf("\n------------------------------------------\n");
             printf("INFO : N gradient = ");
-            cplex_vec_print( &grad );
+            printf("< %16.12e, %16.12e, %16.12e >\n",
+                              grad.x.r, grad.y.r, grad.z.r );
             printf("\n\n");
 
             /* we should attempt to compute the T tangent vector in
              * the plane of incidence if and only if N is not parallel
-             * to the incident ray_direct */
+             * to the incident ray_direct. We use -Ri for our vector
+             * due to right-hand rule of the supposedly physical 
+             * universe. So T == -Ri X N here. */
+            cplex_vec_scale( tmp+3, &ray_direct, -1.0 );
+            printf("\n\nINFO : -Ri = < %16.12e, %16.12e, %16.12e >\n",
+                               tmp[3].x.r, tmp[3].y.r, tmp[3].z.r );
 
-            cplex_vec_cross( tmp+3, &ray_direct, &grad );
-            printf("\n\nINFO : ray_direct X grad = ");
-            cplex_vec_print( tmp+3 );
-            printf("\n\n");
-            if ( cplex_vec_mag( tmp+3 ) < RT_EPSILON ) {
-                printf("WARN : we have a null vector result from R x N\n");
+            cplex_vec_cross( tmp+4, tmp+3, &grad );
+            cplex_vec_normalize( &ray_direct, &obs_normal );
+            printf("\n\nINFO : -Ri X N = ");
+            printf("< %16.12e, %16.12e, %16.12e >\n",
+                               tmp[4].x.r, tmp[4].y.r, tmp[4].z.r );
+
+            if ( cplex_vec_mag( tmp+4 ) < RT_EPSILON ) {
+                printf("WARN : null vector result from -Ri x N\n");
                 /* At this point there will be no solution using Cramer's
                  * method as the denominator matrix will be determinant
                  * of zero. However geometrically we may say that the
@@ -226,7 +275,12 @@ int main ( int argc, char **argv)
                               reflect.x.r, reflect.y.r, reflect.z.r);
             } else {
                 /* Cramer's Method land and may as well embrace it */
-                printf("      : Cramer\'s Method needed from here\n");
+                cplex_vec_normalize( tmp+5, tmp+4 );
+                printf("     : this is the plane of incidence tangent\n");
+                printf("     : T = ");
+                printf("< %16.12e, %16.12e, %16.12e >\n",
+                               tmp[5].x.r, tmp[5].y.r, tmp[5].z.r );
+                printf("     : Cramer\'s Method needed from here\n");
 
 /*
 
