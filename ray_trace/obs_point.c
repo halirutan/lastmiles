@@ -25,7 +25,7 @@ int main ( int argc, char **argv)
 {
 
     vec_type tmp[9];
-    cplex_type c_tmp[3];
+    cplex_type c_tmp[4];
     vec_type grad, reflect;
     double vec_T_mag, theta_i;
     int k, intercept_cnt = -1;
@@ -78,13 +78,14 @@ int main ( int argc, char **argv)
     cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     printf("\nINFO : viewport O obs_origin = ");
-    printf("< %16.12e, %16.12e, %16.12e >\n",
+    printf("< %-20.14e, %-20.14e, %-20.14e >\n",
                       obs_origin.x.r, obs_origin.y.r, obs_origin.z.r );
 
-    /* Observation direction is along negative i_hat basis vector */
+    /* Observation direction is along negative i_hat basis vector
+     * and this becomes the Ri later. */
     cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     printf("\nINFO : viewport direction obs_normal = ");
-    printf("< %16.12e, %16.12e, %16.12e >\n",
+    printf("< %-20.14e, %-20.14e, %-20.14e >\n",
                       obs_normal.x.r, obs_normal.y.r, obs_normal.z.r );
 
     /* we arbitrarily choose the x_prime_hat_vec and y_prime_hat_vec */
@@ -94,11 +95,11 @@ int main ( int argc, char **argv)
     cplex_vec_set( &y_prime_hat_vec, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
     printf("     : viewport x_prime basis vector = ");
-    printf("< %16.12e, %16.12e, %16.12e >\n",
+    printf("< %-20.14e, %-20.14e, %-20.14e >\n",
        x_prime_hat_vec.x.r, x_prime_hat_vec.y.r, x_prime_hat_vec.z.r );
 
     printf("     : viewport y_prime basis vector = ");
-    printf("< %16.12e, %16.12e, %16.12e >\n",
+    printf("< %-20.14e, %-20.14e, %-20.14e >\n",
        y_prime_hat_vec.x.r, y_prime_hat_vec.y.r, y_prime_hat_vec.z.r );
 
 
@@ -127,7 +128,7 @@ int main ( int argc, char **argv)
      *    double tiny_delta = pow( 2.0, -48.0);
      * 3.5527136788005009293556213378906250e-15 */
 
-    printf("INFO : initial x' and y' : ( %-18.14e, %-18.14e )\n\n",
+    printf("INFO : initial x' and y' : ( %-20.14e, %-20.14e )\n\n",
                                                     x_prime, y_prime );
 
     /* All of the above allows us to compute a starting point on
@@ -149,7 +150,7 @@ int main ( int argc, char **argv)
     cplex_vec_copy( &obs_point, tmp );
 
     printf("\nINFO : L obs_point = ");
-    printf("< %16.12e, %16.12e, %16.12e >\n",
+    printf("< %-20.14e, %-20.14e, %-20.14e >\n",
                       obs_point.x.r, obs_point.y.r, obs_point.z.r );
     printf("\n\n");
 
@@ -211,7 +212,7 @@ int main ( int argc, char **argv)
     cplex_vec_normalize( &ray_direct, &obs_normal );
 
     printf("INFO : ray_direct = ");
-    printf("< %16.12e, %16.12e, %16.12e >\n",
+    printf("< %-20.14e, %-20.14e, %-20.14e >\n",
                       ray_direct.x.r, ray_direct.y.r, ray_direct.z.r );
     printf("\n\n");
 
@@ -224,9 +225,9 @@ int main ( int argc, char **argv)
                                 &obs_point, &obs_normal );
 
     printf("intercept_cnt = %i\n", intercept_cnt );
-    printf("\nINFO : k_val[0] = ( %16.12e, %16.12e )\n",
+    printf("\nINFO : k_val[0] = ( %-20.14e, %-20.14e )\n",
                            k_val[0].r, k_val[0].i );
-    printf("     : k_val[1] = ( %16.12e, %16.12e )\n",
+    printf("     : k_val[1] = ( %-20.14e, %-20.14e )\n",
                            k_val[1].r, k_val[1].i );
 
     if ( intercept_cnt > 0 ) {
@@ -243,7 +244,7 @@ int main ( int argc, char **argv)
 
         if ( intercept_point_flag == 0 ) {
             printf("INFO : H hit_point = ");
-            printf("< %16.12e, %16.12e, %16.12e >\n",
+            printf("< %-20.14e, %-20.14e, %-20.14e >\n",
                       hit_point.x.r, hit_point.y.r, hit_point.z.r );
             printf("\n");
 
@@ -253,7 +254,7 @@ int main ( int argc, char **argv)
 
             printf("\n------------------------------------------\n");
             printf("INFO : N gradient = ");
-            printf("< %16.12e, %16.12e, %16.12e >\n",
+            printf("< %-20.14e, %-20.14e, %-20.14e >\n",
                               grad.x.r, grad.y.r, grad.z.r );
 
             /* we should attempt to compute the T tangent vector in
@@ -262,7 +263,7 @@ int main ( int argc, char **argv)
              * due to right-hand rule of the supposedly physical 
              * universe. So T == -Ri X N here. */
             cplex_vec_scale( tmp+3, &ray_direct, -1.0 );
-            printf("\nINFO : -Ri = < %16.12e, %16.12e, %16.12e >\n",
+            printf("\nINFO : -Ri = < %-20.14e, %-20.14e, %-20.14e >\n",
                                tmp[3].x.r, tmp[3].y.r, tmp[3].z.r );
 
             /* what is the angle of incidence ? */
@@ -271,16 +272,16 @@ int main ( int argc, char **argv)
                 /* this should never happen */
                 fprintf(stderr,"FAIL : bizarre complex dot product");
                 fprintf(stderr," dot( N, -Ri )\n");
-                fprintf(stderr,"     :  = ( %16.12e, %16.12e )\n",
+                fprintf(stderr,"     :  = ( %-20.14e, %-20.14e )\n",
                                                    c_tmp->r, c_tmp->i );
                 fprintf(stderr,"BAIL : we are done.\n\n");
                 return ( EXIT_FAILURE );
             } else {
-                printf("     : dot( N, -Ri ) = %16.12e\n", c_tmp->r );
+                printf("     : dot( N, -Ri ) = %-20.14e\n", c_tmp->r );
             }
             theta_i = acos(c_tmp->r);
-            printf("     : theta_i = %16.12e\n", theta_i );
-            printf("     :         = %16.12e degrees\n", theta_i * 180.0/M_PI );
+            printf("     : theta_i = %-20.14e\n", theta_i );
+            printf("     :         = %-20.14e degrees\n", theta_i * 180.0/M_PI );
             if ( fabs(theta_i) < RT_ANGLE_EPSILON ) {
                 if ( theta_i == 0.0 ) {
                     fprintf(stderr,"WARN : theta_i is zero!\n");
@@ -292,7 +293,7 @@ int main ( int argc, char **argv)
             cplex_vec_cross( tmp+4, tmp+3, &grad );
             cplex_vec_normalize( &ray_direct, &obs_normal );
             printf("\n\nINFO : -Ri X N = ");
-            printf("< %16.12e, %16.12e, %16.12e >\n",
+            printf("< %-20.14e, %-20.14e, %-20.14e >\n",
                                tmp[4].x.r, tmp[4].y.r, tmp[4].z.r );
 
             vec_T_mag = cplex_vec_mag( tmp+4 );
@@ -311,7 +312,7 @@ int main ( int argc, char **argv)
                  * of zero. However geometrically we may say that the
                  * reflected vector is the same as the normal N. */
                  cplex_vec_copy( &reflect, &grad );
-                 printf("INFO : Rr = < %16.12e, %16.12e, %16.12e > ??\n",
+                 printf("INFO : Rr = < %-20.14e, %-20.14e, %-20.14e > ??\n",
                                  reflect.x.r, reflect.y.r, reflect.z.r);
                  printf("     : this is just the surface gradient N\n");
 
@@ -321,7 +322,7 @@ int main ( int argc, char **argv)
                 cplex_vec_normalize( tmp+5, tmp+4 );
                 printf("     : this is the plane of incidence tangent\n");
                 printf("     : T = ");
-                printf("< %16.12e, %16.12e, %16.12e >\n",
+                printf("< %-20.14e, %-20.14e, %-20.14e >\n",
                                tmp[5].x.r, tmp[5].y.r, tmp[5].z.r );
                 printf("     : Cramer\'s Method needed from here\n");
 
@@ -348,30 +349,97 @@ we did all this before ...
     if ( status != 0 ) {
         printf("dbug : There is no valid solution.\n");
     } else {
-        printf("     : result col = < ( %16.12e, %16.12e ),\n",
+        printf("     : result col = < ( %-20.14e, %-20.14e ),\n",
                     res_vec.x.r, res_vec.x.i );
-        printf("                      ( %16.12e, %16.12e ),\n",
+        printf("                      ( %-20.14e, %-20.14e ),\n",
                     res_vec.y.r, res_vec.y.i );
-        printf("                      ( %16.12e, %16.12e ) >\n\n",
+        printf("                      ( %-20.14e, %-20.14e ) >\n\n",
                     res_vec.z.r, res_vec.z.i);
     }
 
 
     we need a left hand 3x3 matrix of rows T, N, -Ri
 
-    T is in tmp[5]
-    N is in grad
-    -Ri is in  tmp[3]
-
-    on right hand column we need 0,  Cos ( theta_i )  and cos ( 2 x theta_i )
-
-    theta_i = acos ( dot( -Ri, N ) ) 
-
-    so really we need rt hand column 0, dot( -Ri, N ), 2 * dot( -Ri, N )
-
-*/
+          T   is in tmp[5]   normalized
+          N   is in grad     normalized
+        -Ri   is in tmp[3]   normalized upon entry
 
 
+    right hand column needs 0,  Cos ( theta_i )  and cos ( 2 x theta_i )
+
+    where theta_i = acos( dot( -Ri, N ) )
+        and also we have c_tmp[0] = dot( -Ri, N )  which is just real
+
+
+    so really we need rt hand column 0, c_tmp[0], 2 * c_tmp[0]
+
+    */
+
+                /* begin by copying the required data into tmp vectors
+                 * for the left hand 3x3 matrix */
+
+                 cplex_vec_copy( tmp+6, tmp+5 );  /*  T  */
+                 cplex_vec_copy( tmp+7, &grad );  /*  N  */
+                 cplex_vec_copy( tmp+8, tmp+3 );  /* -Ri */
+
+                 /* lets print out a simplified 3x3 matrix here */
+                 printf ("\nLeft hand 3x3 matrix is :\n\n");
+
+                 printf ("    +------------------------");
+                 printf ("+------------------------");
+                 printf ("+------------------------+\n");
+
+                 printf ("    |                        ");
+                 printf ("|                        ");
+                 printf ("|                        |\n");
+
+                 printf (" T  |  %-+18.12e   ", tmp[6].x.r );
+                 printf ("|  %-+18.12e   ", tmp[6].y.r );
+                 printf ("|  %-+18.12e   |\n", tmp[6].z.r );
+
+                 printf ("    |                        ");
+                 printf ("|                        ");
+                 printf ("|                        |\n");
+
+                 printf ("    +------------------------");
+                 printf ("+------------------------");
+                 printf ("+------------------------+\n");
+
+                 printf ("    |                        ");
+                 printf ("|                        ");
+                 printf ("|                        |\n");
+
+                 printf (" N  |  %-+18.12e   ", tmp[7].x.r );
+                 printf ("|  %-+18.12e   ", tmp[7].y.r );
+                 printf ("|  %-+18.12e   |\n", tmp[7].z.r );
+
+                 printf ("    |                        ");
+                 printf ("|                        ");
+                 printf ("|                        |\n");
+
+                 printf ("    +------------------------");
+                 printf ("+------------------------");
+                 printf ("+------------------------+\n");
+
+                 printf ("    |                        ");
+                 printf ("|                        ");
+                 printf ("|                        |\n");
+
+                 printf ("-Ri |  %-+18.12e   ", tmp[8].x.r );
+                 printf ("|  %-+18.12e   ", tmp[8].y.r );
+                 printf ("|  %-+18.12e   |\n", tmp[8].z.r );
+
+                 printf ("    |                        ");
+                 printf ("|                        ");
+                 printf ("|                        |\n");
+
+                 printf ("    +------------------------");
+                 printf ("+------------------------");
+                 printf ("+------------------------+\n\n");
+
+                 cplex_det( c_tmp+1, tmp+6, tmp+7, tmp+8 );
+
+                 printf ("\nDET == ( %-+18.12e, %-+18.12e )\n\n", c_tmp[1].r, c_tmp[1].i );
 
             }
 

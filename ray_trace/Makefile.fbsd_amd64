@@ -26,6 +26,7 @@ SRCS = obs_point.c \
 	../complex_vector/cplex_sqrt.c \
 	../complex_vector/cplex_sub.c \
 	../complex_vector/cplex_theta.c \
+	../complex_vector/cplex_det.c \
 	../complex_vector/cplex_vec_add.c \
 	../complex_vector/cplex_vec_copy.c \
 	../complex_vector/cplex_vec_dot.c \
@@ -51,6 +52,7 @@ OBJS = obs_point.o \
 	../complex_vector/cplex_sqrt.o \
 	../complex_vector/cplex_sub.o \
 	../complex_vector/cplex_theta.o \
+	../complex_vector/cplex_det.o \
 	../complex_vector/cplex_vec_add.o \
 	../complex_vector/cplex_vec_copy.o \
 	../complex_vector/cplex_vec_dot.o \

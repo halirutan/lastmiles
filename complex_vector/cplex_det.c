@@ -70,7 +70,7 @@ int cplex_det( cplex_type *res,
     res->r = tmp[4].r;
     res->i = tmp[4].i;
 
-    return ( 0 );
+    return ( EXIT_SUCCESS );
 
 }
 
