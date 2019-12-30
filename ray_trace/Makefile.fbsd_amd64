@@ -35,7 +35,8 @@ SRCS = obs_point.c \
 	../complex_vector/cplex_vec_set.c \
 	../complex_vector/cplex_vec_print.c \
 	../complex_vector/cplex_vec_scale.c \
-	../complex_vector/cplex_vec_cross.c
+	../complex_vector/cplex_vec_cross.c \
+	../complex_vector/cplex_cramer.c
 
 OBJS = obs_point.o \
 	../complex_vector/intercept.o \
@@ -61,7 +62,8 @@ OBJS = obs_point.o \
 	../complex_vector/cplex_vec_set.o \
 	../complex_vector/cplex_vec_print.o \
 	../complex_vector/cplex_vec_scale.o \
-	../complex_vector/cplex_vec_cross.o
+	../complex_vector/cplex_vec_cross.o \
+	../complex_vector/cplex_cramer.o
 
 %.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)

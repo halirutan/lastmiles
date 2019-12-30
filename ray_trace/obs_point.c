@@ -24,11 +24,11 @@
 int main ( int argc, char **argv)
 {
 
-    vec_type tmp[9];
+    vec_type tmp[12];
     cplex_type c_tmp[4];
     vec_type grad, reflect;
     double vec_T_mag, theta_i;
-    int k, intercept_cnt = -1;
+    int status, k, intercept_cnt = -1;
     int intercept_point_flag = -1;
 
 
@@ -64,7 +64,7 @@ int main ( int argc, char **argv)
 
     /* To locate a given point L_0 on the observation plane we will
      * need scalar distances away from the observation plane
-     * center along the directions x_prime_hat_vec and 
+     * center along the directions x_prime_hat_vec and
      * y_prime_hat_vec */
     double x_prime, y_prime;
 
@@ -117,9 +117,9 @@ int main ( int argc, char **argv)
 
 
     /* USE A TEST RAY */
-    x_prime = ( 1.0 / sqrt(2.0) ) - pow( 2.0, -8.0);
-    y_prime = ( 1.0 / sqrt(2.0) );
-    printf("\nNOTE : **** inside \"1/sqrt(2) diagonal\" of test sphere\n\n");
+    x_prime = pow( 2.0, -23.0 );
+    y_prime = 0.0;
+    printf("\nNOTE : **** \"near centre\" of test r=1 sphere\n\n");
 
 
 
@@ -198,7 +198,7 @@ int main ( int argc, char **argv)
 
 
 
-    /* USE A TEST SPHERE */
+    /* USE A TEST SPHERE of radius 1 */
     cplex_vec_set( &semi_major_axi, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0);
 
 
@@ -218,7 +218,7 @@ int main ( int argc, char **argv)
 
     /* Now we call our intercept function to do most of the work */
     /* TODO fix up the intercept func to return 1 root count if in
-     * fact there is only a single real root and not just two 
+     * fact there is only a single real root and not just two
      * precisely identical real roots. */
     intercept_cnt = intercept ( k_val, &sign_data,
                                 &object_location, &semi_major_axi,
@@ -230,6 +230,8 @@ int main ( int argc, char **argv)
     printf("     : k_val[1] = ( %-20.14e, %-20.14e )\n",
                            k_val[1].r, k_val[1].i );
 
+
+
     if ( intercept_cnt > 0 ) {
 
         intercept_point_flag = intercept_point( &hit_point,
@@ -239,10 +241,7 @@ int main ( int argc, char **argv)
                                                 &ray_direct);
 
         if ( intercept_point_flag == 0 ) {
-             printf("\nDBUG : We have a good intercept point\n");
-        }
-
-        if ( intercept_point_flag == 0 ) {
+            printf("\nDBUG : We have a good intercept point\n");
             printf("INFO : H hit_point = ");
             printf("< %-20.14e, %-20.14e, %-20.14e >\n",
                       hit_point.x.r, hit_point.y.r, hit_point.z.r );
@@ -260,13 +259,15 @@ int main ( int argc, char **argv)
             /* we should attempt to compute the T tangent vector in
              * the plane of incidence if and only if N is not parallel
              * to the incident ray_direct. We use -Ri for our vector
-             * due to right-hand rule of the supposedly physical 
+             * due to right-hand rule of the supposedly physical
              * universe. So T == -Ri X N here. */
             cplex_vec_scale( tmp+3, &ray_direct, -1.0 );
             printf("\nINFO : -Ri = < %-20.14e, %-20.14e, %-20.14e >\n",
                                tmp[3].x.r, tmp[3].y.r, tmp[3].z.r );
 
-            /* what is the angle of incidence ? */
+            /* what is the angle of incidence ?
+             * Here we can take advantage of IEEE754-2008 specification
+             * just to check for a zero that is positive or negative. */
             cplex_vec_dot( c_tmp, &grad, tmp+3);
             if ( !(c_tmp->i == 0.0) ) {
                 /* this should never happen */
@@ -279,9 +280,11 @@ int main ( int argc, char **argv)
             } else {
                 printf("     : dot( N, -Ri ) = %-20.14e\n", c_tmp->r );
             }
+
             theta_i = acos(c_tmp->r);
             printf("     : theta_i = %-20.14e\n", theta_i );
             printf("     :         = %-20.14e degrees\n", theta_i * 180.0/M_PI );
+
             if ( fabs(theta_i) < RT_ANGLE_EPSILON ) {
                 if ( theta_i == 0.0 ) {
                     fprintf(stderr,"WARN : theta_i is zero!\n");
@@ -440,6 +443,28 @@ we did all this before ...
                  cplex_det( c_tmp+1, tmp+6, tmp+7, tmp+8 );
 
                  printf ("\nDET == ( %-+18.12e, %-+18.12e )\n\n", c_tmp[1].r, c_tmp[1].i );
+
+                 /* slam together a right hand column with 0, cos(theta_i), cos(2 * theta_i) */
+                 cplex_vec_set( tmp+9, 0.0, 0.0,
+                                       c_tmp->r, 0.0,
+                                       cos(2 * theta_i), 0.0);
+
+                 printf ("     : rh_col = %-+18.12e, %-+18.12e, %-+18.12e\n",
+                         tmp[9].x.r, tmp[9].y.r, tmp[9].z.r );
+
+                 /* let us now call cramer */
+                 status = cplex_cramer( tmp+10, tmp+6, tmp+7, tmp+8, tmp+9 );
+                 if ( status != 0 ) {
+                     printf("dbug : There is no valid solution.\n");
+                 } else {
+                     printf("     : result col = < ( %-20.14e, %-20.14e ),\n",
+                                 tmp[10].x.r, tmp[10].x.i );
+                     printf("                      ( %-20.14e, %-20.14e ),\n",
+                                 tmp[10].y.r, tmp[10].y.i );
+                     printf("                      ( %-20.14e, %-20.14e ) >\n\n",
+                                 tmp[10].z.r, tmp[10].z.i);
+                 }
+
 
             }
 
