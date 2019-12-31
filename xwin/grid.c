@@ -42,7 +42,8 @@ uint64_t timediff( struct timespec st, struct timespec en );
 
 int sysinfo(void);
 
-/* local defs */
+/* local defs where 1044 pixels is more or less full screen
+ * and 660 pixels square fits into a neat 720p res OBS setup */
 #define WIN_WIDTH 1044
 #define WIN_HEIGHT 1044
 #define OFFSET 10
@@ -824,30 +825,30 @@ int main(int argc, char*argv[])
 
         } else if ( button == Button2 ) {
 
-            /* TODO hack * 
-             *  lets blame cas_9 for this : 
+            /* TODO hack *
+             *  lets blame cas_9 for this :
              * XColor.pixel = (((unsigned long)XColor.red) << 16)
-             *               + (((unsigned long)XColor.green) << 8) 
+             *               + (((unsigned long)XColor.green) << 8)
              *               + (unsigned long)XColor.blue;
-             * 
+             *
 
             for ( some_radius = 0; some_radius < vbox_w; some_radius++ ) {
                 for ( p=0; p<360; p++ ) {
-    
+
                      * quick hack convert from tens of degrees to
-                     * radians should be (p)( ( 2 x pi )/360 ) * 
-    
+                     * radians should be (p)( ( 2 x pi )/360 ) *
+
                     some_angle = pi2 * ( 1.0 * p ) / 360.0;
                     some_x = some_radius * cos(some_angle);
                     some_y = some_radius * sin(some_angle);
-    
+
                     whatever.pixel = ( ( (unsigned long)p & 0xff ) << 16 )
                                      + ( ( (unsigned long)some_radius ) << 8 );
-    
+
                     XSetForeground(dsp, gc, whatever.pixel);
-    
+
                     XDrawPoint(dsp, win, gc, mouse_x + some_x, mouse_y + some_y);
-    
+
                 }
             }
             XSetForeground(dsp, gc, yellow.pixel);
