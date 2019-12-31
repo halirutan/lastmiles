@@ -1,15 +1,15 @@
 
 #define NUM_THREADS 16
-#define BIG_ARRAY_DIM0 352
+#define BIG_ARRAY_DIM0 384
 #define BIG_ARRAY_DIM1 65536
 
 /*
- * struct to pass parameters to a dispatched thread
+ * struct to pass params to dispatched thread
  */
 typedef struct {
-  uint32_t tnum;     /* thread number */
+  uint32_t tnum;
   int sleep_time, loop0, loop1;
-  double ret_val;    /* some sort of a return data value */
-  uint64_t big_array[BIG_ARRAY_DIM0][BIG_ARRAY_DIM1]; /* memory abuse */
+  double ret_val;
+  uint64_t big_array[BIG_ARRAY_DIM0][BIG_ARRAY_DIM1];
 } thread_parm_t;
 

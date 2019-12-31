@@ -83,8 +83,7 @@ int main(int argc, char **argv)
 
         pthread_create( &tid[i], NULL, big_array_fill, (void *)parm[i] );
 
-        printf("INFO : pthread_create %2i called for %2i secs.\n",
-                                               i, parm[i]->sleep_time );
+        printf("INFO : pthread_create %2i called.\n", i );
     }
     printf("\n-------------- end dispatch -------------------------\n");
 
@@ -116,7 +115,7 @@ void *big_array_fill(void *recv_parm)
     printf("TRD  : %d filling the big_array.\n", p->tnum);
     for ( p->loop0 = 0; p->loop0 < BIG_ARRAY_DIM0; p->loop0++ ) {
         for ( p->loop1 = 0; p->loop1 < BIG_ARRAY_DIM1; p->loop1++ ) {
-            p->big_array[p->loop0][p->loop1] = (uint64_t)(p->loop0 * p->loop1);
+            p->big_array[p->loop0][p->loop1] = (uint64_t)(p->loop0 * p->loop1 + p->tnum + 1);
         }
     }
     printf("TRD  : %d big_array full.\n", p->tnum);
