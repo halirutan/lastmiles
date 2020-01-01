@@ -80,5 +80,4 @@ grid: grid.o $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) -L$(LDIR) $(LIBS)
 
 clean:
-	rm -f $(OBJS) grid.o grid numpad numpad.o
-
+	rm -f $(OBJS) grid.o grid

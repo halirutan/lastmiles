@@ -90,7 +90,7 @@ int main(int argc, char*argv[])
 
     /* TODO : some hack test stuff */
     double pi2, some_angle, some_radius, some_x, some_y;
-    pi2 = 2.0 * 3.14159265358979323846264338327950288;
+    pi2 = 2.0 * M_PI;
 
     setlocale( LC_ALL, "C" );
 
@@ -146,7 +146,7 @@ int main(int argc, char*argv[])
     cplex_type k_val[2];
 
     vec_type obs_origin, obs_normal_dir, obs_normal, obs_point;
-    vec_type hit_point, grad;
+    vec_type hit_point, grad, grad_norm;
 
     double obs_x_width, obs_y_height;
 
@@ -172,9 +172,9 @@ int main(int argc, char*argv[])
      */
     cplex_vec_normalize( &obs_normal, &obs_normal_dir );
 
-    /* viewport is 8 x 8 */
-    obs_x_width = 8.0;
-    obs_y_height = 8.0;
+    /* viewport is 2 x 2 */
+    obs_x_width = 2.0;
+    obs_y_height = 2.0;
 
     /* TODO compute the reasonable plank constant of this
      * observation viewport. Strictly a lowest level epsilon
@@ -230,7 +230,16 @@ int main(int argc, char*argv[])
     cplex_vec_set( &object_location, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* Again the diagrams we used had a=5, b=2 and c=6 */
-    cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0);
+    /* cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0); */
+
+
+
+    /* TODO : use a test sphere */
+    cplex_vec_set( &semi_major_axi, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0);
+
+
+
+
 
     /* We may need to change the sight line direction in the future
      * thus we will make a copy of the viewport plane normal vector */
@@ -761,16 +770,11 @@ int main(int argc, char*argv[])
                         XDrawImageString( dsp, win3, gc3, 10, 150,
                                           buf, strlen(buf));
 
-                        /* what data are we working with before the call? *
-                        fprintf(stderr, "grid :  sign = %g, %g, %g\n", sign_data.x.r, sign_data.y.r, sign_data.z.r);
-                        fprintf(stderr, "grid :   loc = %g, %g, %g\n", object_location.x.r, object_location.y.r, object_location.z.r);
-                        fprintf(stderr, "grid :   axi = %g, %g, %g\n", semi_major_axi.x.r, semi_major_axi.y.r, semi_major_axi.z.r);
-                        fprintf(stderr, "grid :   hit = %g, %g, %g\n", hit_point.x.r, hit_point.y.r, hit_point.z.r);
-                        */
-
                         /* compute the gradient normal vector */
                         gradient( &grad, &sign_data, &object_location,
                                          &semi_major_axi, &hit_point );
+
+                        cplex_vec_normalize( &grad_norm, &grad );
 
                         sprintf(buf,"^"); /* vector hat hack */
                         XSetForeground(dsp, gc3, cyan.pixel);
@@ -779,7 +783,10 @@ int main(int argc, char*argv[])
 
                         sprintf(buf,
                                 "N = < %-8.6e, %-8.6e, %-8.6e )     ",
-                                       grad.x.r, grad.y.r, grad.z.r );
+                                       grad_norm.x.r,
+                                       grad_norm.y.r,
+                                       grad_norm.z.r );
+
                         fprintf(stderr,"\n%s\n",buf);
 
                         XDrawImageString( dsp, win3, gc3, 10, 170,
