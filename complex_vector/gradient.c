@@ -31,8 +31,7 @@ int gradient( vec_type *res,
               vec_type *intercept )
 {
 
-    vec_type tmp[3];
-    cplex_type c_tmp[3];
+    cplex_type c_tmp[12];
 
     /* what data did we receive ?
 
@@ -42,55 +41,52 @@ int gradient( vec_type *res,
     fprintf(stderr, "grad : icept = %g, %g, %g\n", intercept->x.r, intercept->y.r, intercept->z.r);
     */
 
-    /*
-    printf ("\n\nINFO : in gradient intercept = \n");
-    cplex_vec_print( intercept );
-    printf ("\n");
-    */
+    /* deal with just the x axis component first */
+    c_tmp[0].r = intercept->x.r;
+    c_tmp[0].i = intercept->x.i;
+    /* we need to square the semi-major axi */
+    c_tmp[1].r = axi->x.r;
+    c_tmp[1].i = axi->x.i;
+    cplex_sq( c_tmp+2, c_tmp+1 );
+    /* do the trivial division */
+    cplex_div( c_tmp+3, c_tmp, c_tmp+2 );
+    /* mult by 2 here */
+    c_tmp[3].r *= 2.0;
+    c_tmp[3].i *= 2.0;
 
-    cplex_vec_scale( tmp, loc, -2.0 );
+    /* now the y axis component */
+    c_tmp[4].r = intercept->y.r;
+    c_tmp[4].i = intercept->y.i;
+    c_tmp[5].r = axi->y.r;
+    c_tmp[5].i = axi->y.i;
+    cplex_sq( c_tmp+6, c_tmp+5 );
+    /* division */
+    cplex_div( c_tmp+7, c_tmp+4, c_tmp+6 );
+    /* mult by 2 */
+    c_tmp[7].r *= 2.0;
+    c_tmp[7].i *= 2.0;
 
-    /*
-    printf ("\n\nINFO : in gradient tmp = -2loc = \n");
-    cplex_vec_print( tmp );
-    printf ("\n");
-    */
+    /* z axis component */
+    c_tmp[8].r = intercept->z.r;
+    c_tmp[8].i = intercept->z.i;
+    c_tmp[9].r = axi->z.r;
+    c_tmp[9].i = axi->z.i;
+    cplex_sq( c_tmp+10, c_tmp+9 );
+    /* division */
+    cplex_div( c_tmp+11, c_tmp+8, c_tmp+10 );
+    /* mult by 2 */
+    c_tmp[11].r *= 2.0;
+    c_tmp[11].i *= 2.0;
 
-    cplex_vec_add( tmp+1, intercept, tmp );
-    
-    /*
-    printf ("\n\nINFO : in gradient tmp[1] = \n");
-    cplex_vec_print( tmp+1 );
-    printf ("\n\n");
-    */
+    /* copy into a result vector */
 
-    c_tmp[0].r = tmp[1].x.r * sign->x.r;
-    c_tmp[0].i = tmp[1].x.i;
-    c_tmp[1].r = tmp[1].y.r * sign->y.r;
-    c_tmp[1].i = tmp[1].y.i;
-    c_tmp[2].r = tmp[1].z.r * sign->z.r;
-    c_tmp[2].i = tmp[1].z.i;
+    cplex_vec_set( res, c_tmp[3].r, c_tmp[3].i,
+                        c_tmp[7].r, c_tmp[7].i,
+                        c_tmp[11].r, c_tmp[11].i);
 
-
-    /*
-    printf ("INFO :in gradient res = \n< ( %-16.10e, %-16.10e ),\n",
-                                               c_tmp[0].r, c_tmp[0].i);
-
-    printf ("  ( %-16.10e, %-16.10e ),\n", c_tmp[1].r, c_tmp[1].i);
-
-    printf ("  ( %-16.10e, %-16.10e ) >\n\n", c_tmp[2].r, c_tmp[2].i);
-    */
-
-
-    cplex_vec_set( tmp+2, c_tmp[0].r, c_tmp[0].i,
-                          c_tmp[1].r, c_tmp[1].i,
-                          c_tmp[2].r, c_tmp[2].i);
-
-    cplex_vec_normalize( res, tmp+2 );
-
-    /*
-    fprintf(stderr, "grad :   res = %g, %g, %g\n\n", res->x.r, res->y.r, res->z.r);
-    */
+    /* 01 Jan 2020 we should not do the normalization here 
+     * cplex_vec_normalize( res, tmp+2 );
+     */
 
     return ( EXIT_SUCCESS );
 

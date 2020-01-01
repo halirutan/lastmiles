@@ -13,6 +13,7 @@
 #define _XOPEN_SOURCE 600
 
 #include <stdlib.h>
+#include <math.h>
 #include "v.h"
 
 int cplex_cramer( vec_type *res,
@@ -89,6 +90,14 @@ int cplex_cramer( vec_type *res,
         cplex_div ( &res->x, &x_numerator, &denom_det );
         cplex_div ( &res->y, &y_numerator, &denom_det );
         cplex_div ( &res->z, &z_numerator, &denom_det );
+
+        /* check for data smaller than RT_EPSILON */
+        if ( fabs(res->x.r) < RT_EPSILON ) res->x.r = 0.0;
+        if ( fabs(res->x.i) < RT_EPSILON ) res->x.i = 0.0;
+        if ( fabs(res->y.r) < RT_EPSILON ) res->y.r = 0.0;
+        if ( fabs(res->y.i) < RT_EPSILON ) res->y.i = 0.0;
+        if ( fabs(res->z.r) < RT_EPSILON ) res->z.r = 0.0;
+        if ( fabs(res->z.i) < RT_EPSILON ) res->z.i = 0.0;
 
     }
 
