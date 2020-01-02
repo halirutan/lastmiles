@@ -1,222 +1,147 @@
 
-Simple test with a 2^( -32 ) offset from the outer edge 
-of the object : 
 
-lenovo$ 
-lenovo$ ./obs_point 
-INFO : initial x' and y' : ( 1.99999999976717e+00, 0.00000000000000e+00 )
+Test with observation plane at < 0, 4, 4 > and looking towards the 
+origin : 
 
-INFO : obs_point = < ( 1.200000000000e+01, 0.000000000000e+00 ),
-  ( 1.999999999767e+00, 0.000000000000e+00 ),
-  ( 0.000000000000e+00, 0.000000000000e+00 ) >
+esther$ 
+esther$ ./obs_point 
 
--------- intercept_point begins -------------
-   0 : k_val[0] = ( 1.20000762939453e+01, 0.00000000000000e+00 )
-   1 : k_val[1] = ( 1.19999237060547e+01, 0.00000000000000e+00 )
+INFO : viewport O obs_origin = < 0.00000000000000e+00, 4.00000000000000e+00, 4.00000000000000e+00 >
 
-INFO : we have 2 real k values.
-INFO : hit_point = < ( 7.629394531250e-05, 0.000000000000e+00 ),
-  ( 1.999999999767e+00, 0.000000000000e+00 ),
-  ( 0.000000000000e+00, 0.000000000000e+00 ) >
-lenovo$ 
+INFO : viewport direction obs_normal = < 0.00000000000000e+00, -7.07106781186548e-01, -7.07106781186548e-01 >
+     : viewport x_prime basis vector = < -1.00000000000000e+00, 0.00000000000000e+00, 0.00000000000000e+00 >
+     : viewport y_prime basis vector = < 0.00000000000000e+00, -7.07106781186548e-01, 7.07106781186548e-01 >
+INFO : initial x' and y' : ( 0.00000000000000e+00, 0.00000000000000e+00 )
 
 
-Almost pushing the limits with 2^( -48 ) offset : 
-
-vesta$ echo '52k 1 2 48 ^ / pq' | dc
-.0000000000000035527136788005009293556213378906250000
-
-vesta$ 
-vesta$ alias gg='TERM=dumb /usr/local/bin/gdb -q'
-vesta$ gg ./obs_point
-Reading symbols from ./obs_point...
-(gdb) break 90
-Breakpoint 1 at 0x201439: file obs_point.c, line 90.
-(gdb) run
-Starting program: /usr/home/dclarke/pgm/lastmiles/ray_trace/obs_point 
-
-Breakpoint 1, main (argc=1, argv=0x7fffffffe860) at obs_point.c:90
-90          x_prime = 2.0L - 0.0000000000000035527136788005009293556213378906250L;
-(gdb) print x_prime
-$1 = 1.7
-(gdb) step
-91          y_prime = 0.0;
-(gdb) print x_prime
-$2 = 1.9999999999999964
-(gdb) print &x_prime
-$3 = (double *) 0x7fffffffe5c0
-(gdb) x/8xb 0x7fffffffe5c0
-0x7fffffffe5c0: 0xf0    0xff    0xff    0xff    0xff    0xff    0xff    0x3f
-(gdb) cont
-Continuing.
-INFO : initial x' and y' : ( 2.00000000000000e+00, 0.00000000000000e+00 )
-
-INFO : obs_point = < ( 1.200000000000e+01, 0.000000000000e+00 ),
-  ( 2.000000000000e+00, 0.000000000000e+00 ),
-  ( 0.000000000000e+00, 0.000000000000e+00 ) >
-
--------- intercept_point begins -------------
-   0 : k_val[0] = ( 1.20000002997109e+01, 0.00000000000000e+00 )
-   1 : k_val[1] = ( 1.19999997002891e+01, 0.00000000000000e+00 )
-
-INFO : we have 2 real k values.
-INFO : hit_point = < ( 2.997109209701e-07, 0.000000000000e+00 ),
-  ( 2.000000000000e+00, 0.000000000000e+00 ),
-  ( 0.000000000000e+00, 0.000000000000e+00 ) >
-[Inferior 1 (process 55279) exited normally]
-(gdb) quit
-vesta$ 
+INFO : L obs_point = < 0.00000000000000e+00, 4.00000000000000e+00, 4.00000000000000e+00 >
 
 
-A closer look at the double floating point data : 
-
-vesta$ gg obs_point
-Reading symbols from obs_point...
-(gdb) break 90
-Breakpoint 1 at 0x201447: file obs_point.c, line 92.
-(gdb) run
-Starting program: /usr/home/dclarke/pgm/lastmiles/ray_trace/obs_point
-
-Breakpoint 1, main (argc=1, argv=0x7fffffffe860) at obs_point.c:92
-92          double tiny_delta = pow( 2.0, -48.0);
-(gdb) print tiny_delta
-$1 = 1.0368219551457938e-317
-(gdb) break 91
-Note: breakpoint 1 also set at pc 0x201447.
-Breakpoint 2 at 0x201447: file obs_point.c, line 92.
-(gdb) step
-94          x_prime = 2.0 - tiny_delta;
-(gdb) print tiny_delta
-$2 = 3.5527136788005009e-15
-(gdb) print &tiny_delta
-$3 = (double *) 0x7fffffffe580
-(gdb) x/8xb 0x7fffffffe580
-0x7fffffffe580: 0x00    0x00    0x00    0x00    0x00    0x00    0xf0    0x3c
-(gdb) step
-95          y_prime = 0.0;
-(gdb)
-98                                                          x_prime, y_prime );
-(gdb) print x_prime
-$4 = 1.9999999999999964
-(gdb) print &x_prime
-$5 = (double *) 0x7fffffffe5c0
-(gdb) x/8xb 0x7fffffffe5c0
-0x7fffffffe5c0: 0xf0    0xff    0xff    0xff    0xff    0xff    0xff    0x3f
-(gdb) cont
-Continuing.
-INFO : initial x' and y' : ( 2.00000000000000e+00, 0.00000000000000e+00 )
-
-INFO : obs_point = < ( 1.200000000000e+01, 0.000000000000e+00 ),
-  ( 2.000000000000e+00, 0.000000000000e+00 ),
-  ( 0.000000000000e+00, 0.000000000000e+00 ) >
-
--------- intercept_point begins -------------
-   0 : k_val[0] = ( 1.20000002997109e+01, 0.00000000000000e+00 )
-   1 : k_val[1] = ( 1.19999997002891e+01, 0.00000000000000e+00 )
-
-INFO : we have 2 real k values.
-INFO : hit_point = < ( 2.997109209701e-07, 0.000000000000e+00 ),
-  ( 2.000000000000e+00, 0.000000000000e+00 ),
-  ( 0.000000000000e+00, 0.000000000000e+00 ) >
-[Inferior 1 (process 55338) exited normally]
-(gdb) quit
-vesta$
+INFO : ray_direct = < 0.00000000000000e+00, -7.07106781186548e-01, -7.07106781186548e-01 >
 
 
-Let's look at the calculation for 2 + ( 2 ^ ( -48 ) ) 
+intercept_cnt = 2
 
-titan$ gg obs_point
-Reading symbols from obs_point...
-(gdb) break 91
-Breakpoint 1 at 0x1388: file obs_point.c, line 91.
-(gdb) run
-Starting program: /home/dclarke/pgm/lastmiles/ray_trace/obs_point 
+INFO : k_val[0] = ( 8.34013582249213e+00, 0.00000000000000e+00 )
+     : k_val[1] = ( 2.97357267649263e+00, 0.00000000000000e+00 )
 
-Breakpoint 1, main (argc=1, argv=0xbffff524) at obs_point.c:91
-91          double tiny_delta = pow( 2.0, -48.0);
+DBUG : We have a good intercept point
+INFO : H hit_point = < 0.00000000000000e+00, 1.89736659610103e+00, 1.89736659610103e+00 >
 
 
- lets look at the garbage data in memory before initialization
+------------------------------------------
+INFO : N gradient = < 0.00000000000000e+00, 9.48683298050514e-01, 1.05409255338946e-01 >
+     : normalized = < 0.00000000000000e+00, 9.93883734673619e-01, 1.10431526074847e-01 >
+
+INFO : -Ri = < -0.00000000000000e+00, 7.07106781186548e-01, 7.07106781186548e-01 >
+     : dot( N, -Ri ) = 7.80868809443030e-01
+     : theta_i = 6.74740942223553e-01
+     :         = 3.86598082540901e+01 degrees
 
 
-(gdb) print tiny_delta
-$1 = 5.7685330262962466e-314
-(gdb) print &tiny_delta
-$2 = (double *) 0xbffff450
-(gdb) x/8xb 0xbffff450
-0xbffff450:     0xfc    0x23    0xec    0xb7    0x02    0x00    0x00    0x00
+INFO : -Ri X N = < -6.24695047554424e-01, 0.00000000000000e+00, 0.00000000000000e+00 >
+     : this is the plane of incidence tangent
+     : T = < -1.00000000000000e+00, 0.00000000000000e+00, 0.00000000000000e+00 >
+     : Cramer's Method needed from here
+
+Left hand 3x3 matrix is :
+    +------------------------+------------------------+------------------------+
+    |                        |                        |                        |
+ T  |  -1.000000000000e+00   |  +0.000000000000e+00   |  +0.000000000000e+00   |
+    |                        |                        |                        |
+    +------------------------+------------------------+------------------------+
+    |                        |                        |                        |
+ N  |  +0.000000000000e+00   |  +9.938837346736e-01   |  +1.104315260748e-01   |
+    |                        |                        |                        |
+    +------------------------+------------------------+------------------------+
+    |                        |                        |                        |
+-Ri |  +0.000000000000e+00   |  +7.071067811865e-01   |  +7.071067811865e-01   |
+    |                        |                        |                        |
+    +------------------------+------------------------+------------------------+
 
 
-   try to single step and end up in the math lib pow computation code 
+DET == ( -6.246950475544e-01, +0.000000000000e+00 )
+
+     : rh_col = +0.000000000000e+00, +7.808688094430e-01, +2.195121951220e-01
+     : result col = < ( +0.00000000000000e+00, +0.00000000000000e+00 ),
+                      ( +8.45078836052216e-01, +0.00000000000000e+00 ),
+                      ( -5.34641712604462e-01, +0.00000000000000e+00 ) >
+
+esther$ 
+esther$ 
+esther$ 
+esther$ 
 
 
-(gdb) step
-__pow (x=2, y=-48) at ./w_pow_template.c:32
-32      ./w_pow_template.c: No such file or directory.
-(gdb) break obs_point.c:92
-Breakpoint 2 at 0x4013ad: file obs_point.c, line 93.
-(gdb) cont
-Continuing.
 
-Breakpoint 2, main (argc=1, argv=0xbffff524) at obs_point.c:93
-93          x_prime = 2.0 + tiny_delta;
+   Same idea however now we are inside the object and still looking in
+the same direction as above : 
 
 
-  Look at the actual decimal and hex 2 ^ ( - 48 )
+esther$ 
+esther$ ./obs_point 
+
+INFO : viewport O obs_origin = < 0.00000000000000e+00, 0.00000000000000e+00, 0.00000000000000e+00 >
+
+INFO : viewport direction obs_normal = < 0.00000000000000e+00, -7.07106781186548e-01, -7.07106781186548e-01 >
+     : viewport x_prime basis vector = < -1.00000000000000e+00, 0.00000000000000e+00, 0.00000000000000e+00 >
+     : viewport y_prime basis vector = < 0.00000000000000e+00, -7.07106781186548e-01, 7.07106781186548e-01 >
+INFO : initial x' and y' : ( 0.00000000000000e+00, 0.00000000000000e+00 )
 
 
-(gdb) print tiny_delta
-$3 = 3.5527136788005009e-15
-(gdb) x/8xb 0xbffff450
-0xbffff450:     0x00    0x00    0x00    0x00    0x00    0x00    0xf0    0x3c
-(gdb) step
-94          y_prime = 0.0;
-(gdb) print tiny_delta
-$4 = 3.5527136788005009e-15
-(gdb) print   x_prime
-$5 = 2.0000000000000036
-(gdb) print &x_prime
-$6 = (double *) 0xbffff460
+INFO : L obs_point = < 0.00000000000000e+00, 0.00000000000000e+00, 0.00000000000000e+00 >
 
 
-     Looks at the final IEEE754-2008 FP64 binary for 2 + ( 2 ^ ( -48 ) ) 
-
-(gdb) x/8xb 0xbffff460
-0xbffff460:     0x08    0x00    0x00    0x00    0x00    0x00    0x00    0x40
-(gdb) cont 
-Continuing.
-INFO : initial x' and y' : ( 2.0000000000000035527136788005009294e+00, 0.00000000000000e+00 )
-
-INFO : obs_point = < ( 1.200000000000e+01, 0.000000000000e+00 ),
-  ( 2.000000000000e+00, 0.000000000000e+00 ),
-  ( 0.000000000000e+00, 0.000000000000e+00 ) >
+INFO : ray_direct = < 0.00000000000000e+00, -7.07106781186548e-01, -7.07106781186548e-01 >
 
 
----------- in intercept we see roots ----------
-   0 : res[0] = ( 1.2000000000000000000000000000000000e+01, 2.9971092274413536940379102282983048e-07 )
-   1 : res[1] = ( 1.2000000000000000000000000000000000e+01, -2.9971092274413536940379102282983048e-07 )
------------------------------------------------
-INFO : no real solutions
-[Inferior 1 (process 726) exited normally]
-(gdb) quit
-titan$ 
-titan$    0100 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 1000       ^C
-titan$    s100 0000 0000      1. 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 1000    ^C
-titan$     1024 - 1023=1      1.  ......................................................... 2^(-49)    ^C
-titan$ 
-titan$                        2.000000000000000........................................   ( 2 ^ ( -48 ) )^C
-titan$ 
+intercept_cnt = 2
+
+INFO : k_val[0] = ( 2.68328157299975e+00, 0.00000000000000e+00 )
+     : k_val[1] = ( -2.68328157299975e+00, 0.00000000000000e+00 )
+
+DBUG : We have a good intercept point
+INFO : H hit_point = < 0.00000000000000e+00, -1.89736659610103e+00, -1.89736659610103e+00 >
 
 
-That looks correct above. 
+------------------------------------------
+INFO : N gradient = < 0.00000000000000e+00, -9.48683298050514e-01, -1.05409255338946e-01 >
+     : normalized = < 0.00000000000000e+00, -9.93883734673619e-01, -1.10431526074847e-01 >
 
-----------------------------
+INFO : -Ri = < -0.00000000000000e+00, 7.07106781186548e-01, 7.07106781186548e-01 >
+     : dot( N, -Ri ) = -7.80868809443030e-01
+     : theta_i = 2.46685171136624e+00
+     :         = 1.41340191745910e+02 degrees
 
-Sooner or later we have to consider the Raleigh criterion 
 
-https://opentextbc.ca/physicstestbook2/chapter/limits-of-resolution-the-rayleigh-criterion/
+INFO : -Ri X N = < 6.24695047554424e-01, 0.00000000000000e+00, 0.00000000000000e+00 >
+     : this is the plane of incidence tangent
+     : T = < 1.00000000000000e+00, 0.00000000000000e+00, 0.00000000000000e+00 >
+     : Cramer's Method needed from here
 
-The real issue here is that we can not blindly compute the behavior
-of light as if it merely goes in straight lines. Depending on various
-physical factors light behaves strangely near the wavelength limits.
+Left hand 3x3 matrix is :
+    +------------------------+------------------------+------------------------+
+    |                        |                        |                        |
+ T  |  +1.000000000000e+00   |  +0.000000000000e+00   |  +0.000000000000e+00   |
+    |                        |                        |                        |
+    +------------------------+------------------------+------------------------+
+    |                        |                        |                        |
+ N  |  +0.000000000000e+00   |  -9.938837346736e-01   |  -1.104315260748e-01   |
+    |                        |                        |                        |
+    +------------------------+------------------------+------------------------+
+    |                        |                        |                        |
+-Ri |  +0.000000000000e+00   |  +7.071067811865e-01   |  +7.071067811865e-01   |
+    |                        |                        |                        |
+    +------------------------+------------------------+------------------------+
+
+
+DET == ( -6.246950475544e-01, +0.000000000000e+00 )
+
+     : rh_col = +0.000000000000e+00, -7.808688094430e-01, +2.195121951220e-01
+     : result col = < ( +0.00000000000000e+00, +0.00000000000000e+00 ),
+                      ( +8.45078836052216e-01, +0.00000000000000e+00 ),
+                      ( -5.34641712604462e-01, +0.00000000000000e+00 ) >
+
+esther$ 
+
 

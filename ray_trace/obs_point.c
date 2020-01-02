@@ -75,7 +75,8 @@ int main ( int argc, char **argv)
     vec_type obs_point;
 
     /* Test case will be an observation plane at ( 12, 0, 0 ) */
-    cplex_vec_set( &obs_origin, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    /* TODO put this back to the diagram */
+    cplex_vec_set( &obs_origin, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     printf("\nINFO : viewport O obs_origin = ");
     printf("< %-20.14e, %-20.14e, %-20.14e >\n",
@@ -83,7 +84,9 @@ int main ( int argc, char **argv)
 
     /* Observation direction is along negative i_hat basis vector
      * and this becomes the Ri later. */
-    cplex_vec_set( &obs_normal, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    /* TODO put this back to < -1, 0, 0 > */
+    cplex_vec_set( &obs_normal, 0.0, 0.0, ( -1.0 * M_SQRT1_2 ), 0.0, ( -1.0 * M_SQRT1_2 ), 0.0);
+
     printf("\nINFO : viewport direction obs_normal = ");
     printf("< %-20.14e, %-20.14e, %-20.14e >\n",
                       obs_normal.x.r, obs_normal.y.r, obs_normal.z.r );
@@ -91,8 +94,8 @@ int main ( int argc, char **argv)
     /* we arbitrarily choose the x_prime_hat_vec and y_prime_hat_vec */
     /* x_prime_hat_vec is < 0, 1, 0 > */
     /* y_prime_hat_vec is < 0, 0, 1 > */
-    cplex_vec_set( &x_prime_hat_vec, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
-    cplex_vec_set( &y_prime_hat_vec, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    cplex_vec_set( &x_prime_hat_vec, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    cplex_vec_set( &y_prime_hat_vec, 0.0, 0.0, ( -1.0 * M_SQRT1_2 ), 0.0, M_SQRT1_2, 0.0);
 
     printf("     : viewport x_prime basis vector = ");
     printf("< %-20.14e, %-20.14e, %-20.14e >\n",
@@ -107,10 +110,11 @@ int main ( int argc, char **argv)
      *   x_prime = 1.7;
      *   y_prime = -2.0;
      *
+     * TODO : be sure to revise the viewport coordinates
      */
 
-    x_prime = 1.0 / sqrt( 2.0 );
-    y_prime = 1.0 / sqrt( 2.0 ) - pow( 2.0, -16.0 );
+    x_prime = 0.0;
+    y_prime = 0.0;
 
     printf("INFO : initial x' and y' : ( %-20.14e, %-20.14e )\n\n",
                                                     x_prime, y_prime );
@@ -176,20 +180,7 @@ int main ( int argc, char **argv)
     cplex_vec_set( &object_location, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     /* Again the diagrams we used had a=5, b=2 and c=6 */
-    /* cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0); */
-
-
-
-
-
-
-    /* TODO : use a unit test sphere with radius 1 */
-    cplex_vec_set( &semi_major_axi, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0);
-
-
-
-
-
+    cplex_vec_set( &semi_major_axi, 5.0, 0.0, 2.0, 0.0, 6.0, 0.0);
 
     /* Note that the ray direction must be normalized */
     cplex_vec_normalize( &ray_direct, &obs_normal );
