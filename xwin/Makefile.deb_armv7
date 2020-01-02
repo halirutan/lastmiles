@@ -5,7 +5,6 @@ CFLAGS= -I$(IDIR) -std=iso9899:1999 -fno-builtin -g -march=armv7-a \
 	-mtune=cortex-a17 -mfpu=vfpv4-d16 -mstructure-size-boundary=32 \
 	-marm -mtls-dialect=gnu2 -pedantic -mno-sched-prolog -mlittle-endian
 
-
 CPPFLAGS=-D_TS_ERRNO -D_POSIX_PTHREAD_SEMANTICS -D_LARGEFILE64_SOURCE \
 	-D_X_OPEN_SOURCE=600
 
@@ -40,6 +39,9 @@ SRCS = grid.c x_error_handler.c create_gc.c \
 	../complex_vector/cplex_vec_scale.c \
 	../complex_vector/cplex_vec_mag.c \
 	../complex_vector/cplex_vec_normalize.c \
+	../complex_vector/cplex_vec_cross.c \
+	../complex_vector/cplex_cramer.c \
+	../complex_vector/cplex_det.c \
 	../pthread/sysmem.c ../pthread/sysinfo.c
 
 
@@ -68,6 +70,9 @@ OBJS = x_error_handler.o create_gc.o \
 	../complex_vector/cplex_vec_scale.o \
 	../complex_vector/cplex_vec_mag.o \
 	../complex_vector/cplex_vec_normalize.o \
+	../complex_vector/cplex_vec_cross.o \
+	../complex_vector/cplex_cramer.o \
+	../complex_vector/cplex_det.o \
 	../pthread/sysmem.o ../pthread/sysinfo.o
 
 %.o: %.c
@@ -77,4 +82,4 @@ grid: grid.o $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) -L$(LDIR) $(LIBS)
 
 clean:
-	rm -f $(OBJS) grid.o grid numpad numpad.o
+	rm -f $(OBJS) grid.o grid
