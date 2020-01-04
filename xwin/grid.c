@@ -422,7 +422,13 @@ int main(int argc, char*argv[])
     /* fprintf(stdout,"gc2 XSetLineAttributes returns %i\n", retcode1 ); */
     XDrawRectangle(dsp, win2, gc2, 5, 5, 390, 320);
     XSetForeground(dsp, gc2, cyan.pixel);
-    XDrawRectangle(dsp, win2, gc2, 10, 10, 170, 170);
+
+    /* a little window to plot the vbox data into with a 3x3 grid
+     * for each pixel we sample.  This shall be the 64x64 actual
+     * vbox region with room to plot each of the 3x3 samples and
+     * we also need room for the one pixel borders.  This gives
+     * us a 192+2 width and height with an offset at 10,10. */
+    XDrawRectangle(dsp, win2, gc2, 10, 10, 204, 204);
     XSetForeground(dsp, gc2, red.pixel);
 
     /* draw a blue box inside the third window */
@@ -468,7 +474,7 @@ int main(int argc, char*argv[])
     /* fprintf(stdout,"XSetLineAttributes returns %i\n", retcode1 ); */
 
     XSetForeground(dsp, gc, WhitePixel(dsp, screen_num));
-    XSetForeground(dsp, gc2, WhitePixel(dsp, screen_num));
+    XSetForeground(dsp, gc2, green.pixel);
     XSetFont(dsp, gc2, type_font);
     XSetFont(dsp, gc3, type_font);
 
@@ -509,7 +515,6 @@ int main(int argc, char*argv[])
     }
     XFlush(dsp);
 
-    XSetForeground(dsp, gc2, green.pixel);
     /* vertical minor tic marks at every 16th of the interior viewport
      * drawing area */
     for ( j = offset_y + vbox_h; j < ly; j += vbox_h ){
@@ -626,16 +631,6 @@ int main(int argc, char*argv[])
             break;
         }
 
-        /* nice to know but not needed anymore.
-         * This was a display of the coordinats of the raw
-         * mouse event coordinates reference to gc of the main
-         * plot window upper left corner
-         *
-         *   sprintf(buf,"raw  [ %4i , %4i ]  ", mouse_x, mouse_y);
-         *   XSetForeground(dsp, gc2, red.pixel);
-         *   XDrawImageString( dsp, win2, gc2, 20, 180, buf, strlen(buf));
-         */
-
         /* adjustment of one or two pixels */
         mouse_x = mouse_x - 1;
         mouse_y = mouse_y - 2;
@@ -665,11 +660,11 @@ int main(int argc, char*argv[])
                                        invert_mouse_x, invert_mouse_y );
 
                 XSetForeground(dsp, gc2, green.pixel);
-                XDrawImageString( dsp, win2, gc2, 10, 200,
+                XDrawImageString( dsp, win2, gc2, 10, 240,
                                                       buf, strlen(buf));
 
                 sprintf(buf,"fp64( %-10.8e , %-10.8e )", win_x, win_y );
-                XDrawImageString( dsp, win2, gc2, 10, 220,
+                XDrawImageString( dsp, win2, gc2, 10, 260,
                                                       buf, strlen(buf));
 
                 /* a more useful value is the vbox[] coordinates for
@@ -677,7 +672,7 @@ int main(int argc, char*argv[])
                 box_x = ( mouse_x - offset_x ) / vbox_w;
                 box_y = ( eff_height - mouse_y + offset_y ) / vbox_h;
                 sprintf(buf,"box  [ %03i , %03i ]", box_x, box_y );
-                XDrawImageString( dsp, win2, gc2, 10, 240,
+                XDrawImageString( dsp, win2, gc2, 10, 280,
                                                       buf, strlen(buf));
 
 
@@ -703,7 +698,7 @@ int main(int argc, char*argv[])
                                                           win_x, win_y );
 
 
-                XDrawImageString( dsp, win2, gc2, 10, 260,
+                XDrawImageString( dsp, win2, gc2, 10, 300,
                                                        buf, strlen(buf));
 
 
@@ -882,6 +877,10 @@ int main(int argc, char*argv[])
                             }
                             XDrawImageString( dsp, win3, gc3, 10, 230, buf, strlen(buf) );
             
+                            sprintf(buf,"det = zero determinant                         ");
+                            fprintf(stderr,"%s\n",buf);
+                            XDrawImageString( dsp, win3, gc3, 10, 250, buf, strlen(buf) );
+
                             /* At this point there will be no solution using Cramer's
                              * method as the denominator matrix will be determinant
                              * of zero. However geometrically we may say that the
@@ -956,15 +955,21 @@ int main(int argc, char*argv[])
                      * so clear those areas on gc3 */
                     fprintf(stderr,"\n we have no intercept and no surface normal\n");
                     XSetForeground(dsp, gc3, red.pixel);
-                    sprintf(buf, "i = no intercept point                            ");
+                    sprintf(buf,"i = no intercept point                             ");
                     XDrawImageString( dsp, win3, gc3, 10, 150, buf, strlen(buf));
                     sprintf(buf,"^"); /* vector hat hack */
                     XDrawImageString( dsp, win3, gc3, 9, 162, buf, strlen(buf));
-                    sprintf(buf, "N = no possible gradient normal vector            ");
+                    sprintf(buf,"N = no possible gradient normal vector             ");
                     XDrawImageString( dsp, win3, gc3, 10, 170, buf, strlen(buf));
-                    sprintf(buf, "theta_i =                                ");
+                    sprintf(buf,"theta_i = does not exist                 ");
                     XDrawImageString( dsp, win3, gc3, 10, 190, buf, strlen(buf));
                     XDrawImageString( dsp, win3, gc3, 10, 210, buf, strlen(buf));
+                    sprintf(buf,"T = does not exist                                 ");
+                    XDrawImageString( dsp, win3, gc3, 10, 230, buf, strlen(buf));
+                    sprintf(buf,"det =                                               ");
+                    XDrawImageString( dsp, win3, gc3, 10, 250, buf, strlen(buf));
+                    sprintf(buf,"Rr = does not exist                                 ");
+                    XDrawImageString( dsp, win3, gc3, 10, 270, buf, strlen(buf));
                 }
                 clock_gettime( CLOCK_MONOTONIC, &soln_t1 );
 
