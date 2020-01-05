@@ -2,4 +2,11 @@
 Finally try to get the ray trace code to actually trace some data
 and report visual data and then start using threads also. 
 
+Here we just start with the X11 harness that was written in the
+xwin directory and continue onwards wwith some bulk computations
+being done on regions of the viewport. 
+
+We may also implement a mouse scroll wheel event wherein the viewport
+is moved forwards or backwards in the viewport tangent normal direction
+and we really don't know much about the delta distance yet.
 
