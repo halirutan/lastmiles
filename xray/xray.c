@@ -975,6 +975,7 @@ int main(int argc, char*argv[])
 
                 t_delta = timediff( soln_t0, soln_t1 );
                 sprintf(buf,"[soln] = %16lld nsec", t_delta);
+                fprintf(stderr,"%s\n",buf);
                 XSetForeground(dsp, gc3, green.pixel);
                 XDrawImageString( dsp, win3, gc3, 10, 290,
                                   buf, strlen(buf));

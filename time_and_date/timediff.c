@@ -18,14 +18,14 @@
 #include <time.h>
 #include <unistd.h>
 
-int64_t timediff( struct timespec st, struct timespec en )
+uint64_t timediff( struct timespec st, struct timespec en )
 {
     /* return the delta time as a 64-bit positive number of
      * nanoseconds.  Regardless of the time direction between
      * start and end we always get a positive result. */
 
     struct timespec temp;
-    int64_t s, n;
+    uint64_t s, n;
 
     if ( ( en.tv_nsec - st.tv_nsec ) < 0 ) {
         /* make a full second adjustment to tv_sec */
@@ -36,8 +36,8 @@ int64_t timediff( struct timespec st, struct timespec en )
         temp.tv_sec = en.tv_sec - st.tv_sec;
         temp.tv_nsec = en.tv_nsec - st.tv_nsec;
     }
-    s = (int64_t) temp.tv_sec;
-    n = (int64_t) temp.tv_nsec;
-    return ( s * (int64_t)1000000000 + n );
+    s = (uint64_t) temp.tv_sec;
+    n = (uint64_t) temp.tv_nsec;
+    return ( s * (uint64_t)1000000000 + n );
 }
 
