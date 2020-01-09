@@ -1,10 +1,22 @@
 
-
+/*********************************************************************
+ * The Open Group Base Specifications Issue 6
+ * IEEE Std 1003.1, 2004 Edition
+ *
+ *    An XSI-conforming application should ensure that the feature
+ *    test macro _XOPEN_SOURCE is defined with the value 600 before
+ *    inclusion of any header. This is needed to enable the
+ *    functionality described in The _POSIX_C_SOURCE Feature Test
+ *    Macro and in addition to enable the XSI extension.
+ *
+ *********************************************************************/
 #define _XOPEN_SOURCE 600
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <fenv.h>
+#pragma STDC FENV_ACCESS ON
 #include <float.h>
 
 int main()
@@ -18,7 +30,13 @@ int main()
     printf ( "INFO : FLT_EVAL_METHOD == %d\n", FLT_EVAL_METHOD);
 #endif
 
+#ifdef __BSD_VISIBLE
+    printf ( "INFO : __BSD_VISIBLE is defined\n");
+    feenableexcept(FE_ALL_EXCEPT);
+#endif
+
     fp_round_mode = fegetround();
+    printf("DBUG : fp_round_mode = 0x%08x\n", fp_round_mode );
     printf("INFO : fp rounding mode is ");
     switch(fp_round_mode){
         case FE_TONEAREST:
