@@ -7,3 +7,18 @@ Also for fun we print out pi  and e with whatever
 precision we can get up to a billion digits or so.
 
 
+Verification of the billion digits : 
+
+styx$ 
+styx$ cat mit_reference_pi_billion.txt | cut -c-1000000002 | openssl dgst -sha512 -r - 
+d7871999f9a4d34b508ee07e3c66bd6db31a2d181f6b323bdc2df831f5413cfb9f948f3db1e1d5dc3fbd48542cabae54e489b19a08967a8b982d704a2a8e60fd *stdin
+styx$ grep '^pi' mpfr_ver_pi_e_billion.out | cut -c11-1000000012 | openssl dgst -sha512 -r - 
+d7871999f9a4d34b508ee07e3c66bd6db31a2d181f6b323bdc2df831f5413cfb9f948f3db1e1d5dc3fbd48542cabae54e489b19a08967a8b982d704a2a8e60fd *stdin
+styx$ 
+styx$ grep '^may' mpfr_ver_pi_e_billion.out | cut -c8-1000000009 | openssl dgst -sha512 -r - 
+60f735f49c2f22c4d4d559d05242cb38e969eaaaeccf329a6cd05a6e7dd4e39ab8f0024ec81b9d71355af9c4408e3508ada5101aea802169c61c400e8fd76c1f *stdin
+styx$ cat euler_e_decimal.txt | cut -c1-1000000002 | openssl dgst -sha512 -r - 
+60f735f49c2f22c4d4d559d05242cb38e969eaaaeccf329a6cd05a6e7dd4e39ab8f0024ec81b9d71355af9c4408e3508ada5101aea802169c61c400e8fd76c1f *stdin
+styx$ 
+
+
