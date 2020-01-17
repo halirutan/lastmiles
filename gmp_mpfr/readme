@@ -3,22 +3,7 @@
 Trivial bit of code that will print out the current
 gmp and mpfr library versions. 
 
-Also for fun we print out pi with whatever precision
-we can get up to 384 bits or so. 
-
-Also from a billion digits of pi we see the following 
-digit counts : 
-
-    0 99993942
-    1 99997334
-    2 100002410
-    3 99986912
-    4 100011958
-    5 99998885
-    6 100010387
-    7 99996061
-    8 100001839
-    9 100000273
-
+Also for fun we print out pi  and e with whatever
+precision we can get up to a billion digits or so.
 
 

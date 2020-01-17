@@ -1,4 +1,16 @@
 
+/*******************************************************************
+ * The Open Group Base Specifications Issue 6
+ * IEEE Std 1003.1, 2004 Edition
+ *
+ *  An XSI-conforming application should ensure that the feature
+ *  test macro _XOPEN_SOURCE is defined with the value 600 before
+ *  inclusion of any header. This is needed to enable the
+ *  functionality described in The _POSIX_C_SOURCE Feature Test
+ *  Macro and in addition to enable the XSI extension.
+ *******************************************************************/
+#define _XOPEN_SOURCE 600
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -10,7 +22,8 @@ int main(int argc, char *argv[])
 {
 
     int inex = 0;
-    mpfr_t pi_mpfr, atan_pi_mpfr, atan_pi4_mpfr, theta_mpfr, delta_mpfr;
+    mpfr_t pi_mpfr, e_mpfr, one_mpfr, atan_pi_mpfr, atan_pi4_mpfr,
+           theta_mpfr, delta_mpfr;
 
     mpfr_prec_t prec = 113;
 
@@ -46,29 +59,30 @@ int main(int argc, char *argv[])
                                       mpfr_buildopt_tune_case ());
 
     if ( argc > 1 ) {
-        prec = atoi( argv[1] );
+        prec = atol( argv[1] );
         if ( prec < 23 ) {
             fprintf(stderr,"FAIL : IEEE754 minimum is 23 bits.\n");
             return ( EXIT_FAILURE );
-        }
-        if ( prec > 327679 ){
-            fprintf(stderr,"DBUG : madness!! You want 100,000 digits!\n");
-            prec = 327680;
         } else {
-            printf("INFO : you asked for %i bits.\n", prec );
-            if ( prec > 4096 ){
-                fprintf(stderr,"WARN : we shall limit to 384 bits.\n");
-                prec = 4096;
-            }
+            printf("Merry Christmas, you asked for it!\n");
         }
     }
 
-    mpfr_inits2 ( prec, pi_mpfr, theta_mpfr, atan_pi4_mpfr, atan_pi_mpfr, delta_mpfr, (mpfr_ptr*) 0 );
+    mpfr_inits2 ( prec, pi_mpfr, e_mpfr, one_mpfr, (mpfr_ptr*) 0 );
 
     inex = mpfr_const_pi ( pi_mpfr, MPFR_RNDN);
 
-    printf("\nINFO : we are using %i bits of precision.\n", prec );
+    printf("INFO : using %li bits of precision.\n\n", (long)prec );
+
     mpfr_printf ("pi may be %.Re\n\n", pi_mpfr );
+
+    printf("INFO : also Eulers number e\n");
+    inex = mpfr_set_flt ( one_mpfr, 1.0, MPFR_RNDN);
+
+    inex = mpfr_exp ( e_mpfr, one_mpfr, MPFR_RNDN);
+    mpfr_printf ("may be %.Re\n\n", e_mpfr );
+
+    /*
     printf("100 digits of pi is     3.141592653589793238462643383");
     printf("27950288419716939937510582097494459230781640628620899");
     printf("86280348253421170679\n\n\n");
@@ -85,8 +99,9 @@ int main(int argc, char *argv[])
     inex = mpfr_sub (delta_mpfr, pi_mpfr, atan_pi_mpfr, MPFR_RNDN);
     inex = mpfr_abs (delta_mpfr, delta_mpfr, MPFR_RNDN);
     mpfr_printf ("delta( 4 * atan(1) ) - pi = %.Re\n\n", delta_mpfr);
+    */
 
-    mpfr_clears  ( theta_mpfr, atan_pi4_mpfr, atan_pi_mpfr, pi_mpfr, delta_mpfr, (mpfr_ptr*) 0 );
+    mpfr_clears  ( pi_mpfr, e_mpfr, one_mpfr, (mpfr_ptr*) 0 );
     return ( EXIT_SUCCESS );
 
 }
