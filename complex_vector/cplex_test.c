@@ -248,7 +248,6 @@ int main ( int argc, char **argv)
      *
      * see https://www.wolframalpha.com/input/?i=solve+for+x+where+x%5E2+-+5+*+x+%2B+14+%3D+0+
      *
-     *
      * roots should be x = 1/2 * ( 5 +- sqrt(31)*i )
      *
      */
@@ -263,13 +262,13 @@ int main ( int argc, char **argv)
     printf("          result 2 = ( %16.12e, %16.12e )\n\n",
                                           quad_res[1].r, quad_res[1].i);
 
-
+    /*
     printf("DBUG : ***********************************************\n\n");
     printf("DBUG : 20191023141932 traviss catches error here where the\n");
     printf("DBUG : results should be x = 1/2 * ( 5 +- sqrt(31)*i )\n");
     printf("DBUG : ***********************************************\n\n");
-
-
+    */
+    printf("\n\n");
 
     printf("Quadratic 2 * x^2 - 5 * x - 1 = 0\n");
     op1.r = 2.0;  op1.i = 0.0;
@@ -289,7 +288,6 @@ int main ( int argc, char **argv)
     printf("DBUG :           a monkey wrench into the workings\n");
     /* https://www.wolframalpha.com/input/?i=%281%2Bi%29x%5E2-%282%2Bi%29x%2B1%3D0 */
 
-
     printf("Quadratic ( 1 + i ) * x^2 - ( 2 + i ) * x + 1 = 0\n");
     op1.r = 1.0;  op1.i = 1.0;
     op2.r = -2.0; op2.i = -1.0;
@@ -302,8 +300,8 @@ int main ( int argc, char **argv)
                                           quad_res[1].r, quad_res[1].i);
 
 
-
-    printf("\n\nDeterminant stuff follows \n");
+    printf("\n-----------------------------------------------------\n");
+    printf("\nDeterminant stuff follows \n");
 
     /* Determinant of three row matrix */
     v[0].x.r = 1.0; v[0].x.i = 0.0;
@@ -335,7 +333,8 @@ int main ( int argc, char **argv)
     check_status( cplex_det( &opr, &v[0], &v[1], &v[2] ) ); 
     printf("     : det = ( %g, %g )\n", opr.r, opr.i);
 
-    printf("\n\nNew Row data on row1 \n");
+    printf("\n-----------------------------------------------------\n");
+    printf("New Row data on row1 \n");
     v[0].x.r = 10.0; v[0].x.i = 0.0;
     v[0].y.r = -2.0; v[0].y.i = 0.0;
     v[0].z.r = -3.0; v[0].z.i = 0.0;
@@ -355,7 +354,8 @@ int main ( int argc, char **argv)
     check_status( cplex_det( &opr, &v[0], &v[1], &v[2] ) ); 
     printf("     : det = ( %g, %g )\n", opr.r, opr.i);
 
-    printf("\n\nComplex row data in row1 and row 3\n");
+    printf("\n-----------------------------------------------------\n");
+    printf("Complex row data in row1 and row 3\n");
     v[0].x.r = 0.5; v[0].x.i = -1.0;
     printf("dbug : row 1 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
             v[0].x.r, v[0].x.i,
@@ -407,21 +407,20 @@ int main ( int argc, char **argv)
         printf("                      ( %+-16.12e, %+-16.12e ) >\n\n",
                     res_vec.z.r, res_vec.z.i);
     }
-
     printf("\n-----------------------------------------------------\n");
     /* matrix based on test data for the line and plane
      * intercept code. */
-    v[0].x.r =  1.0;     v[0].x.i = 0.0;
-    v[0].y.r =  0.0;     v[0].y.i = 0.0;
-    v[0].z.r = -13.0;    v[0].z.i = 0.0;
+    v[0].x.r = -0.408248290;       v[0].x.i = 0.0;
+    v[0].y.r =  0.0;               v[0].y.i = 0.0;
+    v[0].z.r = -0.963624112;       v[0].z.i = 0.0;
 
-    v[1].x.r = -2.0;     v[1].x.i = 0.0;
-    v[1].y.r = -2.0;     v[1].y.i = 0.0;
-    v[1].z.r = -3.0;     v[1].z.i = 0.0;
+    v[1].x.r =  0.816496581;       v[1].x.i = 0.0;
+    v[1].y.r = -0.554700196;       v[1].y.i = 0.0;
+    v[1].z.r = -0.222374795;       v[1].z.i = 0.0;
 
-    v[2].x.r = -1.0;     v[2].x.i = 0.0;
-    v[2].y.r =  3.0;     v[2].y.i = 0.0;
-    v[2].z.r = -2.0;     v[2].z.i = 0.0;
+    v[2].x.r =  0.408248290;       v[2].x.i = 0.0;
+    v[2].y.r =  0.832050294;       v[2].y.i = 0.0;
+    v[2].z.r = -0.148249863;       v[2].z.i = 0.0;
 
     printf("\n\nNew matrix with line plane intercept data.\n");
     printf("dbug : row 1 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
@@ -442,6 +441,10 @@ int main ( int argc, char **argv)
     check_status( cplex_det( &opr, &v[0], &v[1], &v[2] ) ); 
     printf("     : det = ( %g, %g )\n", opr.r, opr.i);
 
+    /* we need P03 direction vector from P0 on the line to 
+     * P3 in the plane. Thus < 0, 6, 3 > - < 2, 3, -2 >
+     *                    == < -2, 3, 5 >
+     */
     rh_col.x.r = -2.0; rh_col.x.i = 0.0;
     rh_col.y.r =  3.0; rh_col.y.i = 0.0;
     rh_col.z.r =  5.0; rh_col.z.i = 0.0;
