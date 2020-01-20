@@ -374,22 +374,27 @@ int main ( int argc, char **argv)
     check_status( cplex_det( &opr, &v[0], &v[1], &v[2] ) ); 
     printf("     : det = ( %g, %g )\n", opr.r, opr.i);
 
-    /*
-     *
-     *  Solve for A,B,C where
-     *  ( 0.5 - i ) * A  - 2 * B - 3 * C = ( 1 + 0.5i ),
-     *  4 * A + 5 * B + 6 * C = ( 2 + 0.75i ),
-     *  7 * A + ( -2 + 4i ) * B + 9 * C = ( 3 -0.25i ).
-     *
-     */
-    printf("\n\nCramers rule test with existing matrix and\n");
+    printf("\n-----------------------------------------------------\n");
+    printf("Cramers method test where we solve for A,B,C where :\n");
+    printf("    ( 0.5 - i ) * A  - 2 * B - 3 * C = ( 1 + 0.5i ),\n");
+    printf("    4 * A + 5 * B + 6 * C = ( 2 + 0.75i ),\n");
+    printf("    7 * A + ( -2 + 4i ) * B + 9 * C = ( 3 -0.25i ).\n");
+
+    v[0].x.r =  0.5; v[0].x.i = -1.0;
+    v[0].y.r = -2.0; v[0].y.i =  0.0;
+    v[0].z.r = -3.0; v[0].z.i =  0.0;
+
+    v[1].x.r =  4.0; v[1].x.i =  0.0;
+    v[1].y.r =  5.0; v[1].y.i =  0.0;
+    v[1].z.r =  6.0; v[1].z.i =  0.0;
+
+    v[0].x.r =  7.0; v[0].x.i =  0.0;
+    v[0].y.r = -2.0; v[0].y.i =  4.0;
+    v[0].z.r =  9.0; v[0].z.i =  0.0;
+
     rh_col.x.r = 1.0; rh_col.x.i = 0.5;
     rh_col.y.r = 2.0; rh_col.y.i = 0.75;
     rh_col.z.r = 3.0; rh_col.z.i = -0.25;
-    printf("rh_col = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
-        rh_col.x.r, rh_col.x.i,
-        rh_col.y.r, rh_col.y.i,
-        rh_col.z.r, rh_col.z.i);
 
     status = cplex_cramer( &res_vec, &v[0], &v[1], &v[2], &rh_col );
     if ( status != 0 ) {
@@ -400,6 +405,57 @@ int main ( int argc, char **argv)
         printf("                      ( %16.12e, %16.12e ),\n",
                     res_vec.y.r, res_vec.y.i );
         printf("                      ( %16.12e, %16.12e ) >\n\n",
+                    res_vec.z.r, res_vec.z.i);
+    }
+
+    printf("\n-----------------------------------------------------\n");
+    /* matrix based on test data for the line and plane
+     * intercept code. */
+    v[0].x.r =  0.40824829046386301636; v[0].x.i = 0.0;
+    v[0].y.r =  0.0;                    v[0].y.i = 0.0;
+    v[0].z.r = -0.9636241116594315333;  v[0].z.i = 0.0;
+
+    v[1].x.r = -0.81649658092772603273; v[1].x.i = 0.0;
+    v[1].y.r = -0.57563959796522175162; v[1].y.i = 0.0;
+    v[1].z.r = -0.22237479499833035383; v[1].z.i = 0.0;
+
+    v[2].x.r = -0.40824829046386301636; v[2].x.i = 0.0;
+    v[2].y.r =  0.86345939694783262744; v[2].y.i = 0.0;
+    v[2].z.r = -0.14824986333222023588; v[2].z.i = 0.0;
+
+    printf("\n\nNew matrix with line plane intercept data.\n");
+    printf("dbug : row 1 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[0].x.r, v[0].x.i,
+            v[0].y.r, v[0].y.i,
+            v[0].z.r, v[0].z.i );
+
+    printf("     : row 2 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[1].x.r, v[1].x.i,
+            v[1].y.r, v[1].y.i,
+            v[1].z.r, v[1].z.i );
+
+    printf("     : row 3 = < ( %g, %g ), ( %g, %g ), ( %g, %g ) >\n",
+            v[2].x.r, v[2].x.i,
+            v[2].y.r, v[2].y.i,
+            v[2].z.r, v[2].z.i );
+
+    check_status( cplex_det( &opr, &v[0], &v[1], &v[2] ) ); 
+    printf("     : det = ( %g, %g )\n", opr.r, opr.i);
+
+    rh_col.x.r = -2.0; rh_col.x.i = 0.0;
+    rh_col.y.r =  3.0; rh_col.y.i = 0.0;
+    rh_col.z.r =  5.0; rh_col.z.i = 0.0;
+
+    printf("Solve for line plane intercept with Cramers rule.\n");
+    status = cplex_cramer( &res_vec, &v[0], &v[1], &v[2], &rh_col );
+    if ( status != 0 ) {
+        printf("dbug : There is no valid solution.\n");
+    } else {
+        printf("     : result col = < ( %+-16.12e, %+-16.12e ),\n",
+                    res_vec.x.r, res_vec.x.i );
+        printf("                      ( %+-16.12e, %+-16.12e ),\n",
+                    res_vec.y.r, res_vec.y.i );
+        printf("                      ( %+-16.12e, %+-16.12e ) >\n\n",
                     res_vec.z.r, res_vec.z.i);
     }
 
