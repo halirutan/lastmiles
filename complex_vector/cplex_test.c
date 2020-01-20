@@ -388,9 +388,9 @@ int main ( int argc, char **argv)
     v[1].y.r =  5.0; v[1].y.i =  0.0;
     v[1].z.r =  6.0; v[1].z.i =  0.0;
 
-    v[0].x.r =  7.0; v[0].x.i =  0.0;
-    v[0].y.r = -2.0; v[0].y.i =  4.0;
-    v[0].z.r =  9.0; v[0].z.i =  0.0;
+    v[2].x.r =  7.0; v[2].x.i =  0.0;
+    v[2].y.r = -2.0; v[2].y.i =  4.0;
+    v[2].z.r =  9.0; v[2].z.i =  0.0;
 
     rh_col.x.r = 1.0; rh_col.x.i = 0.5;
     rh_col.y.r = 2.0; rh_col.y.i = 0.75;
@@ -400,11 +400,11 @@ int main ( int argc, char **argv)
     if ( status != 0 ) {
         printf("dbug : There is no valid solution.\n");
     } else {
-        printf("     : result col = < ( %16.12e, %16.12e ),\n",
+        printf("     : result col = < ( %+-16.12e, %+-16.12e ),\n",
                     res_vec.x.r, res_vec.x.i );
-        printf("                      ( %16.12e, %16.12e ),\n",
+        printf("                      ( %+-16.12e, %+-16.12e ),\n",
                     res_vec.y.r, res_vec.y.i );
-        printf("                      ( %16.12e, %16.12e ) >\n\n",
+        printf("                      ( %+-16.12e, %+-16.12e ) >\n\n",
                     res_vec.z.r, res_vec.z.i);
     }
 
